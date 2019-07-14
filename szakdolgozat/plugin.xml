@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            id="qwert.views.MyViewPart"
+            name="My FX View"
+            icon="icons/sample.gif"
+            class="szakdolgozat.view.MainView">
+      </view>
+   </extension>
+
+</plugin>
