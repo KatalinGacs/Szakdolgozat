@@ -406,7 +406,13 @@ public class CsoatmeroOptimalizalo {
 		}
 		
 		Szimplex szimplex = new Szimplex(csoSzakaszok.size()*2, csoSzakaszok.size(), data);
-		
+		String[] csoatmerok = new String[csoSzakaszok.size()];
+		for (int i = 0; i < csoSzakaszok.size(); i++ ) {
+			// int n = i - csoSzakaszok.size();???
+			//double viznyom = nearestKey(nyomasEses, kumulaltVizfogyasztas.get(n));
+			//csoatmerok[i] = nyomasEses.get(viznyom).getKey();?nincs getkey metódus https://stackoverflow.com/questions/1383797/java-hashmap-how-to-get-key-from-value
+					
+		}
 		
 		// javítani!
 		return null;
