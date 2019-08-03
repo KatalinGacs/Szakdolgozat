@@ -1,8 +1,7 @@
 package application;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import controller.SprinklerController;
+import controller.SprinklerControllerImpl;
 import javafx.scene.Scene;
 import javafx.scene.canvas.Canvas;
 import javafx.scene.canvas.GraphicsContext;
@@ -21,8 +20,11 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Line;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.bean.Sprinkler;
 
 public class Rajzolo extends VBox {
+	
+	SprinklerController controller = new SprinklerControllerImpl();
 
 	private ToggleButton btn = new ToggleButton("szórófej");
 
@@ -38,7 +40,7 @@ public class Rajzolo extends VBox {
 
 	private GraphicsContext gc;
 
-	private List<SprinklerShape> lista = new ArrayList<SprinklerShape>();
+	//private List<SprinklerShape> lista = new ArrayList<SprinklerShape>();
 
 	private Color sprinklerColor;
 	private double sprinklerRadius;
@@ -270,6 +272,7 @@ public class Rajzolo extends VBox {
 
 			gc.strokeArc(centerX - radius, centerY - radius, radius * 2, radius * 2, startAngle, arcExtent,
 					ArcType.ROUND);
+			controller.addSprinkler(new Sprinkler(radius, arcExtent, centerX, centerY, sprinklerColor));
 			i++;
 		}
 
