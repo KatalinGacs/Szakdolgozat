@@ -3,15 +3,20 @@ package model.bean;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Arc;
+import javafx.scene.shape.Circle;
 
 public class Sprinkler {
-	
-	private SimpleDoubleProperty radius;
-	private SimpleDoubleProperty angle;
-	private SimpleDoubleProperty centerX;
-	private SimpleDoubleProperty centerY;
-	private SimpleStringProperty color;
-	
+
+	private SimpleDoubleProperty radius = new SimpleDoubleProperty();
+	private SimpleDoubleProperty angle = new SimpleDoubleProperty();
+	private SimpleDoubleProperty centerX = new SimpleDoubleProperty();
+	private SimpleDoubleProperty centerY = new SimpleDoubleProperty();
+	private SimpleStringProperty color = new SimpleStringProperty();
+
+	private Circle circle = new Circle();
+	private Arc arc = new Arc();
+
 	public double getRadius() {
 		return radius.get();
 	}
@@ -55,16 +60,29 @@ public class Sprinkler {
 	public Sprinkler() {
 	}
 
-	public Sprinkler(double radius, double angle, double centerX,
-			double centerY, Color color) {
+	public Sprinkler(double radius, double angle, double centerX, double centerY, Color color) {
 		this.radius = new SimpleDoubleProperty(radius);
 		this.angle = new SimpleDoubleProperty(angle);
 		this.centerX = new SimpleDoubleProperty(centerX);
 		this.centerY = new SimpleDoubleProperty(centerY);
 		this.color = new SimpleStringProperty(color.toString());
+
 	}
-	
-	
-	
-	
+
+	public Circle getCircle() {
+		return circle;
+	}
+
+	public void setCircle(Circle circle) {
+		this.circle = circle; 
+	}
+
+	public Arc getArc() {
+		return arc;
+	}
+
+	public void setArc(Arc arc) {
+		this.arc = arc;
+	}
+
 }

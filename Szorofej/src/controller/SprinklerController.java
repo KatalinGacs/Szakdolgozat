@@ -8,4 +8,6 @@ public interface SprinklerController {
 	public void addSprinkler(Sprinkler s);
 	
 	public ObservableList<Sprinkler> listSprinklers();
+	
+	public void deleteSprinkler(Sprinkler s);
 }

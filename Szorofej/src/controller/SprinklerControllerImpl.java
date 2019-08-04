@@ -19,4 +19,10 @@ public class SprinklerControllerImpl implements SprinklerController {
 		return dao.listSprinklers();
 	}
 
+	@Override
+	public void deleteSprinkler(Sprinkler s) {
+		dao.deleteSprinkler(s);
+	}
+	
+
 }

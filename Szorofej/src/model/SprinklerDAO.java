@@ -9,4 +9,6 @@ public interface SprinklerDAO {
 	
 	public ObservableList<Sprinkler> listSprinklers();
 	
+	public void deleteSprinkler(Sprinkler s);
+	
 }
