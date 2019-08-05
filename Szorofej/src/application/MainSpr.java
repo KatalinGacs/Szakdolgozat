@@ -18,6 +18,7 @@ public class MainSpr extends Application {
 	SprinklerTable table = new SprinklerTable();
 	VBox left = new VBox();
 	Button del = new Button("Törlés");
+	Rajzolo rajzolo = new Rajzolo();
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -26,7 +27,7 @@ public class MainSpr extends Application {
 			Scene scene = new Scene(root, 800, 600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
-			root.setCenter(new Rajzolo());
+			root.setCenter(rajzolo);
 
 			left.getChildren().addAll(del, table);
 			del.setOnAction(e -> {
@@ -40,6 +41,11 @@ public class MainSpr extends Application {
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
 			primaryStage.show();
+			
+			scene.setOnKeyPressed(ke -> {
+				rajzolo.escapeHandler(ke);
+			});
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

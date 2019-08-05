@@ -30,7 +30,7 @@ public class Sprinkler {
 	}
 
 	public void setAngle(double angle) {
-		this.angle.set(angle);
+		this.angle.set(Math.abs(angle));
 	}
 
 	public double getCenterX() {

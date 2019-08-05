@@ -4,11 +4,14 @@ import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.scene.Group;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
@@ -37,25 +40,34 @@ public class Rajzolo extends VBox {
 
 	private Color sprinklerColor;
 	private double sprinklerRadius;
+	private boolean sprinklerAttributesSet = false;
 
+	private Alert alert = new Alert(AlertType.WARNING);
+	
 	// segédvonalként
+	// TODO: az kéne, hogy a line követi az egeret az elsõ kattintás után
 	private Line line = new Line();
 	private Circle tempCircle = new Circle(5);
 
 	public Rajzolo() {
-		
+
 		getChildren().add(szorofejbtn);
 
 		canvasPane.setMinWidth(1500);
 		canvasPane.setMinHeight(1500);
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
-		scrollPane.setMinHeight(800);
+		scrollPane.setPrefHeight(600);
+		scrollPane.setMinHeight(USE_COMPUTED_SIZE);
+
 		line.setVisible(false);
 		tempCircle.setVisible(false);
 		canvasPane.getChildren().addAll(group, angleInput, line, tempCircle);
 
 		angleInput.setVisible(false);
+		angleInput.setMinWidth(40);
+		angleInput.setPromptText("Szög");
+
 		getChildren().add(scrollPane);
 
 		canvasPane.setOnMouseClicked(e -> {
@@ -69,7 +81,7 @@ public class Rajzolo extends VBox {
 
 	private static int i = 0;
 	private double centerX = 0, centerY = 0, firstX = 0, firstY = 0, secondX = 0, secondY = 0;
-	double startAngle, radius, arcExtent;
+	double startAngle, arcExtent;
 
 	private void setSprinklerAttributes() {
 		Stage sprinklerInfoStage = new Stage();
@@ -84,11 +96,23 @@ public class Rajzolo extends VBox {
 		root.getChildren().addAll(colorText, colorPicker, radiusText, radiusField, ok);
 
 		ok.setOnAction(e -> {
-			sprinklerColor = colorPicker.getValue();
-			sprinklerRadius = Double.parseDouble(radiusField.getText());
+			if (radiusField.getText().equals("")) {
+				alert.setTitle("Hiba");
+				alert.setContentText("Add meg a szórófej sugarát!");
+				alert.show();
+			} else {
+				try {
+					sprinklerRadius = Double.parseDouble(radiusField.getText());
+					sprinklerAttributesSet = true;
+					sprinklerColor = colorPicker.getValue();
+				} catch (NumberFormatException ex) {
+					alert.setTitle("Hiba");
+					alert.setContentText("Számokban add meg a szórófej sugarát!");
+					alert.show();
+				}
+			}
 			sprinklerInfoStage.close();
 		});
-
 		sprinklerInfoStage.show();
 	}
 
@@ -99,139 +123,149 @@ public class Rajzolo extends VBox {
 		Circle circle = new Circle();
 		Arc arc = new Arc();
 
-		if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 0) {
+		if (sprinklerAttributesSet) {
 
-			centerX = mouseEvent.getX();
-			centerY = mouseEvent.getY();
+			if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 0) {
 
-			tempCircle.setCenterX(centerX);
-			tempCircle.setCenterY(centerY);
-			tempCircle.setStroke(sprinklerColor);
-			tempCircle.setFill(sprinklerColor);
-			
-			tempCircle.setVisible(true);
+				centerX = mouseEvent.getX();
+				centerY = mouseEvent.getY();
 
-			i++;
-		} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 1) {
-			firstX = mouseEvent.getX();
-			firstY = mouseEvent.getY();
+				tempCircle.setCenterX(centerX);
+				tempCircle.setCenterY(centerY);
+				tempCircle.setStroke(sprinklerColor);
+				tempCircle.setFill(sprinklerColor);
+				tempCircle.setVisible(true);
 
-			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX)));
+				i++;
+			} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 1) {
+				firstX = mouseEvent.getX();
+				firstY = mouseEvent.getY();
 
-			line.setStroke(Color.GAINSBORO);
-			line.setStartX(centerX);
-			line.setStartY(centerY);
-			line.setEndX(firstX);
-			line.setEndY(firstY);
-			line.setVisible(true);
+				startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
+				if (centerX < firstX)
+					startAngle -= 180;
 
-			angleInput.setVisible(true);
-			angleInput.setLayoutX(mouseEvent.getX());
-			angleInput.setLayoutY(mouseEvent.getY());
-			angleInput.setMaxWidth(30);
-			angleInput.relocate(centerX, centerY);
-			angleInput.setOnKeyPressed(ke -> {
-				if (ke.getCode().equals(KeyCode.ENTER)) {
-					arcExtent = Double.parseDouble(angleInput.getText());
-					startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX)));
-					if (firstX > centerX)
-						;
-					else
-						startAngle -= 180;
-					radius = sprinklerRadius;
+				line.setStroke(Color.GAINSBORO);
+				line.setStartX(centerX);
+				line.setStartY(centerY);
+				line.setEndX(firstX);
+				line.setEndY(firstY);
+				line.setVisible(true);
 
-					arc.setCenterX(centerX);
-					arc.setCenterY(centerY);
-					arc.setRadiusX(radius);
-					arc.setRadiusY(radius);
-					arc.setStartAngle(startAngle);
-					arc.setLength(arcExtent);
-					arc.setType(ArcType.ROUND);
-					arc.setStroke(sprinklerColor);
-					arc.setFill(Color.TRANSPARENT);
-					
-					circle.setCenterX(centerX);
-					circle.setCenterY(centerY);
-					circle.setRadius(5);
-					circle.setStroke(sprinklerColor);
-					circle.setFill(sprinklerColor);
-					sprinkler.setCircle(circle);
-					group.getChildren().add(sprinkler.getCircle());
-					tempCircle.setVisible(false);
-					
-					sprinkler.setArc(arc);
-					sprinkler.setCenterX(centerX);
-					sprinkler.setCenterY(centerY);
-					sprinkler.setRadius(radius);
-					sprinkler.setAngle(arcExtent);
-					sprinkler.setColor(sprinklerColor);
+				angleInput.setVisible(true);
+				angleInput.setLayoutX(mouseEvent.getX());
+				angleInput.setLayoutY(mouseEvent.getY());
+				angleInput.setMaxWidth(30);
+				angleInput.relocate(centerX, centerY);
+				angleInput.setOnKeyPressed(ke -> {
+					if (ke.getCode().equals(KeyCode.ENTER)) {
+						try {
+							arcExtent = -Double.parseDouble(angleInput.getText());
+						} catch (NumberFormatException ex) {
+							alert.setTitle("Hiba");
+							alert.setContentText("Számokban add meg a szórófej sugarát!");
+							alert.show();
+						}
+						arc.setCenterX(centerX);
+						arc.setCenterY(centerY);
+						arc.setRadiusX(sprinklerRadius);
+						arc.setRadiusY(sprinklerRadius);
+						arc.setStartAngle(startAngle);
+						arc.setLength(-arcExtent);
+						arc.setType(ArcType.ROUND);
+						arc.setStroke(sprinklerColor);
+						arc.setFill(Color.TRANSPARENT);
 
-					group.getChildren().add(sprinkler.getArc());
-					controller.addSprinkler(sprinkler);
+						circle.setCenterX(centerX);
+						circle.setCenterY(centerY);
+						circle.setRadius(5);
+						circle.setStroke(sprinklerColor);
+						circle.setFill(sprinklerColor);
+						sprinkler.setCircle(circle);
+						group.getChildren().add(sprinkler.getCircle());
+						tempCircle.setVisible(false);
+						line.setVisible(false);
 
-					i++;
+						sprinkler.setArc(arc);
+						sprinkler.setCenterX(centerX);
+						sprinkler.setCenterY(centerY);
+						sprinkler.setRadius(sprinklerRadius);
+						sprinkler.setAngle(arcExtent);
+						sprinkler.setColor(sprinklerColor);
 
-					angleInput.setVisible(false);
-					angleInput.setText("");
+						group.getChildren().add(sprinkler.getArc());
+						controller.addSprinkler(sprinkler);
+
+						i++;
+
+						angleInput.setVisible(false);
+						angleInput.setText("");
+					}
+				});
+
+				i++;
+			} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 2) {
+				line.setVisible(false);
+				angleInput.setVisible(false);
+				secondX = mouseEvent.getX();
+				secondY = mouseEvent.getY();
+
+				arcExtent = -Math.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX))) - startAngle;
+
+				if ((secondX > centerX && firstY < centerY && secondY > centerY)
+						|| (firstX < centerX && secondX > centerX)
+						|| (firstX > centerX && secondX > centerX && firstY < secondY)) {
+				} else if (firstX < centerX && secondX < centerX && firstY > secondY) {
+					arcExtent += 180;
+				} else if (firstX > centerX && secondX > centerX && firstY > secondY) {
+					arcExtent -= 360;
+				} else {
+					arcExtent -= 180;
 				}
-			});
 
-			i++;
-		} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 2) {
+				arc.setCenterY(centerY);
+				arc.setCenterX(centerX);
+				arc.setCenterY(centerY);
+				arc.setRadiusX(sprinklerRadius);
+				arc.setRadiusY(sprinklerRadius);
+				arc.setStartAngle(startAngle);
+				arc.setLength(arcExtent);
+				arc.setType(ArcType.ROUND);
+				arc.setStroke(sprinklerColor);
+				arc.setFill(Color.TRANSPARENT);
+				sprinkler.setArc(arc);
+
+				group.getChildren().add(sprinkler.getArc());
+
+				circle.setCenterX(centerX);
+				circle.setCenterY(centerY);
+				circle.setRadius(5);
+				circle.setStroke(sprinklerColor);
+				circle.setFill(sprinklerColor);
+				sprinkler.setCircle(circle);
+				group.getChildren().add(sprinkler.getCircle());
+				tempCircle.setVisible(false);
+
+				sprinkler.setCenterX(centerX);
+				sprinkler.setCenterY(centerY);
+				sprinkler.setRadius(sprinklerRadius);
+				sprinkler.setAngle(arcExtent);
+				sprinkler.setColor(sprinklerColor);
+
+				controller.addSprinkler(sprinkler);
+				i++;
+			}
+		}
+	}
+
+	public void escapeHandler(KeyEvent ke) {
+		if (ke.getCode().equals(KeyCode.ESCAPE)) {
+			i = 0;
 			line.setVisible(false);
-			angleInput.setVisible(false);
-			secondX = mouseEvent.getX();
-			secondY = mouseEvent.getY();
-
-			if (firstX > centerX)
-				System.out.println("jó?");
-			else
-				startAngle -= 180;
-
-			radius = sprinklerRadius;
-			arcExtent = -Math.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX)));
-			if (secondX > centerX) {
-				arcExtent -= startAngle;
-
-			} else if (firstX < centerX && secondX > centerX) {
-				arcExtent = 360 - arcExtent;
-			}
-
-			else {
-				arcExtent = arcExtent - startAngle - 180;
-
-			}
-			arc.setCenterY(centerY);
-			arc.setCenterX(centerX);
-			arc.setCenterY(centerY);
-			arc.setRadiusX(radius);
-			arc.setRadiusY(radius);
-			arc.setStartAngle(startAngle);
-			arc.setLength(arcExtent);
-			arc.setType(ArcType.ROUND);
-			arc.setStroke(sprinklerColor);
-			arc.setFill(Color.TRANSPARENT);
-			sprinkler.setArc(arc);
-
-			group.getChildren().add(sprinkler.getArc());
-
-			circle.setCenterX(centerX);
-			circle.setCenterY(centerY);
-			circle.setRadius(5);
-			circle.setStroke(sprinklerColor);
-			circle.setFill(sprinklerColor);
-			sprinkler.setCircle(circle);
-			group.getChildren().add(sprinkler.getCircle());
 			tempCircle.setVisible(false);
-			
-			sprinkler.setCenterX(centerX);
-			sprinkler.setCenterY(centerY);
-			sprinkler.setRadius(radius);
-			sprinkler.setAngle(arcExtent);
-			sprinkler.setColor(sprinklerColor);
-
-			controller.addSprinkler(sprinkler);
-			i++;
+			angleInput.setVisible(false);
+			angleInput.setText("");
+			sprinklerAttributesSet = false;
 		}
 	}
 
