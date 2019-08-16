@@ -33,18 +33,15 @@ public class MainSpr extends Application {
 			del.setOnAction(e -> {
 				ObservableList<Sprinkler> toBeDeleted = table.getSelectionModel().getSelectedItems();
 				for (Sprinkler s : toBeDeleted) {
-					Rajzolo.group.getChildren().remove(s.getArc());
-					Rajzolo.group.getChildren().remove(s.getCircle());
+					CanvasPane.group.getChildren().remove(s.getArc());
+					CanvasPane.group.getChildren().remove(s.getCircle());
 					controller.deleteSprinkler(s);
 				}
 			});
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
 			primaryStage.show();
-			
-			scene.setOnKeyPressed(ke -> {
-				rajzolo.escapeHandler(ke);
-			});
+	
 			
 		} catch (Exception e) {
 			e.printStackTrace();
