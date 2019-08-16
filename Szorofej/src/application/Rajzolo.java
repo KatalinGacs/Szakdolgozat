@@ -2,20 +2,18 @@ package application;
 
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.geometry.Point2D;
+import javafx.scene.Cursor;
 import javafx.scene.Group;
 import javafx.scene.Scene;
-import javafx.scene.control.Alert;
-import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.ScrollPane;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.HBox;
-import javafx.scene.layout.Pane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
@@ -32,8 +30,8 @@ public class Rajzolo extends VBox {
 
 	private Button szorofejbtn = new Button("Szórófej kiválasztása");
 
-	private Pane canvasPane = new Pane();
-	private ScrollPane scrollPane = new ScrollPane(canvasPane);
+	private CanvasPane canvasPane = new CanvasPane();
+	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
 	protected static Group group = new Group();
 
 	private TextField angleInput = new TextField();
@@ -42,19 +40,17 @@ public class Rajzolo extends VBox {
 	private double sprinklerRadius;
 	private boolean sprinklerAttributesSet = false;
 
-	private Alert alert = new Alert(AlertType.WARNING);
-	
 	// segédvonalként
-	// TODO: az kéne, hogy a line követi az egeret az elsõ kattintás után
 	private Line line = new Line();
+	private Line tempLine = new Line();
 	private Circle tempCircle = new Circle(5);
+
+	private KeyCode pressedKey;
 
 	public Rajzolo() {
 
 		getChildren().add(szorofejbtn);
 
-		canvasPane.setMinWidth(1500);
-		canvasPane.setMinHeight(1500);
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
 		scrollPane.setPrefHeight(600);
@@ -62,7 +58,7 @@ public class Rajzolo extends VBox {
 
 		line.setVisible(false);
 		tempCircle.setVisible(false);
-		canvasPane.getChildren().addAll(group, angleInput, line, tempCircle);
+		canvasPane.getChildren().addAll(group, angleInput, line, tempLine, tempCircle);
 
 		angleInput.setVisible(false);
 		angleInput.setMinWidth(40);
@@ -72,6 +68,22 @@ public class Rajzolo extends VBox {
 
 		canvasPane.setOnMouseClicked(e -> {
 			drawNewSprinkler(e);
+		});
+
+		canvasPane.setOnMouseMoved(e -> {
+			showTempLine(e);
+		});
+
+		canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+			pressedKey = e.getCode();
+			if (pressedKey == KeyCode.CONTROL) {
+				setCursor(Cursor.CROSSHAIR);
+			}
+		});
+
+		canvasPane.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+			pressedKey = null;
+			setCursor(Cursor.DEFAULT);
 		});
 
 		szorofejbtn.setOnAction(e -> {
@@ -96,24 +108,22 @@ public class Rajzolo extends VBox {
 		root.getChildren().addAll(colorText, colorPicker, radiusText, radiusField, ok);
 
 		ok.setOnAction(e -> {
-			if (radiusField.getText().equals("")) {
-				alert.setTitle("Hiba");
-				alert.setContentText("Add meg a szórófej sugarát!");
-				alert.show();
+			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
+				Common.showAlert("Add meg a szórófej sugarát!");
 			} else {
 				try {
 					sprinklerRadius = Double.parseDouble(radiusField.getText());
 					sprinklerAttributesSet = true;
 					sprinklerColor = colorPicker.getValue();
+					canvasPane.requestFocus();
 				} catch (NumberFormatException ex) {
-					alert.setTitle("Hiba");
-					alert.setContentText("Számokban add meg a szórófej sugarát!");
-					alert.show();
+					Common.showAlert("Számokban add meg a szórófej sugarát!");
 				}
 			}
 			sprinklerInfoStage.close();
 		});
 		sprinklerInfoStage.show();
+
 	}
 
 	private void drawNewSprinkler(MouseEvent mouseEvent) {
@@ -122,6 +132,9 @@ public class Rajzolo extends VBox {
 
 		Circle circle = new Circle();
 		Arc arc = new Arc();
+		arc.setType(ArcType.ROUND);
+		arc.setStroke(sprinklerColor);
+		arc.setFill(Color.TRANSPARENT);
 
 		if (sprinklerAttributesSet) {
 
@@ -130,12 +143,18 @@ public class Rajzolo extends VBox {
 				centerX = mouseEvent.getX();
 				centerY = mouseEvent.getY();
 
+				if (pressedKey == KeyCode.CONTROL) {
+					Point2D center = Common.snapToGrid(new Point2D(centerX, centerY));
+					centerX = center.getX();
+					centerY = center.getY();
+
+				}
+
 				tempCircle.setCenterX(centerX);
 				tempCircle.setCenterY(centerY);
 				tempCircle.setStroke(sprinklerColor);
 				tempCircle.setFill(sprinklerColor);
 				tempCircle.setVisible(true);
-
 				i++;
 			} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 1) {
 				firstX = mouseEvent.getX();
@@ -145,13 +164,6 @@ public class Rajzolo extends VBox {
 				if (centerX < firstX)
 					startAngle -= 180;
 
-				line.setStroke(Color.GAINSBORO);
-				line.setStartX(centerX);
-				line.setStartY(centerY);
-				line.setEndX(firstX);
-				line.setEndY(firstY);
-				line.setVisible(true);
-
 				angleInput.setVisible(true);
 				angleInput.setLayoutX(mouseEvent.getX());
 				angleInput.setLayoutY(mouseEvent.getY());
@@ -159,53 +171,55 @@ public class Rajzolo extends VBox {
 				angleInput.relocate(centerX, centerY);
 				angleInput.setOnKeyPressed(ke -> {
 					if (ke.getCode().equals(KeyCode.ENTER)) {
-						try {
-							arcExtent = -Double.parseDouble(angleInput.getText());
-						} catch (NumberFormatException ex) {
-							alert.setTitle("Hiba");
-							alert.setContentText("Számokban add meg a szórófej sugarát!");
-							alert.show();
-						}
-						arc.setCenterX(centerX);
-						arc.setCenterY(centerY);
-						arc.setRadiusX(sprinklerRadius);
-						arc.setRadiusY(sprinklerRadius);
-						arc.setStartAngle(startAngle);
-						arc.setLength(-arcExtent);
-						arc.setType(ArcType.ROUND);
-						arc.setStroke(sprinklerColor);
-						arc.setFill(Color.TRANSPARENT);
+						if (angleInput.getText() == null && angleInput.getText().trim().isEmpty()) {
+							Common.showAlert("Add meg a szórófej szögét!");
+						} else
+							try {
+								arcExtent = -Double.parseDouble(angleInput.getText());
 
-						circle.setCenterX(centerX);
-						circle.setCenterY(centerY);
-						circle.setRadius(5);
-						circle.setStroke(sprinklerColor);
-						circle.setFill(sprinklerColor);
-						sprinkler.setCircle(circle);
-						group.getChildren().add(sprinkler.getCircle());
-						tempCircle.setVisible(false);
-						line.setVisible(false);
+								arc.setCenterX(centerX);
+								arc.setCenterY(centerY);
+								arc.setRadiusX(sprinklerRadius);
+								arc.setRadiusY(sprinklerRadius);
+								arc.setStartAngle(startAngle);
+								arc.setLength(-arcExtent);
 
-						sprinkler.setArc(arc);
-						sprinkler.setCenterX(centerX);
-						sprinkler.setCenterY(centerY);
-						sprinkler.setRadius(sprinklerRadius);
-						sprinkler.setAngle(arcExtent);
-						sprinkler.setColor(sprinklerColor);
+								circle.setCenterX(centerX);
+								circle.setCenterY(centerY);
+								circle.setRadius(5);
+								circle.setStroke(sprinklerColor);
+								circle.setFill(sprinklerColor);
+								sprinkler.setCircle(circle);
+								group.getChildren().add(sprinkler.getCircle());
+								tempCircle.setVisible(false);
 
-						group.getChildren().add(sprinkler.getArc());
-						controller.addSprinkler(sprinkler);
+								sprinkler.setArc(arc);
+								sprinkler.setCenterX(centerX);
+								sprinkler.setCenterY(centerY);
+								sprinkler.setRadius(sprinklerRadius);
+								sprinkler.setAngle(arcExtent);
+								sprinkler.setColor(sprinklerColor);
 
-						i++;
+								group.getChildren().add(sprinkler.getArc());
+								controller.addSprinkler(sprinkler);
 
-						angleInput.setVisible(false);
-						angleInput.setText("");
+								i++;
+
+								angleInput.setVisible(false);
+								angleInput.setText("");
+								canvasPane.requestFocus();
+
+							} catch (NumberFormatException ex) {
+								Common.showAlert("Számokban add meg a szórófej sugarát!");
+
+							}
+
 					}
 				});
 
 				i++;
 			} else if (mouseEvent.getButton() == MouseButton.PRIMARY && i % 3 == 2) {
-				line.setVisible(false);
+
 				angleInput.setVisible(false);
 				secondX = mouseEvent.getX();
 				secondY = mouseEvent.getY();
@@ -230,9 +244,6 @@ public class Rajzolo extends VBox {
 				arc.setRadiusY(sprinklerRadius);
 				arc.setStartAngle(startAngle);
 				arc.setLength(arcExtent);
-				arc.setType(ArcType.ROUND);
-				arc.setStroke(sprinklerColor);
-				arc.setFill(Color.TRANSPARENT);
 				sprinkler.setArc(arc);
 
 				group.getChildren().add(sprinkler.getArc());
@@ -255,6 +266,39 @@ public class Rajzolo extends VBox {
 				controller.addSprinkler(sprinkler);
 				i++;
 			}
+		}
+
+	}
+
+	private void showTempLine(MouseEvent mouseEvent) {
+		if (sprinklerAttributesSet) {
+
+			line.setStroke(Color.GAINSBORO);
+			tempLine.setStroke(Color.GAINSBORO);
+
+			if (i % 3 == 0) {
+				line.setVisible(false);
+				tempLine.setVisible(false);
+			} else if (i % 3 == 1) {
+				line.setStartX(centerX);
+				line.setStartY(centerY);
+				line.setEndX(mouseEvent.getX());
+				line.setEndY(mouseEvent.getY());
+				line.setVisible(true);
+				tempLine.setVisible(false);
+			} else if (i % 3 == 2) {
+				tempLine.setStartX(centerX);
+				tempLine.setStartY(centerY);
+				tempLine.setEndX(firstX);
+				tempLine.setEndY(firstY);
+				tempLine.setVisible(true);
+				line.setStartX(centerX);
+				line.setStartY(centerY);
+				line.setEndX(mouseEvent.getX());
+				line.setEndY(mouseEvent.getY());
+				line.setVisible(true);
+			}
+
 		}
 	}
 
