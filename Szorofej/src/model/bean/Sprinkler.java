@@ -22,7 +22,7 @@ public class Sprinkler {
 	}
 
 	public void setRadius(double radius) {
-		this.radius.set(radius);
+		this.radius.set(radius/50);
 	}
 
 	public double getAngle() {
@@ -61,7 +61,7 @@ public class Sprinkler {
 	}
 
 	public Sprinkler(double radius, double angle, double centerX, double centerY, Color color) {
-		this.radius = new SimpleDoubleProperty(radius);
+		this.radius = new SimpleDoubleProperty(radius/50);
 		this.angle = new SimpleDoubleProperty(angle);
 		this.centerX = new SimpleDoubleProperty(centerX);
 		this.centerY = new SimpleDoubleProperty(centerY);
