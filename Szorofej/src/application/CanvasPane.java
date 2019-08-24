@@ -1,5 +1,8 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
@@ -8,8 +11,6 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -17,54 +18,40 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Rectangle;
 import model.bean.Sprinkler;
 
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
 
-	private KeyCode pressedKey;
+	protected KeyCode pressedKey;
+
+	private double borderX, borderY;
 
 	private double centerX = 0, centerY = 0, firstX = 0, firstY = 0, secondX = 0, secondY = 0;
 	double startAngle, arcExtent;
-	private Color sprinklerColor;
-	private double sprinklerRadius;
-	private boolean sprinklerAttributesSet = false;
+	protected Color sprinklerColor;
+	protected double sprinklerRadius;
+	protected boolean sprinklerAttributesSet = false;
 	private TextField angleInput = new TextField();
 	protected static Group group = new Group();
 
 	// segédvonalként
 	private Line line = new Line();
 	private Line tempLine = new Line();
-	private Circle tempCircle = new Circle(5);
+	private Circle tempSprinklerCircle = new Circle(5);
 	private Circle focusCircle = new Circle(7);
+
+	private Rectangle tempRectangle = new Rectangle();
+	private Circle tempCircle = new Circle();
+	protected boolean borderDrawingOn = false;
 
 	private static int i = 0;
 
-	public Color getSprinklerColor() {
-		return sprinklerColor;
-	}
-
-	public void setSprinklerColor(Color sprinklerColor) {
-		this.sprinklerColor = sprinklerColor;
-	}
-
-	public double getSprinklerRadius() {
-		return sprinklerRadius;
-	}
-
-	public void setSprinklerRadius(double sprinklerRadius) {
-		this.sprinklerRadius = sprinklerRadius;
-	}
-
-	public boolean isSprinklerAttributesSet() {
-		return sprinklerAttributesSet;
-	}
-
-	public void setSprinklerAttributesSet(boolean sprinklerAttributesSet) {
-		this.sprinklerAttributesSet = sprinklerAttributesSet;
-	}
-
+	protected List<Polyline> lines = new ArrayList<Polyline>();
+	
 	public CanvasPane() {
 
 		setWidth(1500);
@@ -83,6 +70,8 @@ public class CanvasPane extends Pane {
 		}
 
 		line.setVisible(false);
+		tempSprinklerCircle.setVisible(false);
+		tempRectangle.setVisible(false);
 		tempCircle.setVisible(false);
 		focusCircle.setVisible(false);
 		focusCircle.setStroke(Color.SILVER);
@@ -92,73 +81,32 @@ public class CanvasPane extends Pane {
 		angleInput.setMinWidth(40);
 		angleInput.setPromptText("Szög");
 
-		getChildren().addAll(group, angleInput, line, tempLine, tempCircle, focusCircle);
-
-		setOnMouseClicked(e -> {
-			if (sprinklerAttributesSet && e.getButton() == MouseButton.PRIMARY) {
-				drawNewSprinkler(e);
-			} else
-				selectElement(e);
-			requestFocus();
-		});
-
-		setOnMouseMoved(e -> {
-			if (pressedKey != null && pressedKey.equals(KeyCode.CONTROL)) {
-
-				if ((e.getX() % 50 < 10 || e.getX() > 40) && (e.getY() % 50 < 10 || e.getY() > 40)) {
-					setCursor(Cursor.CROSSHAIR);
-					Point2D focusCenter = Common.snapToGrid(new Point2D(e.getX(), e.getY()));
-					focusCircle.setCenterX(focusCenter.getX());
-					focusCircle.setCenterY(focusCenter.getY());
-					focusCircle.setVisible(true);
-				} else
-					focusCircle.setVisible(false);
-			} else
-				focusCircle.setVisible(false);
-			showTempLine(e);
-		});
-
-		addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-			pressedKey = e.getCode();
-			if (pressedKey.equals(KeyCode.CONTROL)) {
-
-			} else if (pressedKey.equals(KeyCode.ESCAPE)) {
-				i = 0;
-				line.setVisible(false);
-				tempCircle.setVisible(false);
-				angleInput.setVisible(false);
-				angleInput.setText("");
-				sprinklerAttributesSet = false;
-			}
-		});
-
-		addEventFilter(KeyEvent.KEY_RELEASED, e -> {
-			pressedKey = null;
-			setCursor(Cursor.DEFAULT);
-		});
+		getChildren().addAll(group, angleInput, line, tempLine, tempSprinklerCircle, tempRectangle, tempCircle,
+				focusCircle);
 
 	}
 
-	private void selectElement(MouseEvent e) {
+	protected void selectElement(MouseEvent e) {
 		for (Node node : getChildren()) {
 			if (node instanceof javafx.scene.shape.Circle) {
 				if (node.contains(e.getX(), e.getY())) {
-					System.out.println("kijelöltük");
 					double centerx = ((javafx.scene.shape.Circle) node).getCenterX();
 					double centery = ((javafx.scene.shape.Circle) node).getCenterY();
-					
+					// TODO ennek még nincs értelme, de mondjuk lehetne kijelölés + del lenyomása az
+					// adott elem törlése
 					for (Sprinkler s : controller.listSprinklers()) {
 						if (s.getCenterX() == centerx && s.getCenterY() == centery) {
 							s.getCircle().setFill(Color.LAWNGREEN);
+							s.getArc().setFill(Color.LAWNGREEN);
 						}
 					}
-					
+
 				}
 			}
 		}
 	}
 
-	private void drawNewSprinkler(MouseEvent mouseEvent) {
+	protected void drawNewSprinkler(MouseEvent mouseEvent) {
 
 		Sprinkler sprinkler = new Sprinkler();
 
@@ -176,18 +124,25 @@ public class CanvasPane extends Pane {
 			if (pressedKey == KeyCode.CONTROL) {
 				if ((mouseEvent.getX() % 50 < 10 || mouseEvent.getX() > 40)
 						&& (mouseEvent.getY() % 50 < 10 || mouseEvent.getY() > 40)) {
-					Point2D center = Common.snapToGrid(new Point2D(centerX, centerY));
+					Point2D center = Common.snapToGrid(centerX, centerY);
 					centerX = center.getX();
 					centerY = center.getY();
 				}
-
 			}
+			else if (pressedKey == KeyCode.SHIFT) {
+				for (Polyline line : lines) {
+					for (int i = 0; i < line.getPoints().size()/2; i +=2) {
+						
+					}
+				}
+			}
+			
 
-			tempCircle.setCenterX(centerX);
-			tempCircle.setCenterY(centerY);
-			tempCircle.setStroke(sprinklerColor);
-			tempCircle.setFill(sprinklerColor);
-			tempCircle.setVisible(true);
+			tempSprinklerCircle.setCenterX(centerX);
+			tempSprinklerCircle.setCenterY(centerY);
+			tempSprinklerCircle.setStroke(sprinklerColor);
+			tempSprinklerCircle.setFill(sprinklerColor);
+			tempSprinklerCircle.setVisible(true);
 			i++;
 		} else if (i % 3 == 1) {
 			firstX = mouseEvent.getX();
@@ -224,7 +179,7 @@ public class CanvasPane extends Pane {
 							circle.setFill(sprinklerColor);
 							sprinkler.setCircle(circle);
 							group.getChildren().add(sprinkler.getCircle());
-							tempCircle.setVisible(false);
+							tempSprinklerCircle.setVisible(false);
 
 							sprinkler.setArc(arc);
 							sprinkler.setCenterX(centerX);
@@ -286,7 +241,7 @@ public class CanvasPane extends Pane {
 			circle.setFill(sprinklerColor);
 			sprinkler.setCircle(circle);
 			group.getChildren().add(sprinkler.getCircle());
-			tempCircle.setVisible(false);
+			tempSprinklerCircle.setVisible(false);
 
 			sprinkler.setCenterX(centerX);
 			sprinkler.setCenterY(centerY);
@@ -300,7 +255,7 @@ public class CanvasPane extends Pane {
 	}
 
 	private void showTempLine(MouseEvent mouseEvent) {
-		if (sprinklerAttributesSet) {
+		if (sprinklerAttributesSet && !borderDrawingOn) {
 
 			line.setStroke(Color.GAINSBORO);
 			tempLine.setStroke(Color.GAINSBORO);
@@ -329,6 +284,95 @@ public class CanvasPane extends Pane {
 			}
 
 		}
+	}
+
+	
+	public void drawBorderline(MouseEvent e, Polyline line, Color color) {
+		tempLine.setStartX(line.getPoints().get(line.getPoints().size() - 2));
+		tempLine.setStartY(line.getPoints().get(line.getPoints().size() - 1));
+		tempLine.setEndX(e.getX());
+		tempLine.setEndY(e.getY());
+		tempLine.setStroke(color);
+		tempLine.setVisible(true);
+	}
+	
+
+	public void showtempRectanlge(MouseEvent e, Color color) {
+
+		double width = Math.abs(borderX - e.getX());
+		double height = Math.abs(borderY - e.getY());
+		double x = 0, y = 0;
+		if (borderX > e.getX())
+			x = e.getX();
+		else
+			x = borderX;
+		if (borderY > e.getY())
+			y = e.getY();
+		else
+			y = borderY;
+		tempRectangle.setX(x);
+		tempRectangle.setY(y);
+		tempRectangle.setWidth(width);
+		tempRectangle.setHeight(height);
+
+		tempRectangle.setStroke(color);
+		tempRectangle.setFill(Color.TRANSPARENT);
+
+		tempRectangle.setVisible(true);
+
+	}
+
+	public void drawBorderRectanlge(MouseEvent e, Color color) {
+		Rectangle rect = Common.drawRectangle(color, borderX, borderY, e.getX(), e.getY());
+		group.getChildren().add(rect);
+		// TODO eltárolni
+	}
+
+	public void showTempCircle(MouseEvent e, Color color) {
+		double r = Math.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
+		tempCircle.setCenterX(borderX);
+		tempCircle.setCenterY(borderY);
+		tempCircle.setRadius(r);
+		tempCircle.setFill(Color.TRANSPARENT);
+		tempCircle.setStroke(color);
+		tempCircle.setVisible(true);
+	}
+
+	public void drawBorderCircle(MouseEvent e, Color color) {
+		double r = Math.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
+		Circle circle = new Circle(borderX, borderY, r, Color.TRANSPARENT);
+		circle.setStroke(color);
+		group.getChildren().add(circle);
+		// TODO eltárolni
+	}
+
+	public void startDrawingBorder(MouseEvent e) {
+		borderX = e.getX();
+		borderY = e.getY();
+	}
+
+	public void endSprinklerDrawing() {
+		i = 0;
+		line.setVisible(false);
+		tempSprinklerCircle.setVisible(false);
+		angleInput.setVisible(false);
+		angleInput.setText("");
+		sprinklerAttributesSet = false;
+	}
+
+	public void showFocusCircle(MouseEvent e) {
+		if (pressedKey != null && pressedKey.equals(KeyCode.CONTROL)) {
+			if ((e.getX() % 50 < 10 || e.getX() > 40) && (e.getY() % 50 < 10 || e.getY() > 40)) {
+				setCursor(Cursor.CROSSHAIR);
+				Point2D focusCenter = Common.snapToGrid(e.getX(), e.getY());
+				focusCircle.setCenterX(focusCenter.getX());
+				focusCircle.setCenterY(focusCenter.getY());
+				focusCircle.setVisible(true);
+			} else
+				focusCircle.setVisible(false);
+		} else
+			focusCircle.setVisible(false);
+		showTempLine(e);
 	}
 
 }
