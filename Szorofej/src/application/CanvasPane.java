@@ -9,11 +9,11 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
@@ -23,6 +23,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import model.bean.Sprinkler;
 
 public class CanvasPane extends Pane {
@@ -55,14 +56,19 @@ public class CanvasPane extends Pane {
 	private static int i = 0;
 
 	protected List<Polyline> borderLines = new ArrayList<Polyline>();
-	protected List<Rectangle> borderRectangles = new ArrayList<Rectangle>();
-	protected List<Circle> borderCircles = new ArrayList<Circle>();
+	protected List<Shape> borderShape = new ArrayList<Shape>();
+
+	private ContextMenu delMenu = new ContextMenu();
+	private MenuItem delMenuItem = new MenuItem("Törlés");
 
 	public CanvasPane() {
 
 		setWidth(1500);
 		setHeight(1500);
 
+		// Grid
+		// TODO: javítani azt, hogy ha késõbb a meglévõ területen kívülre rajzolok, azon
+		// már nem lesz rajta ez a rács
 		for (int i = 0; i < (int) getWidth(); i += 50) {
 			Line line = new Line(0, i, getHeight(), i);
 			line.setStroke(Color.SILVER);
@@ -87,30 +93,41 @@ public class CanvasPane extends Pane {
 		angleInput.setMinWidth(40);
 		angleInput.setPromptText("Szög");
 
-		getChildren().addAll(group, angleInput, line, tempLine, tempBorderLine, tempSprinklerCircle, tempRectangle, tempCircle,
-				focusCircle);
+		delMenu.getItems().add(delMenuItem);
+
+		getChildren().addAll(group, angleInput, line, tempLine, tempBorderLine, tempSprinklerCircle, tempRectangle,
+				tempCircle, focusCircle);
 
 	}
 
+	// Elemek kijelölése, most csak törlésre használható, de ezzel lehetne az adott
+	// elemrõl infókat kilistázni
 	protected void selectElement(MouseEvent e) {
-		
 		for (Sprinkler s : controller.listSprinklers()) {
-
-				if (s.getCircle().contains(e.getX(), e.getY())) {
-				
-							ContextMenu delMenu = new ContextMenu();
-							MenuItem delMenuItem = new MenuItem("Törlés");
-							delMenu.getItems().add(delMenuItem);
-							delMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
-							delMenuItem.setOnAction(ev-> {
-								controller.deleteSprinkler(s);
-								group.getChildren().removeAll(s.getArc(), s.getCircle());
-								ev.consume();
-							});
-						}
-					
-				
-			
+			if (s.getCircle().contains(e.getX(), e.getY())) {
+				delMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
+				delMenuItem.setOnAction(ev -> {
+					controller.deleteSprinkler(s);
+					group.getChildren().removeAll(s.getArc(), s.getCircle());
+					ev.consume();
+				});
+			}
+		}
+		for (Shape border : borderShape) {
+			if (border.contains(e.getX(), e.getY())) {
+				delMenu.show(border, e.getScreenX(), e.getScreenY());
+				delMenuItem.setOnAction(ev -> {
+					if (border instanceof Polyline) {
+						borderLines.remove(border);
+					}
+					borderShape.remove(border);
+					group.getChildren().remove(border);
+					tempBorderLine.setVisible(false);
+					tempRectangle.setVisible(false);
+					tempCircle.setVisible(false);
+					ev.consume();
+				});
+			}
 		}
 	}
 
@@ -288,7 +305,7 @@ public class CanvasPane extends Pane {
 
 	public void drawBorderline(MouseEvent e, Polyline line, Color color) {
 		if (!line.getPoints().isEmpty()) {
-			
+
 			tempBorderLine.setStartX(line.getPoints().get(line.getPoints().size() - 2));
 			tempBorderLine.setStartY(line.getPoints().get(line.getPoints().size() - 1));
 			tempBorderLine.setEndX(e.getX());
@@ -299,55 +316,60 @@ public class CanvasPane extends Pane {
 	}
 
 	public void showtempRectanlge(MouseEvent e, Color color) {
+		if (e.getButton() == MouseButton.PRIMARY) {
+			double width = Math.abs(borderX - e.getX());
+			double height = Math.abs(borderY - e.getY());
+			double x = 0, y = 0;
+			if (borderX > e.getX())
+				x = e.getX();
+			else
+				x = borderX;
+			if (borderY > e.getY())
+				y = e.getY();
+			else
+				y = borderY;
+			tempRectangle.setX(x);
+			tempRectangle.setY(y);
+			tempRectangle.setWidth(width);
+			tempRectangle.setHeight(height);
 
-		double width = Math.abs(borderX - e.getX());
-		double height = Math.abs(borderY - e.getY());
-		double x = 0, y = 0;
-		if (borderX > e.getX())
-			x = e.getX();
-		else
-			x = borderX;
-		if (borderY > e.getY())
-			y = e.getY();
-		else
-			y = borderY;
-		tempRectangle.setX(x);
-		tempRectangle.setY(y);
-		tempRectangle.setWidth(width);
-		tempRectangle.setHeight(height);
+			tempRectangle.setStroke(color);
+			tempRectangle.setFill(null);
 
-		tempRectangle.setStroke(color);
-		tempRectangle.setFill(Color.TRANSPARENT);
-
-		tempRectangle.setVisible(true);
-
+			tempRectangle.setVisible(true);
+		}
 	}
 
 	public void drawBorderRectanlge(MouseEvent e, Color color, int width) {
 		Rectangle rect = Common.drawRectangle(color, borderX, borderY, e.getX(), e.getY());
+		rect.setFill(null);
 		rect.setStrokeWidth(width);
 		group.getChildren().add(rect);
-		borderRectangles.add(rect);
-
+		borderShape.add(rect);
 	}
 
 	public void showTempCircle(MouseEvent e, Color color) {
-		double r = Math.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
-		tempCircle.setCenterX(borderX);
-		tempCircle.setCenterY(borderY);
-		tempCircle.setRadius(r);
-		tempCircle.setFill(Color.TRANSPARENT);
-		tempCircle.setStroke(color);
-		tempCircle.setVisible(true);
+		if (e.getButton() == MouseButton.PRIMARY) {
+			double r = Math
+					.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
+			tempCircle.setCenterX(borderX);
+			tempCircle.setCenterY(borderY);
+			tempCircle.setRadius(r);
+			tempCircle.setFill(Color.TRANSPARENT);
+			tempCircle.setStroke(color);
+			tempCircle.setVisible(true);
+		}
 	}
 
 	public void drawBorderCircle(MouseEvent e, Color color, int width) {
+
 		double r = Math.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
-		Circle circle = new Circle(borderX, borderY, r, Color.TRANSPARENT);
+		Circle circle = new Circle(borderX, borderY, r, null);
 		circle.setStroke(color);
 		circle.setStrokeWidth(width);
 		group.getChildren().add(circle);
-		borderCircles.add(circle);
+		borderShape.add(circle);
+
 	}
 
 	public void startDrawingBorder(MouseEvent e) {

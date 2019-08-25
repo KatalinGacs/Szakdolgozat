@@ -17,9 +17,8 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
-import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
-import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -53,7 +52,8 @@ public class Rajzolo extends VBox {
 		alaprajzTab.setContent(alaprajzTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
 		borderColor.setValue(Color.LIMEGREEN);
-		alaprajzTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn, borderCircleBtn);
+		alaprajzTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
+				borderCircleBtn);
 
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
@@ -71,7 +71,11 @@ public class Rajzolo extends VBox {
 			line.setStroke(borderColor.getValue());
 			line.setStrokeWidth(borderLineWidth.getValue());
 			canvasPane.borderLines.add(line);
+			canvasPane.borderShape.add(line);
 			CanvasPane.group.getChildren().add(line);
+
+			if (canvasPane.borderDrawingOn)
+				canvasPane.borderDrawingOn = false;
 		});
 
 		szorofejbtn.setOnAction(e -> {
@@ -94,7 +98,7 @@ public class Rajzolo extends VBox {
 
 		canvasPane.setOnMousePressed(e -> {
 			canvasPane.requestFocus();
-			if (borderButtons.getSelectedToggle() != null) {
+			if (borderButtons.getSelectedToggle() != null && e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.borderDrawingOn = true;
 				canvasPane.startDrawingBorder(e);
 
@@ -102,13 +106,13 @@ public class Rajzolo extends VBox {
 		});
 
 		canvasPane.setOnMouseReleased(e -> {
-
-			if (borderButtons.getSelectedToggle() == borderRectangleBtn) {
-				canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderLineWidth.getValue());
-			} else if (borderButtons.getSelectedToggle() == borderCircleBtn) {
-				canvasPane.drawBorderCircle(e, borderColor.getValue(), borderLineWidth.getValue());
+			if (e.getButton() == MouseButton.PRIMARY) {
+				if (borderButtons.getSelectedToggle() == borderRectangleBtn) {
+					canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderLineWidth.getValue());
+				} else if (borderButtons.getSelectedToggle() == borderCircleBtn) {
+					canvasPane.drawBorderCircle(e, borderColor.getValue(), borderLineWidth.getValue());
+				}
 			}
-
 		});
 
 		canvasPane.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
@@ -128,29 +132,15 @@ public class Rajzolo extends VBox {
 			canvasPane.showFocusCircle(e);
 			canvasPane.showTempLine(e);
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
-			if (canvasPane.pressedKey == KeyCode.SHIFT) {
-			
-				for (Rectangle border : canvasPane.borderRectangles) {
-					if (border.contains(mousePoint)) {
-						canvasPane.setCursor(Cursor.CROSSHAIR);						
-					} 	
-					else canvasPane.setCursor(Cursor.DEFAULT);
-				}
-				for (Circle border : canvasPane.borderCircles) {
-					System.out.println(border);
-					if (border.contains(mousePoint)) {
-						canvasPane.setCursor(Cursor.CROSSHAIR);						
-					} 	
-					else canvasPane.setCursor(Cursor.DEFAULT);
-				}
 
-				for (Polyline border : canvasPane.borderLines) {
+			if (canvasPane.pressedKey == KeyCode.SHIFT) {
+				for (Shape border : canvasPane.borderShape) {
 					if (border.contains(mousePoint)) {
-						canvasPane.setCursor(Cursor.CROSSHAIR);						
-					} 	
-					else canvasPane.setCursor(Cursor.DEFAULT);
-				}
-				
+						canvasPane.setCursor(Cursor.CROSSHAIR);
+						break;
+					} else 
+						canvasPane.setCursor(Cursor.DEFAULT);
+				}			
 			}
 		});
 
@@ -159,10 +149,12 @@ public class Rajzolo extends VBox {
 				canvasPane.showtempRectanlge(e, borderColor.getValue());
 			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderCircleBtn)
 				canvasPane.showTempCircle(e, borderColor.getValue());
-			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderLineBtn && canvasPane.borderLines.size() > 0 )
+			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderLineBtn
+					&& canvasPane.borderLines.size() > 0)
 				canvasPane.drawBorderline(e, canvasPane.borderLines.get(canvasPane.borderLines.size() - 1),
 						borderColor.getValue());
 		});
+
 	}
 
 	private void setSprinklerAttributes() {

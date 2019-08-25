@@ -40,4 +40,5 @@ public class Common {
 		return rectangle;
 		
 	}
+	
 }
