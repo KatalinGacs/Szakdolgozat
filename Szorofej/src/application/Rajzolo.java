@@ -1,12 +1,11 @@
 package application;
 
-import java.util.ArrayList;
-import java.util.List;
-
+import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TextField;
@@ -18,7 +17,9 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Circle;
 import javafx.scene.shape.Polyline;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
@@ -32,11 +33,12 @@ public class Rajzolo extends VBox {
 
 	private Button szorofejbtn = new Button("Szórófej kiválasztása");
 
-	private ToggleButton hatarvonalbtn = new ToggleButton("Határvonal");
-	private ToggleButton teglalapTereptargybtn = new ToggleButton("Téglalap");
-	private ToggleButton korTereptargybtn = new ToggleButton("Kör");
-	private ToggleGroup alaprajzButtons = new ToggleGroup();
-	protected ColorPicker alaprajzColor = new ColorPicker();
+	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 5, 3);
+	private ToggleButton borderLineBtn = new ToggleButton("Határvonal");
+	private ToggleButton borderRectangleBtn = new ToggleButton("Téglalap");
+	private ToggleButton borderCircleBtn = new ToggleButton("Kör");
+	private ToggleGroup borderButtons = new ToggleGroup();
+	protected ColorPicker borderColor = new ColorPicker();
 
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
@@ -49,9 +51,9 @@ public class Rajzolo extends VBox {
 		szorofejTabElements.getChildren().add(szorofejbtn);
 
 		alaprajzTab.setContent(alaprajzTabElements);
-		alaprajzButtons.getToggles().addAll(hatarvonalbtn, teglalapTereptargybtn, korTereptargybtn);
-		alaprajzColor.setValue(Color.DARKGREEN);
-		alaprajzTabElements.getChildren().addAll(alaprajzColor, hatarvonalbtn, teglalapTereptargybtn, korTereptargybtn);
+		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
+		borderColor.setValue(Color.LIMEGREEN);
+		alaprajzTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn, borderCircleBtn);
 
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
@@ -61,14 +63,15 @@ public class Rajzolo extends VBox {
 		getChildren().add(scrollPane);
 
 		alaprajzTab.setOnSelectionChanged(e -> {
-			alaprajzButtons.selectToggle(null);
+			borderButtons.selectToggle(null);
 		});
 
-		hatarvonalbtn.setOnMouseClicked(e -> {
+		borderLineBtn.setOnMouseClicked(e -> {
 			Polyline line = new Polyline();
-			line.setStroke(alaprajzColor.getValue());
-			canvasPane.lines.add(line);
-			canvasPane.group.getChildren().add(line);
+			line.setStroke(borderColor.getValue());
+			line.setStrokeWidth(borderLineWidth.getValue());
+			canvasPane.borderLines.add(line);
+			CanvasPane.group.getChildren().add(line);
 		});
 
 		szorofejbtn.setOnAction(e -> {
@@ -77,20 +80,21 @@ public class Rajzolo extends VBox {
 
 		canvasPane.setOnMouseClicked(e -> {
 			canvasPane.requestFocus();
-			if (alaprajzButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet
+			if (borderButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet
 					&& e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.drawNewSprinkler(e);
-			} else if (alaprajzButtons.getSelectedToggle() == hatarvonalbtn) {
-				canvasPane.lines.get(canvasPane.lines.size() - 1).getPoints().addAll(e.getX(), e.getY());
+			} else if (borderButtons.getSelectedToggle() == borderLineBtn) {
+				canvasPane.borderLines.get(canvasPane.borderLines.size() - 1).getPoints().addAll(e.getX(), e.getY());
 
-			} else
+			} else if (e.getButton() == MouseButton.SECONDARY)
 				canvasPane.selectElement(e);
+			e.consume();
 			canvasPane.requestFocus();
 		});
 
 		canvasPane.setOnMousePressed(e -> {
 			canvasPane.requestFocus();
-			if (alaprajzButtons.getSelectedToggle() != null) {
+			if (borderButtons.getSelectedToggle() != null) {
 				canvasPane.borderDrawingOn = true;
 				canvasPane.startDrawingBorder(e);
 
@@ -99,10 +103,10 @@ public class Rajzolo extends VBox {
 
 		canvasPane.setOnMouseReleased(e -> {
 
-			if (alaprajzButtons.getSelectedToggle() == teglalapTereptargybtn) {
-				canvasPane.drawBorderRectanlge(e, alaprajzColor.getValue());
-			} else if (alaprajzButtons.getSelectedToggle() == korTereptargybtn) {
-				canvasPane.drawBorderCircle(e, alaprajzColor.getValue());
+			if (borderButtons.getSelectedToggle() == borderRectangleBtn) {
+				canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderLineWidth.getValue());
+			} else if (borderButtons.getSelectedToggle() == borderCircleBtn) {
+				canvasPane.drawBorderCircle(e, borderColor.getValue(), borderLineWidth.getValue());
 			}
 
 		});
@@ -122,17 +126,42 @@ public class Rajzolo extends VBox {
 
 		canvasPane.setOnMouseMoved(e -> {
 			canvasPane.showFocusCircle(e);
+			canvasPane.showTempLine(e);
+			Point2D mousePoint = new Point2D(e.getX(), e.getY());
+			if (canvasPane.pressedKey == KeyCode.SHIFT) {
+			
+				for (Rectangle border : canvasPane.borderRectangles) {
+					if (border.contains(mousePoint)) {
+						canvasPane.setCursor(Cursor.CROSSHAIR);						
+					} 	
+					else canvasPane.setCursor(Cursor.DEFAULT);
+				}
+				for (Circle border : canvasPane.borderCircles) {
+					System.out.println(border);
+					if (border.contains(mousePoint)) {
+						canvasPane.setCursor(Cursor.CROSSHAIR);						
+					} 	
+					else canvasPane.setCursor(Cursor.DEFAULT);
+				}
 
+				for (Polyline border : canvasPane.borderLines) {
+					if (border.contains(mousePoint)) {
+						canvasPane.setCursor(Cursor.CROSSHAIR);						
+					} 	
+					else canvasPane.setCursor(Cursor.DEFAULT);
+				}
+				
+			}
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
-			if (canvasPane.borderDrawingOn && alaprajzButtons.getSelectedToggle() == teglalapTereptargybtn)
-				canvasPane.showtempRectanlge(e, alaprajzColor.getValue());
-			else if (canvasPane.borderDrawingOn && alaprajzButtons.getSelectedToggle() == korTereptargybtn)
-				canvasPane.showTempCircle(e, alaprajzColor.getValue());
-			else if (canvasPane.borderDrawingOn && alaprajzButtons.getSelectedToggle() == hatarvonalbtn)
-				canvasPane.drawBorderline(e, canvasPane.lines.get(canvasPane.lines.size() - 1),
-						alaprajzColor.getValue());
+			if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderRectangleBtn)
+				canvasPane.showtempRectanlge(e, borderColor.getValue());
+			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderCircleBtn)
+				canvasPane.showTempCircle(e, borderColor.getValue());
+			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderLineBtn && canvasPane.borderLines.size() > 0 )
+				canvasPane.drawBorderline(e, canvasPane.borderLines.get(canvasPane.borderLines.size() - 1),
+						borderColor.getValue());
 		});
 	}
 
