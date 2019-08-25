@@ -22,15 +22,15 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-public class Rajzolo extends VBox {
+public class View extends VBox {
 
 	private TabPane tabPane = new TabPane();
-	private Tab alaprajzTab = new Tab("Alaprajz");
-	private Tab szorofejTab = new Tab("Szorofej");
-	private HBox alaprajzTabElements = new HBox();
-	private HBox szorofejTabElements = new HBox();
+	private Tab borderTab = new Tab("Alaprajz");
+	private Tab sprinklerTab = new Tab("Szorofej");
+	private HBox borderTabElements = new HBox();
+	private HBox sprinklerTabElements = new HBox();
 
-	private Button szorofejbtn = new Button("Szórófej kiválasztása");
+	private Button setSprinklerBtn = new Button("Szórófej kiválasztása");
 
 	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 5, 3);
 	private ToggleButton borderLineBtn = new ToggleButton("Határvonal");
@@ -42,17 +42,17 @@ public class Rajzolo extends VBox {
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
 
-	public Rajzolo() {
+	public View() {
 
 		getChildren().add(tabPane);
-		tabPane.getTabs().addAll(alaprajzTab, szorofejTab);
-		szorofejTab.setContent(szorofejTabElements);
-		szorofejTabElements.getChildren().add(szorofejbtn);
+		tabPane.getTabs().addAll(borderTab, sprinklerTab);
+		sprinklerTab.setContent(sprinklerTabElements);
+		sprinklerTabElements.getChildren().add(setSprinklerBtn);
 
-		alaprajzTab.setContent(alaprajzTabElements);
+		borderTab.setContent(borderTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
 		borderColor.setValue(Color.LIMEGREEN);
-		alaprajzTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
+		borderTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
 				borderCircleBtn);
 
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
@@ -62,7 +62,7 @@ public class Rajzolo extends VBox {
 
 		getChildren().add(scrollPane);
 
-		alaprajzTab.setOnSelectionChanged(e -> {
+		borderTab.setOnSelectionChanged(e -> {
 			borderButtons.selectToggle(null);
 		});
 
@@ -72,13 +72,13 @@ public class Rajzolo extends VBox {
 			line.setStrokeWidth(borderLineWidth.getValue());
 			canvasPane.borderLines.add(line);
 			canvasPane.borderShape.add(line);
-			CanvasPane.group.getChildren().add(line);
+			canvasPane.group.getChildren().add(line);
 
 			if (canvasPane.borderDrawingOn)
 				canvasPane.borderDrawingOn = false;
 		});
 
-		szorofejbtn.setOnAction(e -> {
+		setSprinklerBtn.setOnAction(e -> {
 			setSprinklerAttributes();
 		});
 
@@ -138,9 +138,9 @@ public class Rajzolo extends VBox {
 					if (border.contains(mousePoint)) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
 						break;
-					} else 
+					} else
 						canvasPane.setCursor(Cursor.DEFAULT);
-				}			
+				}
 			}
 		});
 
@@ -154,7 +154,6 @@ public class Rajzolo extends VBox {
 				canvasPane.drawBorderline(e, canvasPane.borderLines.get(canvasPane.borderLines.size() - 1),
 						borderColor.getValue());
 		});
-
 	}
 
 	private void setSprinklerAttributes() {
@@ -186,7 +185,10 @@ public class Rajzolo extends VBox {
 			sprinklerInfoStage.close();
 		});
 		sprinklerInfoStage.show();
+	}
 
+	public CanvasPane getCanvasPane() {
+		return canvasPane;
 	}
 
 }

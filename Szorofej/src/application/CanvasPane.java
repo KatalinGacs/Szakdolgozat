@@ -38,21 +38,22 @@ public class CanvasPane extends Pane {
 	double startAngle, arcExtent;
 	protected Color sprinklerColor;
 	protected double sprinklerRadius;
-	protected boolean sprinklerAttributesSet = false;
+	
 	private TextField angleInput = new TextField();
-	protected static Group group = new Group();
+	protected Group group = new Group();
 
-	// segédvonalként
+	// segédvonalak
 	private Line line = new Line();
 	private Line tempLine = new Line();
 	private Line tempBorderLine = new Line();
 	private Circle tempSprinklerCircle = new Circle(5);
 	private Circle focusCircle = new Circle(7);
-
 	private Rectangle tempRectangle = new Rectangle();
 	private Circle tempCircle = new Circle();
+	
 	protected boolean borderDrawingOn = false;
-
+	protected boolean sprinklerAttributesSet = false;
+	
 	private static int i = 0;
 
 	protected List<Polyline> borderLines = new ArrayList<Polyline>();
@@ -134,7 +135,6 @@ public class CanvasPane extends Pane {
 	protected void drawNewSprinkler(MouseEvent mouseEvent) {
 		borderDrawingOn = false;
 		Sprinkler sprinkler = new Sprinkler();
-
 		Circle circle = new Circle();
 		Arc arc = new Arc();
 		arc.setType(ArcType.ROUND);
