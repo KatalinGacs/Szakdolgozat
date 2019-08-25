@@ -52,8 +52,8 @@ public class View extends VBox {
 		borderTab.setContent(borderTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
 		borderColor.setValue(Color.LIMEGREEN);
-		borderTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
-				borderCircleBtn);
+		borderTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, 
+				borderRectangleBtn, borderCircleBtn);
 
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);

@@ -305,7 +305,6 @@ public class CanvasPane extends Pane {
 
 	public void drawBorderline(MouseEvent e, Polyline line, Color color) {
 		if (!line.getPoints().isEmpty()) {
-
 			tempBorderLine.setStartX(line.getPoints().get(line.getPoints().size() - 2));
 			tempBorderLine.setStartY(line.getPoints().get(line.getPoints().size() - 1));
 			tempBorderLine.setEndX(e.getX());

@@ -18,7 +18,7 @@ public class MainSpr extends Application {
 	SprinklerTable table = new SprinklerTable();
 	VBox left = new VBox();
 	Button del = new Button("Törlés");
-	View rajzolo = new View();
+	View view = new View();
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -27,14 +27,14 @@ public class MainSpr extends Application {
 			Scene scene = new Scene(root, 800, 600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
-			root.setCenter(rajzolo);
+			root.setCenter(view);
 
 			left.getChildren().addAll(del, table);
 			del.setOnAction(e -> {
 				ObservableList<Sprinkler> toBeDeleted = table.getSelectionModel().getSelectedItems();
 				for (Sprinkler s : toBeDeleted) {
-					rajzolo.getCanvasPane().group.getChildren().remove(s.getArc());
-					rajzolo.getCanvasPane().group.getChildren().remove(s.getCircle());
+					view.getCanvasPane().group.getChildren().remove(s.getArc());
+					view.getCanvasPane().group.getChildren().remove(s.getCircle());
 					controller.deleteSprinkler(s);
 				}
 			});
