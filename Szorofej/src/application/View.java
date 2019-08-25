@@ -89,7 +89,6 @@ public class View extends VBox {
 				canvasPane.drawNewSprinkler(e);
 			} else if (borderButtons.getSelectedToggle() == borderLineBtn) {
 				canvasPane.borderLines.get(canvasPane.borderLines.size() - 1).getPoints().addAll(e.getX(), e.getY());
-
 			} else if (e.getButton() == MouseButton.SECONDARY)
 				canvasPane.selectElement(e);
 			e.consume();

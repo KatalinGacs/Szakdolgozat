@@ -38,7 +38,6 @@ public class Common {
 		rectangle.setStroke(color);
 		rectangle.setFill(Color.TRANSPARENT);
 		return rectangle;
-		
 	}
 	
 }

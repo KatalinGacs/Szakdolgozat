@@ -14,7 +14,6 @@ import model.bean.Sprinkler;
 public class MainSpr extends Application {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
-
 	SprinklerTable table = new SprinklerTable();
 	VBox left = new VBox();
 	Button del = new Button("Törlés");

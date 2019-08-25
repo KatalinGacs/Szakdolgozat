@@ -38,7 +38,7 @@ public class CanvasPane extends Pane {
 	double startAngle, arcExtent;
 	protected Color sprinklerColor;
 	protected double sprinklerRadius;
-	
+
 	private TextField angleInput = new TextField();
 	protected Group group = new Group();
 
@@ -50,10 +50,10 @@ public class CanvasPane extends Pane {
 	private Circle focusCircle = new Circle(7);
 	private Rectangle tempRectangle = new Rectangle();
 	private Circle tempCircle = new Circle();
-	
+
 	protected boolean borderDrawingOn = false;
 	protected boolean sprinklerAttributesSet = false;
-	
+
 	private static int i = 0;
 
 	protected List<Polyline> borderLines = new ArrayList<Polyline>();
@@ -216,7 +216,6 @@ public class CanvasPane extends Pane {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
 
 						}
-
 				}
 			});
 

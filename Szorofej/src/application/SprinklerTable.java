@@ -22,8 +22,6 @@ public class SprinklerTable extends TableView<Sprinkler> {
 	TableColumn<Sprinkler, Double> yCol = new TableColumn<>("Y");
 	TableColumn<Sprinkler, String> colorCol = new TableColumn<>("Szín");
 
-	NumberFormat numberFormat = NumberFormat.getCurrencyInstance();
-	
 	public SprinklerTable() {
 
 		radiusCol.setCellValueFactory(new PropertyValueFactory<Sprinkler, Double>("radius"));
