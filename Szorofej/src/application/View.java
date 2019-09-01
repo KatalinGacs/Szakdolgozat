@@ -1,5 +1,6 @@
 package application;
 
+import application.common.Common;
 import javafx.geometry.Point2D;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;

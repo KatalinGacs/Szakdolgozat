@@ -3,6 +3,7 @@ package application;
 import java.util.ArrayList;
 import java.util.List;
 
+import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
@@ -24,7 +25,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import model.bean.Sprinkler;
+import model.bean.SprinklerShape;
 
 public class CanvasPane extends Pane {
 
@@ -104,11 +105,11 @@ public class CanvasPane extends Pane {
 	// Elemek kijelölése, most csak törlésre használható, de ezzel lehetne az adott
 	// elemrõl infókat kilistázni
 	protected void selectElement(MouseEvent e) {
-		for (Sprinkler s : controller.listSprinklers()) {
+		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {
 				delMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
 				delMenuItem.setOnAction(ev -> {
-					controller.deleteSprinkler(s);
+					controller.deleteSprinklerShape(s);
 					group.getChildren().removeAll(s.getArc(), s.getCircle());
 					ev.consume();
 				});
@@ -134,7 +135,7 @@ public class CanvasPane extends Pane {
 
 	protected void drawNewSprinkler(MouseEvent mouseEvent) {
 		borderDrawingOn = false;
-		Sprinkler sprinkler = new Sprinkler();
+		SprinklerShape sprinkler = new SprinklerShape();
 		Circle circle = new Circle();
 		Arc arc = new Arc();
 		arc.setType(ArcType.ROUND);
@@ -199,14 +200,9 @@ public class CanvasPane extends Pane {
 							tempSprinklerCircle.setVisible(false);
 
 							sprinkler.setArc(arc);
-							sprinkler.setCenterX(centerX);
-							sprinkler.setCenterY(centerY);
-							sprinkler.setRadius(sprinklerRadius);
-							sprinkler.setAngle(arcExtent);
-							sprinkler.setColor(sprinklerColor);
 
 							group.getChildren().add(sprinkler.getArc());
-							controller.addSprinkler(sprinkler);
+							controller.addSprinklerShape(sprinkler);
 
 							i++;
 
@@ -259,13 +255,8 @@ public class CanvasPane extends Pane {
 			group.getChildren().add(sprinkler.getCircle());
 			tempSprinklerCircle.setVisible(false);
 
-			sprinkler.setCenterX(centerX);
-			sprinkler.setCenterY(centerY);
-			sprinkler.setRadius(sprinklerRadius);
-			sprinkler.setAngle(arcExtent);
-			sprinkler.setColor(sprinklerColor);
 
-			controller.addSprinkler(sprinkler);
+			controller.addSprinklerShape(sprinkler);
 			i++;
 		}
 	}

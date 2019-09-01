@@ -1,14 +1,20 @@
 package model;
 
 import javafx.collections.ObservableList;
-import model.bean.Sprinkler;
+import model.bean.SprinklerType;
+import model.bean.SprinklerShape;
 
 public interface SprinklerDAO {
 
-	public void addSprinkler(Sprinkler s);
+	public void addSprinklerShapes(SprinklerShape s);
 	
-	public ObservableList<Sprinkler> listSprinklers();
+	public ObservableList<SprinklerShape> listSprinklerShapes();
 	
-	public void deleteSprinkler(Sprinkler s);
+	public void deleteSprinklerShape(SprinklerShape s);
 	
+	public void addSprinklerType(SprinklerType s);
+	
+	public ObservableList<SprinklerType> listSprinklerTypes();
+	
+	public void deleteSprinklerType (SprinklerType s);
 }

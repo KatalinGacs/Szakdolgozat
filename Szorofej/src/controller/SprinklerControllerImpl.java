@@ -3,26 +3,41 @@ package controller;
 import javafx.collections.ObservableList;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
-import model.bean.Sprinkler;
+import model.bean.SprinklerShape;
+import model.bean.SprinklerType;
 
 public class SprinklerControllerImpl implements SprinklerController {
 
 	private SprinklerDAO dao = new SprinklerDAOImpl();
 	
 	@Override
-	public void addSprinkler(Sprinkler s) {
-		dao.addSprinkler(s);
+	public void addSprinklerShape(SprinklerShape s) {
+		dao.addSprinklerShapes(s);
 	}
 
 	@Override
-	public ObservableList<Sprinkler> listSprinklers() {
-		return dao.listSprinklers();
+	public ObservableList<SprinklerShape> listSprinklerShapes() {
+		return dao.listSprinklerShapes();
 	}
 
 	@Override
-	public void deleteSprinkler(Sprinkler s) {
-		dao.deleteSprinkler(s);
+	public void deleteSprinklerShape(SprinklerShape s) {
+		dao.deleteSprinklerShape(s);
 	}
-	
 
+	@Override
+	public void addSprinklerType(SprinklerType s) {
+		dao.addSprinklerType(s);
+		
+	}
+
+	@Override
+	public ObservableList<SprinklerType> listSprinklerTypes() {
+		return dao.listSprinklerTypes();
+	}
+
+	@Override
+	public void deleteSprinklerType(SprinklerType s) {
+		dao.deleteSprinklerType(s);
+	}
 }

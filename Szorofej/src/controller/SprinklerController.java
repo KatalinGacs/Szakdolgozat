@@ -1,13 +1,20 @@
 package controller;
 
 import javafx.collections.ObservableList;
-import model.bean.Sprinkler;
+import model.bean.SprinklerShape;
+import model.bean.SprinklerType;
 
 public interface SprinklerController {
 
-	public void addSprinkler(Sprinkler s);
+	public void addSprinklerShape(SprinklerShape s);
 	
-	public ObservableList<Sprinkler> listSprinklers();
+	public ObservableList<SprinklerShape> listSprinklerShapes();
 	
-	public void deleteSprinkler(Sprinkler s);
+	public void deleteSprinklerShape(SprinklerShape s);
+	
+	public void addSprinklerType(SprinklerType s);
+	
+	public ObservableList<SprinklerType> listSprinklerTypes();
+	
+	public void deleteSprinklerType (SprinklerType s);
 }

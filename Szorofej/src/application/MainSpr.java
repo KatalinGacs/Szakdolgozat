@@ -6,10 +6,13 @@ import javafx.application.Application;
 import javafx.collections.ObservableList;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
+import javafx.scene.control.Menu;
+import javafx.scene.control.MenuBar;
+import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.bean.Sprinkler;
+import model.bean.SprinklerShape;
 
 public class MainSpr extends Application {
 
@@ -19,6 +22,23 @@ public class MainSpr extends Application {
 	Button del = new Button("Törlés");
 	View view = new View();
 
+	private MenuBar menuBar = new MenuBar();
+	private Menu fileMenu = new Menu("Fájl");
+	private MenuItem newMenuItem = new MenuItem("Új");
+	private MenuItem openMenuItem = new MenuItem("Megnyitás");
+	private MenuItem saveMenuItem = new MenuItem("Mentés");
+	private MenuItem saveAsMenuItem = new MenuItem("Mentés másként");
+	private MenuItem exportMenuItem = new MenuItem("Exportálás pdf-be");
+	private MenuItem exitMenuItem = new MenuItem("Kilépés");
+	private Menu editMenu = new Menu("Szerkesztés");
+	private MenuItem undoMenuItem = new MenuItem("Visszavonás");
+	private MenuItem redoMenuItem = new MenuItem("Ismét");
+	private Menu dbMenu = new Menu("Adatbázis");
+	private MenuItem sprinklerDbMenuItem = new MenuItem("Szórófej adatbázis");
+	private MenuItem newSprinklerMenuItem = new MenuItem("Szórófej hozzáadása");
+	private MenuItem materialDbMenuItem = new MenuItem("Anyag adatbázis");
+	private MenuItem newMaterialMenuItem = new MenuItem("Anyag hozzáadása");
+	
 	@Override
 	public void start(Stage primaryStage) {
 		try {
@@ -28,13 +48,24 @@ public class MainSpr extends Application {
 			primaryStage.setScene(scene);
 			root.setCenter(view);
 
+			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
+			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem, exitMenuItem);
+			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
+			dbMenu.getItems().addAll(sprinklerDbMenuItem, newSprinklerMenuItem, materialDbMenuItem, newMaterialMenuItem);
+			
+			sprinklerDbMenuItem.setOnAction(e -> {
+				SprinklerDBView sprinklerDBView = new SprinklerDBView(); 
+			});
+			
+			root.setTop(menuBar);
+			
 			left.getChildren().addAll(del, table);
 			del.setOnAction(e -> {
-				ObservableList<Sprinkler> toBeDeleted = table.getSelectionModel().getSelectedItems();
-				for (Sprinkler s : toBeDeleted) {
+				ObservableList<SprinklerShape> toBeDeleted = table.getSelectionModel().getSelectedItems();
+				for (SprinklerShape s : toBeDeleted) {
 					view.getCanvasPane().group.getChildren().remove(s.getArc());
 					view.getCanvasPane().group.getChildren().remove(s.getCircle());
-					controller.deleteSprinkler(s);
+					controller.deleteSprinklerShape(s);
 				}
 			});
 			root.setLeft(left);
