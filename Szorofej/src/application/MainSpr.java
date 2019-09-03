@@ -36,6 +36,7 @@ public class MainSpr extends Application {
 	private Menu dbMenu = new Menu("Adatbázis");
 	private MenuItem sprinklerDbMenuItem = new MenuItem("Szórófej adatbázis");
 	private MenuItem newSprinklerMenuItem = new MenuItem("Szórófej hozzáadása");
+	private MenuItem sprinklerGroupDbMenuItem = new MenuItem("Szórófej csoportok");
 	private MenuItem materialDbMenuItem = new MenuItem("Anyag adatbázis");
 	private MenuItem newMaterialMenuItem = new MenuItem("Anyag hozzáadása");
 	
@@ -51,10 +52,13 @@ public class MainSpr extends Application {
 			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
 			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem, exitMenuItem);
 			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
-			dbMenu.getItems().addAll(sprinklerDbMenuItem, newSprinklerMenuItem, materialDbMenuItem, newMaterialMenuItem);
+			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem, materialDbMenuItem, newMaterialMenuItem);
 			
 			sprinklerDbMenuItem.setOnAction(e -> {
 				SprinklerDBView sprinklerDBView = new SprinklerDBView(); 
+			});
+			sprinklerGroupDbMenuItem.setOnAction( e-> {
+				SprinklerGroupDBView sprinklerGroupDbView = new SprinklerGroupDBView();
 			});
 			
 			root.setTop(menuBar);

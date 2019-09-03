@@ -9,7 +9,6 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
 public class SprinklerDBView {

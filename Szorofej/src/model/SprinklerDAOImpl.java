@@ -7,8 +7,10 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
@@ -17,6 +19,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static final String DBFILE = "db/sprinkler.db";
 
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
+
+	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
 
 	private static ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
 
@@ -96,11 +100,54 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklertype WHERE name = ?");) {
 			pst.setString(1, s.getName());
 			pst.execute();
-			sprinklertypes.remove(s);
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
 
+	}
+
+	@Override
+	public ObservableList<SprinklerGroup> listSprinklerGroups() {
+		sprinklergroups.clear();
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				Statement st = conn.createStatement();
+				ResultSet rs = st.executeQuery("SELECT * FROM Sprinklergroup");) {
+			while (rs.next()) {
+				SprinklerGroup s = new SprinklerGroup();
+				s.setName(rs.getString("Name"));
+				sprinklergroups.add(s);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return sprinklergroups;
+	}
+
+	@Override
+	public void addSprinklerGroup(SprinklerGroup s) throws DbException {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklergroup (name) "
+						+ "VALUES (?)");) {
+			pst.setString(1, s.getName());
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+			throw new DbException("Nem sikerült a hozzáadás");
+		}
+	}
+
+	@Override
+	public void deleteSprinklerGroup(SprinklerGroup s) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklergroup WHERE name = ?");) {
+			pst.setString(1, s.getName());
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+
+		
 	}
 
 }

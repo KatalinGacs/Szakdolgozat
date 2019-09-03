@@ -1,8 +1,10 @@
 package controller;
 
 import javafx.collections.ObservableList;
+import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
+import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
@@ -39,5 +41,22 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void deleteSprinklerType(SprinklerType s) {
 		dao.deleteSprinklerType(s);
+	}
+
+	@Override
+	public ObservableList<SprinklerGroup> listSprinklerGroups() {
+		return dao.listSprinklerGroups();
+	}
+
+	@Override
+	public void addSprinklerGroup(SprinklerGroup s) throws DbException {
+		dao.addSprinklerGroup(s);
+		
+	}
+
+	@Override
+	public void deleteSprinklerGroup(SprinklerGroup s) {
+		dao.deleteSprinklerGroup(s);
+		
 	}
 }
