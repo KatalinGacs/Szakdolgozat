@@ -7,7 +7,6 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
-import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import model.bean.SprinklerGroup;
@@ -50,8 +49,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void addSprinklerType(SprinklerType s) {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklertype (name, minradius"
-						+ "maxradius, minangle, maxangle, fixwaterconsumption, waterconsumption"
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklertype (name, minradius, "
+						+ "maxradius, minangle, maxangle, fixwaterconsumption, waterconsumption, "
 						+ "minpressure, sprinklergroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");) {
 			pst.setString(1, s.getName());
 			pst.setDouble(2, s.getMinRadius());
@@ -59,9 +58,9 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.setDouble(4, s.getMinAngle());
 			pst.setDouble(5, s.getMaxAngle());
 			pst.setInt(6, s.getFixWaterConsumption() ? 1 : 0);
-			pst.setDouble(7, s.getWaterCounsumption());
+			pst.setDouble(7, s.getWaterConsumption());
 			pst.setDouble(8, s.getMinPressure());
-			pst.setString(9, s.getSprinklerGroup());
+			pst.setString(9, s.getSprinklerGroup().toString());
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -84,7 +83,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				s.setFixWaterConsumption(rs.getInt("fixwaterconsumption") == 1 ? true : false);
 				s.setWaterCounsumption(rs.getDouble("waterconsumption"));
 				s.setMinPressure(rs.getDouble("minpressure"));
-				s.setSprinklerGroup(rs.getString("sprinklergroup"));
+				s.setSprinklerGroup(new SprinklerGroup(rs.getString("sprinklergroup")));
 				sprinklertypes.add(s);
 			}
 
@@ -127,8 +126,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void addSprinklerGroup(SprinklerGroup s) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklergroup (name) "
-						+ "VALUES (?)");) {
+				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklergroup (name) " + "VALUES (?)");) {
 			pst.setString(1, s.getName());
 			pst.execute();
 		} catch (SQLException e) {
@@ -146,8 +144,33 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
 
-		
+	@Override
+	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup sg) {
+		ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("SELECT * FROM Sprinklertype " + "WHERE Sprinklergroup = ?");) {
+			pst.setString(1, sg.getName());
+			ResultSet rs = pst.executeQuery();
+			while (rs.next()) {
+				SprinklerType s = new SprinklerType();
+				s.setName(rs.getString("Name"));
+				s.setMinRadius(rs.getDouble("minradius"));
+				s.setMaxRadius(rs.getDouble("maxradius"));
+				s.setMinAngle(rs.getDouble("minangle"));
+				s.setMaxAngle(rs.getDouble("maxangle"));
+				s.setFixWaterConsumption(rs.getInt("fixwaterconsumption") == 1 ? true : false);
+				s.setWaterCounsumption(rs.getDouble("waterconsumption"));
+				s.setMinPressure(rs.getDouble("minpressure"));
+				s.setSprinklerGroup(new SprinklerGroup(rs.getString("sprinklergroup")));
+				sprinklertypes.add(s);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return sprinklertypes;
 	}
 
 }

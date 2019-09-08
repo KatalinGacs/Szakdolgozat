@@ -59,4 +59,9 @@ public class SprinklerControllerImpl implements SprinklerController {
 		dao.deleteSprinklerGroup(s);
 		
 	}
+
+	@Override
+	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s) {
+		return dao.listSprinklerTypeByGroup(s);
+	}
 }

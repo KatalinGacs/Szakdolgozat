@@ -26,6 +26,7 @@ import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import model.bean.SprinklerShape;
+import model.bean.SprinklerType;
 
 public class CanvasPane extends Pane {
 
@@ -37,7 +38,8 @@ public class CanvasPane extends Pane {
 
 	private double centerX = 0, centerY = 0, firstX = 0, firstY = 0, secondX = 0, secondY = 0;
 	double startAngle, arcExtent;
-	protected Color sprinklerColor;
+	protected Color sprinklerColor = Color.CORNFLOWERBLUE;
+	protected SprinklerType sprinklerType;
 	protected double sprinklerRadius;
 
 	private TextField angleInput = new TextField();
@@ -252,6 +254,7 @@ public class CanvasPane extends Pane {
 			circle.setStroke(sprinklerColor);
 			circle.setFill(sprinklerColor);
 			sprinkler.setCircle(circle);
+			sprinkler.setSprinkler(sprinklerType);
 			group.getChildren().add(sprinkler.getCircle());
 			tempSprinklerCircle.setVisible(false);
 

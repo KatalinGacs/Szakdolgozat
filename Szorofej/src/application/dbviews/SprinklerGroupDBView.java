@@ -1,4 +1,4 @@
-package application;
+package application.dbviews;
 
 import application.common.Common;
 import controller.SprinklerController;
@@ -22,7 +22,7 @@ public class SprinklerGroupDBView {
 
 	private Stage sprinklerGroupDbStage = new Stage();
 	private VBox root = new VBox();
-	private Scene scene = new Scene(root, 800, 400);
+	private Scene scene = new Scene(root, 400, 400);
 
 	private TableView<SprinklerGroup> tableView = new TableView<>();
 	private TableColumn<SprinklerGroup, String> nameCol = new TableColumn<>("Csoport név");

@@ -19,4 +19,10 @@ public class SprinklerGroup {
 
 	public SprinklerGroup() {
 	}
+
+	@Override
+	public String toString() {
+		return name.get();
+	}
+	
 }

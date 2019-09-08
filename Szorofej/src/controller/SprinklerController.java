@@ -25,4 +25,7 @@ public interface SprinklerController {
 	public void addSprinklerGroup(SprinklerGroup s) throws DbException;
 
 	public void deleteSprinklerGroup(SprinklerGroup s);
+	
+	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s);
+
 }

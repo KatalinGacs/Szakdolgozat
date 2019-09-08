@@ -1,4 +1,4 @@
-package application;
+package application.dbviews;
 
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
@@ -17,7 +17,7 @@ public class SprinklerDBView {
 
 	private Stage sprinklerDbStage = new Stage();
 	private VBox root = new VBox();
-	private Scene scene = new Scene(root, 800, 400);
+	private Scene scene = new Scene(root, 900, 400);
 
 	private TableView<SprinklerType> tableView = new TableView<>();
 	private TableColumn<SprinklerType, String> nameCol = new TableColumn<>("Név");
@@ -52,7 +52,7 @@ public class SprinklerDBView {
 		sprinklerGroupCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("sprinklerGroup"));
 	
 		tableView.setItems(controller.listSprinklerTypes());
-		
+	
 		sprinklerDbStage.show();
 	}
 

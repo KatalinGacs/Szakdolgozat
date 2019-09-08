@@ -1,5 +1,8 @@
 package application;
 
+import application.dbviews.AddSprinklerView;
+import application.dbviews.SprinklerDBView;
+import application.dbviews.SprinklerGroupDBView;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.application.Application;
@@ -20,7 +23,7 @@ public class MainSpr extends Application {
 	SprinklerTable table = new SprinklerTable();
 	VBox left = new VBox();
 	Button del = new Button("Törlés");
-	View view = new View();
+	DrawingPanel view = new DrawingPanel();
 
 	private MenuBar menuBar = new MenuBar();
 	private Menu fileMenu = new Menu("Fájl");
@@ -59,6 +62,9 @@ public class MainSpr extends Application {
 			});
 			sprinklerGroupDbMenuItem.setOnAction( e-> {
 				SprinklerGroupDBView sprinklerGroupDbView = new SprinklerGroupDBView();
+			});
+			newSprinklerMenuItem.setOnAction(e -> {
+				AddSprinklerView addNewSprinklerView = new AddSprinklerView();
 			});
 			
 			root.setTop(menuBar);

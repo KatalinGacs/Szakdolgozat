@@ -6,15 +6,17 @@ import javafx.beans.property.SimpleStringProperty;
 
 public class SprinklerType {
 
+
+
 	private SimpleStringProperty name = new SimpleStringProperty();
 	private SimpleDoubleProperty minRadius = new SimpleDoubleProperty();
 	private SimpleDoubleProperty maxRadius = new SimpleDoubleProperty();
 	private SimpleDoubleProperty minAngle = new SimpleDoubleProperty();
 	private SimpleDoubleProperty maxAngle = new SimpleDoubleProperty();
 	private SimpleBooleanProperty fixWaterConsumption = new SimpleBooleanProperty();
-	private SimpleDoubleProperty waterCounsumption = new SimpleDoubleProperty();
+	private SimpleDoubleProperty waterConsumption = new SimpleDoubleProperty();
 	private SimpleDoubleProperty minPressure = new SimpleDoubleProperty();
-	private SimpleStringProperty sprinklerGroup = new SimpleStringProperty();
+	private SprinklerGroup sprinklerGroup = new SprinklerGroup();
 
 	public String getName() {
 		return name.get();
@@ -64,12 +66,12 @@ public class SprinklerType {
 		this.fixWaterConsumption.set(fixWaterConsumption);
 	}
 
-	public double getWaterCounsumption() {
-		return waterCounsumption.get();
+	public double getWaterConsumption() {
+		return waterConsumption.get();
 	}
 
 	public void setWaterCounsumption(double waterCounsumption) {
-		this.waterCounsumption.set(waterCounsumption);
+		this.waterConsumption.set(waterCounsumption);
 	}
 
 	public double getMinPressure() {
@@ -80,12 +82,12 @@ public class SprinklerType {
 		this.minPressure.set(minPressure);
 	}
 
-	public String getSprinklerGroup() {
-		return sprinklerGroup.get();
+	public SprinklerGroup getSprinklerGroup() {
+		return sprinklerGroup;
 	}
 
-	public void setSprinklerGroup(String sprinklerGroup) {
-		this.sprinklerGroup.set(sprinklerGroup);
+	public void setSprinklerGroup(SprinklerGroup sprinklerGroup) {
+		this.sprinklerGroup = sprinklerGroup;
 	}
 
 	public SprinklerType() {
@@ -93,16 +95,21 @@ public class SprinklerType {
 	}
 
 	public SprinklerType(String name, double minRadius, double maxRadius, double minAngle, double maxAngle,
-			boolean fixWaterConsumption, double waterCounsumption, double minPressure, String sprinklerGroup) {
+			boolean fixWaterConsumption, double waterConsumption, double minPressure, SprinklerGroup sprinklerGroup) {
 		this.name.set(name);
 		this.minRadius.set(minRadius);
 		this.maxRadius.set(maxRadius);
 		this.minAngle.set(minAngle);
 		this.maxAngle.set(maxAngle);
 		this.fixWaterConsumption.set(fixWaterConsumption);
-		this.waterCounsumption.set(waterCounsumption);
+		this.waterConsumption.set(waterConsumption);
 		this.minPressure.set(minPressure);
-		this.sprinklerGroup.set(sprinklerGroup);
+		this.sprinklerGroup = sprinklerGroup;
+	}
+	
+	@Override
+	public String toString() {
+		return name.get();
 	}
 
 }
