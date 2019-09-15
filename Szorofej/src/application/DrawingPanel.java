@@ -232,8 +232,9 @@ public class DrawingPanel extends VBox {
 		minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
 		minPressureCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
 
-		sprinklerGroupChoiceBox.getSelectionModel().selectedIndexProperty().addListener(l -> {
-			tableView.setItems(controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getValue()));
+		sprinklerGroupChoiceBox.setOnAction(e -> {
+			tableView.getItems().clear();
+			tableView.setItems(controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 		});
 
 		Text radiusText = new Text("Sugár: ");
@@ -247,12 +248,22 @@ public class DrawingPanel extends VBox {
 			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a szórófej sugarát!");
 			}
-			// TODO ellenõrizni, hogy a beállított sugár és szög megfelel-e a típusnak
 			else {
 				try {
-					canvasPane.sprinklerRadius = Double.parseDouble(radiusField.getText()) * Common.pixelPerMeter;
-					canvasPane.sprinklerAttributesSet = true;
-					canvasPane.sprinklerType = tableView.getSelectionModel().getSelectedItem();
+					double radius = Double.parseDouble(radiusField.getText()) ;
+					SprinklerType type = tableView.getSelectionModel().getSelectedItem();
+					// a megrendelõ kérésére csak azt ellenõrzi, hogyha a megengedettnél nagyobb
+					// sugárra próbálja állítani, fizikailag lehetséges kisebb a gyártó által
+					// megadottnál kisebb szögre állítani és néha erre van szükség
+					if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
+						
+						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
+					} else {
+						canvasPane.sprinklerRadius = radius* Common.pixelPerMeter;
+						canvasPane.sprinklerAttributesSet = true;
+						canvasPane.sprinklerType = type;
+					}
+
 					canvasPane.requestFocus();
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg a szórófej sugarát!");

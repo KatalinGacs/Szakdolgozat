@@ -3,7 +3,9 @@ package application.dbviews;
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.collections.ObservableList;
 import javafx.scene.Scene;
+import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
@@ -30,9 +32,11 @@ public class SprinklerDBView {
 	private TableColumn<SprinklerType, Double> minPressureCol = new TableColumn<>("Min. víznyomás (bar)");
 	private TableColumn<SprinklerType, String> sprinklerGroupCol = new TableColumn<>("Csoport");
 
+	private Button delBtn = new Button("Törlés");
+	
 	public SprinklerDBView() {
 		sprinklerDbStage.setScene(scene);
-		root.getChildren().add(tableView);
+		root.getChildren().addAll(tableView, delBtn);
 		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
 				fixWaterConsumptionCol, waterConsumptionCol, minPressureCol, sprinklerGroupCol);
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
@@ -53,6 +57,13 @@ public class SprinklerDBView {
 	
 		tableView.setItems(controller.listSprinklerTypes());
 	
+		delBtn.setOnAction(e -> {
+			ObservableList<SprinklerType> selected = tableView.getSelectionModel().getSelectedItems();
+			for (SprinklerType s : selected) {
+				controller.deleteSprinklerType(s);
+			}
+		});
+		
 		sprinklerDbStage.show();
 	}
 

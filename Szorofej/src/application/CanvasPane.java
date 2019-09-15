@@ -25,6 +25,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
@@ -89,7 +90,6 @@ public class CanvasPane extends Pane {
 			getChildren().add(line);
 			gridLayer.getChildren().add(line);
 		}
-
 		line.setVisible(false);
 		tempSprinklerCircle.setVisible(false);
 		tempRectangle.setVisible(false);
@@ -99,7 +99,8 @@ public class CanvasPane extends Pane {
 		focusCircle.setFill(Color.TRANSPARENT);
 
 		angleInput.setVisible(false);
-		angleInput.setMinWidth(40);
+		angleInput.setMaxWidth(70);
+		angleInput.setFont(Font.font(20));
 		angleInput.setPromptText("Szög");
 
 		delMenu.getItems().add(delMenuItem);
@@ -181,7 +182,6 @@ public class CanvasPane extends Pane {
 
 			angleInput.setLayoutX(mouseEvent.getX());
 			angleInput.setLayoutY(mouseEvent.getY());
-			angleInput.setMaxWidth(30);
 			angleInput.relocate(centerX, centerY);
 			angleInput.setOnKeyPressed(ke -> {
 				if (ke.getCode().equals(KeyCode.ENTER)) {
@@ -189,33 +189,40 @@ public class CanvasPane extends Pane {
 						Common.showAlert("Add meg a szórófej szögét!");
 					} else
 						try {
-							arcExtent = -Double.parseDouble(angleInput.getText());
 
-							arc.setCenterX(centerX);
-							arc.setCenterY(centerY);
-							arc.setRadiusX(sprinklerRadius);
-							arc.setRadiusY(sprinklerRadius);
-							arc.setStartAngle(startAngle);
-							arc.setLength(-arcExtent);
+							if (Double.parseDouble(angleInput.getText()) > sprinklerType.getMaxAngle()
+									|| Double.parseDouble(angleInput.getText()) < sprinklerType.getMinAngle()) {
+								Common.showAlert(
+										"A megadott szög nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+												+ sprinklerType.getMinAngle() + ", max. szög: "
+												+ sprinklerType.getMaxAngle());
+							} else {
+								arcExtent = -Double.parseDouble(angleInput.getText());
+								arc.setCenterX(centerX);
+								arc.setCenterY(centerY);
+								arc.setRadiusX(sprinklerRadius);
+								arc.setRadiusY(sprinklerRadius);
+								arc.setStartAngle(startAngle);
+								arc.setLength(-arcExtent);
 
-							circle.setCenterX(centerX);
-							circle.setCenterY(centerY);
-							circle.setRadius(5);
-							circle.setStroke(sprinklerColor);
-							circle.setFill(sprinklerColor);
-							sprinkler.setCircle(circle);
-							irrigationLayer.getChildren().add(sprinkler.getCircle());
-							tempSprinklerCircle.setVisible(false);
+								circle.setCenterX(centerX);
+								circle.setCenterY(centerY);
+								circle.setRadius(5);
+								circle.setStroke(sprinklerColor);
+								circle.setFill(sprinklerColor);
+								sprinkler.setCircle(circle);
+								irrigationLayer.getChildren().add(sprinkler.getCircle());
+								tempSprinklerCircle.setVisible(false);
 
-							sprinkler.setArc(arc);
+								sprinkler.setArc(arc);
 
-							sprinklerArcLayer.getChildren().add(sprinkler.getArc());
-							controller.addSprinklerShape(sprinkler);
+								sprinklerArcLayer.getChildren().add(sprinkler.getArc());
+								controller.addSprinklerShape(sprinkler);
 
-							i++;
+								i++;
 
-							angleInput.setText("");
-
+								angleInput.setText("");
+							}
 						} catch (NumberFormatException ex) {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
 
@@ -243,29 +250,35 @@ public class CanvasPane extends Pane {
 				arcExtent -= 180;
 			}
 
-			arc.setCenterY(centerY);
-			arc.setCenterX(centerX);
-			arc.setCenterY(centerY);
-			arc.setRadiusX(sprinklerRadius);
-			arc.setRadiusY(sprinklerRadius);
-			arc.setStartAngle(startAngle);
-			arc.setLength(arcExtent);
-			sprinkler.setArc(arc);
+			if (arcExtent > sprinklerType.getMaxAngle() || arcExtent < sprinklerType.getMinAngle()) {
+				Common.showAlert("A megadott szög nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+						+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
+			} else {
 
-			sprinklerArcLayer.getChildren().add(sprinkler.getArc());
+				arc.setCenterY(centerY);
+				arc.setCenterX(centerX);
+				arc.setCenterY(centerY);
+				arc.setRadiusX(sprinklerRadius);
+				arc.setRadiusY(sprinklerRadius);
+				arc.setStartAngle(startAngle);
+				arc.setLength(arcExtent);
+				sprinkler.setArc(arc);
 
-			circle.setCenterX(centerX);
-			circle.setCenterY(centerY);
-			circle.setRadius(5);
-			circle.setStroke(sprinklerColor);
-			circle.setFill(sprinklerColor);
-			sprinkler.setCircle(circle);
-			sprinkler.setSprinkler(sprinklerType);
-			irrigationLayer.getChildren().add(sprinkler.getCircle());
-			tempSprinklerCircle.setVisible(false);
+				sprinklerArcLayer.getChildren().add(sprinkler.getArc());
 
-			controller.addSprinklerShape(sprinkler);
-			i++;
+				circle.setCenterX(centerX);
+				circle.setCenterY(centerY);
+				circle.setRadius(5);
+				circle.setStroke(sprinklerColor);
+				circle.setFill(sprinklerColor);
+				sprinkler.setCircle(circle);
+				sprinkler.setSprinkler(sprinklerType);
+				irrigationLayer.getChildren().add(sprinkler.getCircle());
+				tempSprinklerCircle.setVisible(false);
+
+				controller.addSprinklerShape(sprinkler);
+				i++;
+			}
 		}
 	}
 

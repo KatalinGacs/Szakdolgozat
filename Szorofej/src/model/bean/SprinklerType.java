@@ -40,7 +40,7 @@ public class SprinklerType {
 	}
 
 	public void setMaxRadius(double maxRadius) {
-		this.maxRadius.get();
+		this.maxRadius.set(maxRadius);
 	}
 
 	public double getMinAngle() {

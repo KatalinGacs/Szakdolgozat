@@ -68,35 +68,38 @@ public class AddSprinklerView {
 		addBtn.setOnAction(e -> {
 			boolean filled = false;
 			for (TextField f : fields) {
-				if (f.getText() == null && f.getText().trim().isEmpty()) {
+				if (f.getText() == null && f.getText().trim().isEmpty())
 					Common.showAlert("Töltsd ki az összes mezõt!");
-				} else
+				else
 					filled = true;
-
 			}
-			//TODO ellenõrizni, hogy mindenütt a max nagyobb legyen mint a min 
 			if (filled) {
 				try {
-					SprinklerType s = new SprinklerType();
-					s.setName(nameField.getText());
-					s.setMinRadius(Double.parseDouble(minRadiusField.getText()));
-					s.setMaxRadius(Double.parseDouble(maxRadiusField.getText()));
-					s.setMinAngle(Double.parseDouble(minAngleField.getText()));
-					s.setMaxAngle(Double.parseDouble(maxAngleField.getText()));
-					s.setFixWaterConsumption(fixWaterConsumptionCheckBox.isSelected());
-					s.setWaterCounsumption(Double.parseDouble(waterConsumptionfField.getText()));
-					s.setMinPressure(Double.parseDouble(minPressureField.getText()));
-					s.setSprinklerGroup(sprinklerGroupChoiceBox.getValue());
-					controller.addSprinklerType(s);
-					for (TextField f : fields) {
-						f.setText("");
+					if (Double.parseDouble(minRadiusField.getText()) > Double.parseDouble(maxRadiusField.getText())) {
+						Common.showAlert("A min. sugár nem lehet nagyobb a max. sugárnál!");
+					} else if (Double.parseDouble(minAngleField.getText()) > Double
+							.parseDouble(maxAngleField.getText())) {
+						Common.showAlert("A min. szög nem lehet nagyobb a max. szögnél!");
+					} else {
+						SprinklerType s = new SprinklerType();
+						s.setName(nameField.getText());
+						s.setMinRadius(Double.parseDouble(minRadiusField.getText()));
+						s.setMaxRadius(Double.parseDouble(maxRadiusField.getText()));
+						s.setMinAngle(Double.parseDouble(minAngleField.getText()));
+						s.setMaxAngle(Double.parseDouble(maxAngleField.getText()));
+						s.setFixWaterConsumption(fixWaterConsumptionCheckBox.isSelected());
+						s.setWaterCounsumption(Double.parseDouble(waterConsumptionfField.getText()));
+						s.setMinPressure(Double.parseDouble(minPressureField.getText()));
+						s.setSprinklerGroup(sprinklerGroupChoiceBox.getValue());
+						controller.addSprinklerType(s);
+						for (TextField f : fields) {
+							f.setText("");
+						}
 					}
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg az értékeket!");
 				}
 			}
-
-			
 
 		});
 
