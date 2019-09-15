@@ -1,11 +1,11 @@
 package model.bean;
 
-import javafx.beans.property.SimpleDoubleProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 
+/**
+ * Class that represents the shape of a sprinkler that can be drawn on the canvas
+ */
 public class SprinklerShape {
 
 

@@ -4,9 +4,10 @@ import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleStringProperty;
 
+/**
+ * Class that represents the Sprinkler entity in the database. 
+ */
 public class SprinklerType {
-
-
 
 	private SimpleStringProperty name = new SimpleStringProperty();
 	private SimpleDoubleProperty minRadius = new SimpleDoubleProperty();
