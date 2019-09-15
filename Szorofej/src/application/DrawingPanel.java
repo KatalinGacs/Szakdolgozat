@@ -54,6 +54,10 @@ public class DrawingPanel extends VBox {
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
 
+	private HBox viewElements = new HBox();
+	private ToggleButton showGrid = new ToggleButton("Rács");
+	private ToggleButton showArcs = new ToggleButton("Szóráskép");
+
 	public DrawingPanel() {
 
 		getChildren().add(tabPane);
@@ -67,12 +71,19 @@ public class DrawingPanel extends VBox {
 		borderTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
 				borderCircleBtn);
 
+		tabPane.setMinHeight(50);
+
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
 		scrollPane.setPrefHeight(600);
 		scrollPane.setMinHeight(USE_COMPUTED_SIZE);
-
 		getChildren().add(scrollPane);
+
+		viewElements.setMinHeight(25);
+		showGrid.setSelected(true);
+		showArcs.setSelected(true);
+		viewElements.getChildren().addAll(showGrid, showArcs);
+		getChildren().add(viewElements);
 
 		borderTab.setOnSelectionChanged(e -> {
 			borderButtons.selectToggle(null);
@@ -84,7 +95,7 @@ public class DrawingPanel extends VBox {
 			line.setStrokeWidth(borderLineWidth.getValue());
 			canvasPane.borderLines.add(line);
 			canvasPane.borderShape.add(line);
-			canvasPane.group.getChildren().add(line);
+			canvasPane.bordersLayer.getChildren().add(line);
 
 			if (canvasPane.borderDrawingOn)
 				canvasPane.borderDrawingOn = false;
@@ -165,6 +176,19 @@ public class DrawingPanel extends VBox {
 				canvasPane.drawBorderline(e, canvasPane.borderLines.get(canvasPane.borderLines.size() - 1),
 						borderColor.getValue());
 		});
+
+		showGrid.setOnAction(e -> {
+			if (showGrid.isSelected())
+				Common.showLayer(canvasPane.gridLayer);
+			else
+				Common.hideLayer(canvasPane.gridLayer);
+		});
+		showArcs.setOnAction(e -> {
+			if (showArcs.isSelected())
+				Common.showLayer(canvasPane.sprinklerArcLayer);
+			else
+				Common.hideLayer(canvasPane.sprinklerArcLayer);
+		});
 	}
 
 	private void setSprinklerAttributes() {
@@ -177,7 +201,7 @@ public class DrawingPanel extends VBox {
 		ChoiceBox<SprinklerGroup> sprinklerGroupChoiceBox = new ChoiceBox<SprinklerGroup>();
 		sprinklerGroupChoiceBox.setValue(controller.listSprinklerGroups().get(0));
 		groupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
-		
+
 		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
 
 		TableView<SprinklerType> tableView = new TableView<SprinklerType>();
@@ -201,16 +225,17 @@ public class DrawingPanel extends VBox {
 		minAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
 		maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
 		maxAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		fixWaterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Boolean>("fixWaterConsumption"));
+		fixWaterConsumptionCol
+				.setCellValueFactory(new PropertyValueFactory<SprinklerType, Boolean>("fixWaterConsumption"));
 		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
 		waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
 		minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
 		minPressureCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		
+
 		sprinklerGroupChoiceBox.getSelectionModel().selectedIndexProperty().addListener(l -> {
 			tableView.setItems(controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getValue()));
 		});
-		
+
 		Text radiusText = new Text("Sugár: ");
 		TextField radiusField = new TextField();
 		Text meterText = new Text("méter");
@@ -221,11 +246,11 @@ public class DrawingPanel extends VBox {
 		ok.setOnAction(e -> {
 			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a szórófej sugarát!");
-			} 
-			//TODO ellenõrizni, hogy a beállított sugár és szög megfelel-e a típusnak
+			}
+			// TODO ellenõrizni, hogy a beállított sugár és szög megfelel-e a típusnak
 			else {
 				try {
-					canvasPane.sprinklerRadius = Double.parseDouble(radiusField.getText()) * 50;
+					canvasPane.sprinklerRadius = Double.parseDouble(radiusField.getText()) * Common.pixelPerMeter;
 					canvasPane.sprinklerAttributesSet = true;
 					canvasPane.sprinklerType = tableView.getSelectionModel().getSelectedItem();
 					canvasPane.requestFocus();

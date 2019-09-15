@@ -1,6 +1,5 @@
 package application;
 
-import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.scene.control.TableColumn;

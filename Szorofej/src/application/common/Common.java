@@ -1,6 +1,8 @@
 package application.common;
 
 import javafx.geometry.Point2D;
+import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
 import javafx.scene.paint.Color;
@@ -8,6 +10,8 @@ import javafx.scene.shape.Rectangle;
 
 public class Common {
 
+	public final static int pixelPerMeter = 20;
+	
 	public static void showAlert(String contentText) {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setContentText(contentText);
@@ -16,8 +20,8 @@ public class Common {
 	}
 	
 	public static Point2D snapToGrid(double mouseX, double mouseY) {
-		double x = 50*(Math.round(mouseX/50));
-		double y = 50*(Math.round(mouseY/50));	
+		double x = pixelPerMeter*(Math.round(mouseX/pixelPerMeter));
+		double y = pixelPerMeter*(Math.round(mouseY/pixelPerMeter));	
 		return new Point2D(x, y);
 		
 	}
@@ -40,7 +44,17 @@ public class Common {
 		return rectangle;
 	}
 	
-	
+
+	public static void showLayer(Group layer) {
+		for (Node node : layer.getChildren()) {
+			node.setVisible(true);
+		}
+	}
+	public static void hideLayer(Group layer) {
+		for (Node node : layer.getChildren()) {
+			node.setVisible(false);
+		}
+	}	
 }
 
 

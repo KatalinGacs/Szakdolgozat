@@ -43,7 +43,11 @@ public class CanvasPane extends Pane {
 	protected double sprinklerRadius;
 
 	private TextField angleInput = new TextField();
-	protected Group group = new Group();
+
+	Group bordersLayer = new Group();
+	Group irrigationLayer = new Group();
+	Group sprinklerArcLayer = new Group();
+	Group gridLayer = new Group();
 
 	// segédvonalak
 	private Line line = new Line();
@@ -67,22 +71,23 @@ public class CanvasPane extends Pane {
 
 	public CanvasPane() {
 
-		setWidth(1500);
-		setHeight(1500);
+		setWidth(10000);
+		setHeight(10000);
 
 		// Grid
 		// TODO: javítani azt, hogy ha késõbb a meglévõ területen kívülre rajzolok, azon
 		// már nem lesz rajta ez a rács
-		for (int i = 0; i < (int) getWidth(); i += 50) {
+		for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
 			Line line = new Line(0, i, getHeight(), i);
 			line.setStroke(Color.SILVER);
 			getChildren().add(line);
+			gridLayer.getChildren().add(line);
 		}
-		for (int i = 0; i < (int) getHeight(); i += 50) {
+		for (int i = 0; i < (int) getHeight(); i += Common.pixelPerMeter) {
 			Line line = new Line(i, 0, i, getWidth());
 			line.setStroke(Color.SILVER);
-
 			getChildren().add(line);
+			gridLayer.getChildren().add(line);
 		}
 
 		line.setVisible(false);
@@ -99,8 +104,8 @@ public class CanvasPane extends Pane {
 
 		delMenu.getItems().add(delMenuItem);
 
-		getChildren().addAll(group, angleInput, line, tempLine, tempBorderLine, tempSprinklerCircle, tempRectangle,
-				tempCircle, focusCircle);
+		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, angleInput, line, tempLine,
+				tempBorderLine, tempSprinklerCircle, tempRectangle, tempCircle, focusCircle);
 
 	}
 
@@ -112,7 +117,8 @@ public class CanvasPane extends Pane {
 				delMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
 				delMenuItem.setOnAction(ev -> {
 					controller.deleteSprinklerShape(s);
-					group.getChildren().removeAll(s.getArc(), s.getCircle());
+					irrigationLayer.getChildren().remove(s.getCircle());
+					sprinklerArcLayer.getChildren().remove(s.getArc());
 					ev.consume();
 				});
 			}
@@ -125,7 +131,7 @@ public class CanvasPane extends Pane {
 						borderLines.remove(border);
 					}
 					borderShape.remove(border);
-					group.getChildren().remove(border);
+					bordersLayer.getChildren().remove(border);
 					tempBorderLine.setVisible(false);
 					tempRectangle.setVisible(false);
 					tempCircle.setVisible(false);
@@ -198,12 +204,12 @@ public class CanvasPane extends Pane {
 							circle.setStroke(sprinklerColor);
 							circle.setFill(sprinklerColor);
 							sprinkler.setCircle(circle);
-							group.getChildren().add(sprinkler.getCircle());
+							irrigationLayer.getChildren().add(sprinkler.getCircle());
 							tempSprinklerCircle.setVisible(false);
 
 							sprinkler.setArc(arc);
 
-							group.getChildren().add(sprinkler.getArc());
+							sprinklerArcLayer.getChildren().add(sprinkler.getArc());
 							controller.addSprinklerShape(sprinkler);
 
 							i++;
@@ -246,7 +252,7 @@ public class CanvasPane extends Pane {
 			arc.setLength(arcExtent);
 			sprinkler.setArc(arc);
 
-			group.getChildren().add(sprinkler.getArc());
+			sprinklerArcLayer.getChildren().add(sprinkler.getArc());
 
 			circle.setCenterX(centerX);
 			circle.setCenterY(centerY);
@@ -255,9 +261,8 @@ public class CanvasPane extends Pane {
 			circle.setFill(sprinklerColor);
 			sprinkler.setCircle(circle);
 			sprinkler.setSprinkler(sprinklerType);
-			group.getChildren().add(sprinkler.getCircle());
+			irrigationLayer.getChildren().add(sprinkler.getCircle());
 			tempSprinklerCircle.setVisible(false);
-
 
 			controller.addSprinklerShape(sprinkler);
 			i++;
@@ -336,7 +341,7 @@ public class CanvasPane extends Pane {
 		Rectangle rect = Common.drawRectangle(color, borderX, borderY, e.getX(), e.getY());
 		rect.setFill(null);
 		rect.setStrokeWidth(width);
-		group.getChildren().add(rect);
+		bordersLayer.getChildren().add(rect);
 		borderShape.add(rect);
 	}
 
@@ -359,7 +364,7 @@ public class CanvasPane extends Pane {
 		Circle circle = new Circle(borderX, borderY, r, null);
 		circle.setStroke(color);
 		circle.setStrokeWidth(width);
-		group.getChildren().add(circle);
+		bordersLayer.getChildren().add(circle);
 		borderShape.add(circle);
 
 	}

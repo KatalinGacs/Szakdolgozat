@@ -73,8 +73,8 @@ public class MainSpr extends Application {
 			del.setOnAction(e -> {
 				ObservableList<SprinklerShape> toBeDeleted = table.getSelectionModel().getSelectedItems();
 				for (SprinklerShape s : toBeDeleted) {
-					view.getCanvasPane().group.getChildren().remove(s.getArc());
-					view.getCanvasPane().group.getChildren().remove(s.getCircle());
+					view.getCanvasPane().bordersLayer.getChildren().remove(s.getArc());
+					view.getCanvasPane().bordersLayer.getChildren().remove(s.getCircle());
 					controller.deleteSprinklerShape(s);
 				}
 			});
