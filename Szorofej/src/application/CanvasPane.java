@@ -22,7 +22,6 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
-import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
@@ -44,6 +43,7 @@ public class CanvasPane extends Pane {
 	protected double sprinklerRadius;
 
 	private TextField angleInput = new TextField();
+	private TextField lengthInput = new TextField();
 
 	Group bordersLayer = new Group();
 	Group irrigationLayer = new Group();
@@ -64,8 +64,7 @@ public class CanvasPane extends Pane {
 
 	private static int i = 0;
 
-	protected List<Polyline> borderLines = new ArrayList<Polyline>();
-	protected List<Shape> borderShape = new ArrayList<Shape>();
+	protected List<Shape> borderShapes = new ArrayList<Shape>();
 
 	private ContextMenu delMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
@@ -103,10 +102,15 @@ public class CanvasPane extends Pane {
 		angleInput.setFont(Font.font(20));
 		angleInput.setPromptText("Szög");
 
+		lengthInput.setVisible(false);
+		lengthInput.setMaxWidth(130);
+		lengthInput.setFont(Font.font(20));
+		lengthInput.setPromptText("Hossz (m)");
+
 		delMenu.getItems().add(delMenuItem);
 
-		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, angleInput, line, tempLine,
-				tempBorderLine, tempSprinklerCircle, tempRectangle, tempCircle, focusCircle);
+		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, angleInput, lengthInput, line,
+				tempLine, tempBorderLine, tempSprinklerCircle, tempRectangle, tempCircle, focusCircle);
 
 	}
 
@@ -124,14 +128,15 @@ public class CanvasPane extends Pane {
 				});
 			}
 		}
-		for (Shape border : borderShape) {
+		for (Shape border : borderShapes) {
 			if (border.contains(e.getX(), e.getY())) {
 				delMenu.show(border, e.getScreenX(), e.getScreenY());
 				delMenuItem.setOnAction(ev -> {
-					if (border instanceof Polyline) {
-						borderLines.remove(border);
-					}
-					borderShape.remove(border);
+					/*
+					 * if (border instanceof Polyline) { borderLines.remove(border); }
+					 */
+					// TODO törölni ha már megvan jól
+					borderShapes.remove(border);
 					bordersLayer.getChildren().remove(border);
 					tempBorderLine.setVisible(false);
 					tempRectangle.setVisible(false);
@@ -282,6 +287,21 @@ public class CanvasPane extends Pane {
 		}
 	}
 
+	public void endSprinklerDrawing() {
+		i = 0;
+		line.setVisible(false);
+		tempSprinklerCircle.setVisible(false);
+		angleInput.setVisible(false);
+		angleInput.setText("");
+		sprinklerAttributesSet = false;
+	}
+
+	/**
+	 * Shows a temporary line while drawing the sprinkler arc, between the center of
+	 * the arc and the two endpoints
+	 * 
+	 * @param mouseEvent
+	 */
 	public void showTempLine(MouseEvent mouseEvent) {
 		if (sprinklerAttributesSet && !borderDrawingOn) {
 
@@ -314,18 +334,57 @@ public class CanvasPane extends Pane {
 		}
 	}
 
-	public void drawBorderline(MouseEvent e, Polyline line, Color color) {
-		if (!line.getPoints().isEmpty()) {
-			tempBorderLine.setStartX(line.getPoints().get(line.getPoints().size() - 2));
-			tempBorderLine.setStartY(line.getPoints().get(line.getPoints().size() - 1));
-			tempBorderLine.setEndX(e.getX());
-			tempBorderLine.setEndY(e.getY());
-			tempBorderLine.setStroke(color);
-			tempBorderLine.setVisible(true);
-		}
+	public void showTempBorderLine(MouseEvent e, Color color) {
+		lengthInput.setVisible(true);
+		lengthInput.relocate(borderX, borderY);
+		tempBorderLine.setStartX(borderX);
+		tempBorderLine.setStartY(borderY);
+		tempBorderLine.setEndX(e.getX());
+		tempBorderLine.setEndY(e.getY());
+		tempBorderLine.setStroke(color);
+		tempBorderLine.setVisible(true);
 	}
 
-	public void showtempRectanlge(MouseEvent e, Color color) {
+	public void drawBorderLine(MouseEvent e, Color color, int width) {
+		if (lengthInput.getText().trim().isEmpty() || lengthInput.getText() == null) {
+			Line line = new Line(borderX, borderY, e.getX(), e.getY());
+			line.setStrokeWidth(width);
+			line.setStroke(color);
+			borderShapes.add(line);
+			bordersLayer.getChildren().add(line);
+			borderX = e.getX();
+			borderY = e.getY();
+		} else {
+			try {
+				double requiredLength = Double.parseDouble(lengthInput.getText()) * Common.pixelPerMeter;
+				double drawnLength = Math.sqrt(
+						(borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
+				double ratio = requiredLength / drawnLength;
+				double X = borderX + (e.getX() - borderX) * ratio;
+				double Y = borderY + (e.getY() - borderY) * ratio;
+				Line line = new Line(borderX, borderY, X, Y);
+				line.setStrokeWidth(width);
+				line.setStroke(color);
+				borderShapes.add(line);
+				bordersLayer.getChildren().add(line);
+				borderX = X;
+				borderY = Y;
+				lengthInput.setText("");
+				lengthInput.setVisible(false);
+				
+			} catch (NumberFormatException ex) {
+				Common.showAlert("Számokban add meg a vonal hosszát vagy hagyd üresen a mezõt!");
+			}
+
+		}
+	}
+	
+	public void endLineDrawing() {
+		lengthInput.setVisible(false);
+		tempBorderLine.setVisible(false);
+	}
+
+	public void showtempBorderRectanlge(MouseEvent e, Color color) {
 		if (e.getButton() == MouseButton.PRIMARY) {
 			double width = Math.abs(borderX - e.getX());
 			double height = Math.abs(borderY - e.getY());
@@ -355,10 +414,10 @@ public class CanvasPane extends Pane {
 		rect.setFill(null);
 		rect.setStrokeWidth(width);
 		bordersLayer.getChildren().add(rect);
-		borderShape.add(rect);
+		borderShapes.add(rect);
 	}
 
-	public void showTempCircle(MouseEvent e, Color color) {
+	public void showTempBorderCircle(MouseEvent e, Color color) {
 		if (e.getButton() == MouseButton.PRIMARY) {
 			double r = Math
 					.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
@@ -378,22 +437,13 @@ public class CanvasPane extends Pane {
 		circle.setStroke(color);
 		circle.setStrokeWidth(width);
 		bordersLayer.getChildren().add(circle);
-		borderShape.add(circle);
+		borderShapes.add(circle);
 
 	}
 
 	public void startDrawingBorder(MouseEvent e) {
 		borderX = e.getX();
 		borderY = e.getY();
-	}
-
-	public void endSprinklerDrawing() {
-		i = 0;
-		line.setVisible(false);
-		tempSprinklerCircle.setVisible(false);
-		angleInput.setVisible(false);
-		angleInput.setText("");
-		sprinklerAttributesSet = false;
 	}
 
 	public void showFocusCircle(MouseEvent e) {

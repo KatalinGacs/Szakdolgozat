@@ -89,18 +89,6 @@ public class DrawingPanel extends VBox {
 			borderButtons.selectToggle(null);
 		});
 
-		borderLineBtn.setOnMouseClicked(e -> {
-			Polyline line = new Polyline();
-			line.setStroke(borderColor.getValue());
-			line.setStrokeWidth(borderLineWidth.getValue());
-			canvasPane.borderLines.add(line);
-			canvasPane.borderShape.add(line);
-			canvasPane.bordersLayer.getChildren().add(line);
-
-			if (canvasPane.borderDrawingOn)
-				canvasPane.borderDrawingOn = false;
-		});
-
 		setSprinklerBtn.setOnAction(e -> {
 			setSprinklerAttributes();
 		});
@@ -110,20 +98,27 @@ public class DrawingPanel extends VBox {
 			if (borderButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet
 					&& e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.drawNewSprinkler(e);
-			} else if (borderButtons.getSelectedToggle() == borderLineBtn) {
-				canvasPane.borderLines.get(canvasPane.borderLines.size() - 1).getPoints().addAll(e.getX(), e.getY());
-			} else if (e.getButton() == MouseButton.SECONDARY)
+			} else if (e.getButton() == MouseButton.PRIMARY && borderButtons.getSelectedToggle() == borderLineBtn
+					&& canvasPane.borderDrawingOn == false) {
+				canvasPane.borderDrawingOn = true;
+				canvasPane.startDrawingBorder(e);
+			} else if (e.getButton() == MouseButton.PRIMARY && borderButtons.getSelectedToggle() == borderLineBtn
+					&& canvasPane.borderDrawingOn) {
+				canvasPane.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue());
+
+			} else if (e.getButton() == MouseButton.SECONDARY) {
 				canvasPane.selectElement(e);
+			}
 			e.consume();
 			canvasPane.requestFocus();
 		});
 
 		canvasPane.setOnMousePressed(e -> {
 			canvasPane.requestFocus();
-			if (borderButtons.getSelectedToggle() != null && e.getButton() == MouseButton.PRIMARY) {
+			if ((borderButtons.getSelectedToggle() == borderRectangleBtn
+					|| borderButtons.getSelectedToggle() == borderCircleBtn) && e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.borderDrawingOn = true;
 				canvasPane.startDrawingBorder(e);
-
 			}
 		});
 
@@ -131,8 +126,10 @@ public class DrawingPanel extends VBox {
 			if (e.getButton() == MouseButton.PRIMARY) {
 				if (borderButtons.getSelectedToggle() == borderRectangleBtn) {
 					canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderLineWidth.getValue());
+					canvasPane.borderDrawingOn = false;
 				} else if (borderButtons.getSelectedToggle() == borderCircleBtn) {
 					canvasPane.drawBorderCircle(e, borderColor.getValue(), borderLineWidth.getValue());
+					canvasPane.borderDrawingOn = false;
 				}
 			}
 		});
@@ -147,6 +144,7 @@ public class DrawingPanel extends VBox {
 			canvasPane.pressedKey = e.getCode();
 			if (canvasPane.pressedKey.equals(KeyCode.ESCAPE)) {
 				canvasPane.endSprinklerDrawing();
+				canvasPane.endLineDrawing();
 			}
 		});
 
@@ -156,7 +154,7 @@ public class DrawingPanel extends VBox {
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
 
 			if (canvasPane.pressedKey == KeyCode.SHIFT) {
-				for (Shape border : canvasPane.borderShape) {
+				for (Shape border : canvasPane.borderShapes) {
 					if (border.contains(mousePoint)) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
 						break;
@@ -164,17 +162,16 @@ public class DrawingPanel extends VBox {
 						canvasPane.setCursor(Cursor.DEFAULT);
 				}
 			}
+
+			if (borderButtons.getSelectedToggle() == borderLineBtn && canvasPane.borderDrawingOn)
+				canvasPane.showTempBorderLine(e, borderColor.getValue());
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
 			if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderRectangleBtn)
-				canvasPane.showtempRectanlge(e, borderColor.getValue());
+				canvasPane.showtempBorderRectanlge(e, borderColor.getValue());
 			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderCircleBtn)
-				canvasPane.showTempCircle(e, borderColor.getValue());
-			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderLineBtn
-					&& canvasPane.borderLines.size() > 0)
-				canvasPane.drawBorderline(e, canvasPane.borderLines.get(canvasPane.borderLines.size() - 1),
-						borderColor.getValue());
+				canvasPane.showTempBorderCircle(e, borderColor.getValue());
 		});
 
 		showGrid.setOnAction(e -> {
@@ -234,7 +231,8 @@ public class DrawingPanel extends VBox {
 
 		sprinklerGroupChoiceBox.setOnAction(e -> {
 			tableView.getItems().clear();
-			tableView.setItems(controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+			tableView.setItems(
+					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 		});
 
 		Text radiusText = new Text("Sugár: ");
@@ -247,19 +245,18 @@ public class DrawingPanel extends VBox {
 		ok.setOnAction(e -> {
 			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a szórófej sugarát!");
-			}
-			else {
+			} else {
 				try {
-					double radius = Double.parseDouble(radiusField.getText()) ;
+					double radius = Double.parseDouble(radiusField.getText());
 					SprinklerType type = tableView.getSelectionModel().getSelectedItem();
 					// a megrendelõ kérésére csak azt ellenõrzi, hogyha a megengedettnél nagyobb
 					// sugárra próbálja állítani, fizikailag lehetséges kisebb a gyártó által
 					// megadottnál kisebb szögre állítani és néha erre van szükség
 					if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
-						
+
 						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
 					} else {
-						canvasPane.sprinklerRadius = radius* Common.pixelPerMeter;
+						canvasPane.sprinklerRadius = radius * Common.pixelPerMeter;
 						canvasPane.sprinklerAttributesSet = true;
 						canvasPane.sprinklerType = type;
 					}
