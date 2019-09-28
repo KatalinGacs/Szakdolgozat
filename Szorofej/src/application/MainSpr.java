@@ -7,6 +7,7 @@ import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.application.Application;
 import javafx.collections.ObservableList;
+import javafx.geometry.Rectangle2D;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Menu;
@@ -14,6 +15,7 @@ import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
+import javafx.stage.Screen;
 import javafx.stage.Stage;
 import model.bean.SprinklerShape;
 
@@ -86,11 +88,11 @@ public class MainSpr extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		
 	}
 
 	public static void main(String[] args) {
 		launch(args);
-
 	}
 
 }

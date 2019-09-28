@@ -87,6 +87,7 @@ public class DrawingPanel extends VBox {
 
 		borderTab.setOnSelectionChanged(e -> {
 			borderButtons.selectToggle(null);
+			canvasPane.endLineDrawing();
 		});
 
 		setSprinklerBtn.setOnAction(e -> {
@@ -145,6 +146,7 @@ public class DrawingPanel extends VBox {
 			if (canvasPane.pressedKey.equals(KeyCode.ESCAPE)) {
 				canvasPane.endSprinklerDrawing();
 				canvasPane.endLineDrawing();
+				borderButtons.selectToggle(null);
 			}
 		});
 
@@ -196,10 +198,9 @@ public class DrawingPanel extends VBox {
 		HBox groupPane = new HBox();
 		Text sprinklerGroupText = new Text("Szórófej csoport");
 		ChoiceBox<SprinklerGroup> sprinklerGroupChoiceBox = new ChoiceBox<SprinklerGroup>();
+		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
 		sprinklerGroupChoiceBox.setValue(controller.listSprinklerGroups().get(0));
 		groupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
-
-		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
 
 		TableView<SprinklerType> tableView = new TableView<SprinklerType>();
 		TableColumn<SprinklerType, String> nameCol = new TableColumn<>("Név");
@@ -232,6 +233,7 @@ public class DrawingPanel extends VBox {
 		sprinklerGroupChoiceBox.setOnAction(e -> {
 			tableView.getItems().clear();
 			tableView.setItems(
+					//TODO ez vmiért nullpointerexceptiont dob, de miért, kijavítani
 					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 		});
 
