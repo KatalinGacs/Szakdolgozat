@@ -5,6 +5,7 @@ import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.scene.Cursor;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -25,6 +26,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Polyline;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
@@ -42,14 +44,24 @@ public class DrawingPanel extends VBox {
 	private HBox borderTabElements = new HBox();
 	private HBox sprinklerTabElements = new HBox();
 
-	private Button setSprinklerBtn = new Button("Szórófej kiválasztása");
-
-	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 5, 3);
-	private ToggleButton borderLineBtn = new ToggleButton("Határvonal");
-	private ToggleButton borderRectangleBtn = new ToggleButton("Téglalap");
-	private ToggleButton borderCircleBtn = new ToggleButton("Kör");
-	private ToggleGroup borderButtons = new ToggleGroup();
+	private Text borderColorText = new Text(" Vonalszín ");
 	protected ColorPicker borderColor = new ColorPicker();
+	private Text borderLineWidthText = new Text(" Vonalvastagság ");
+	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 10, 5);
+	private ToggleButton borderLineBtn = new ToggleButton("Határvonal");
+	private ToggleButton borderRectangleBtn = new ToggleButton("Tereptárgy téglalap");
+	private ToggleButton borderCircleBtn = new ToggleButton("Tereptárgy kör");
+	private Text borderFillText = new Text("Tereptárgy kitöltés szín ");
+	protected ColorPicker borderFillColor = new ColorPicker(Color.TRANSPARENT);
+	private ToggleGroup borderButtons = new ToggleGroup();
+
+	private Button setSprinklerBtn = new Button("Szórófej kiválasztása");
+	private ToggleButton drawSeveralSprinklerOptions = new ToggleButton("Több szórófej rajzolása egy vonalra");
+	private Text numberOfSprinklerText = new Text(" Darab ");
+	private Spinner<Integer> numberOfSprinklers = new Spinner<Integer>(1, 40, 3);
+	private ToggleButton selectLine = new ToggleButton("Vonal kiválasztása");
+	private Button showSprinklers = new Button("Mutasd");
+	private Button drawSeveralSprinklers = new Button("OK, szögek beállítása");
 
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
@@ -62,20 +74,43 @@ public class DrawingPanel extends VBox {
 
 		getChildren().add(tabPane);
 		tabPane.getTabs().addAll(borderTab, sprinklerTab);
-		sprinklerTab.setContent(sprinklerTabElements);
-		sprinklerTabElements.getChildren().add(setSprinklerBtn);
+		tabPane.setMinHeight(50);
 
 		borderTab.setContent(borderTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
 		borderColor.setValue(Color.LIMEGREEN);
-		borderTabElements.getChildren().addAll(borderColor, borderLineWidth, borderLineBtn, borderRectangleBtn,
-				borderCircleBtn);
+		borderTabElements.getChildren().addAll(borderColorText, borderColor, borderLineWidthText, borderLineWidth,
+				borderLineBtn, borderRectangleBtn, borderCircleBtn, borderFillText, borderFillColor);
+		borderTabElements.setAlignment(Pos.CENTER_LEFT);
 
-		tabPane.setMinHeight(50);
+		sprinklerTab.setContent(sprinklerTabElements);
+		sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerOptions, selectLine,
+				numberOfSprinklerText, numberOfSprinklers, showSprinklers, drawSeveralSprinklers);
+		sprinklerTabElements.setAlignment(Pos.CENTER_LEFT);
+		numberOfSprinklerText.setVisible(false);
+		numberOfSprinklers.setVisible(false);
+		showSprinklers.setVisible(false);
+		selectLine.setVisible(false);
+		drawSeveralSprinklers.setVisible(false);
+		drawSeveralSprinklerOptions.setOnAction(e -> {
+			if (drawSeveralSprinklerOptions.isSelected()) {
+				numberOfSprinklers.setVisible(true);
+				showSprinklers.setVisible(true);
+				selectLine.setVisible(true);
+				numberOfSprinklerText.setVisible(true);
+				drawSeveralSprinklers.setVisible(true);
+			} else {
+				numberOfSprinklers.setVisible(false);
+				showSprinklers.setVisible(false);
+				selectLine.setVisible(false);
+				numberOfSprinklerText.setVisible(false);
+				drawSeveralSprinklers.setVisible(false);
+			}
+		});
 
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
-		scrollPane.setPrefHeight(600);
+		scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
 		scrollPane.setMinHeight(USE_COMPUTED_SIZE);
 		getChildren().add(scrollPane);
 
@@ -91,12 +126,25 @@ public class DrawingPanel extends VBox {
 		});
 
 		setSprinklerBtn.setOnAction(e -> {
-			setSprinklerAttributes();
+			canvasPane.setSprinklerAttributes();
+		});
+
+		drawSeveralSprinklers.setOnAction(e -> {
+			if (!canvasPane.sprinklerAttributesSet)
+				Common.showAlert("A szórófej típusa nincs kiválasztva!");
+			else if (!canvasPane.lineSelected)
+				Common.showAlert("A vonal nincs kiválasztva!");
+			else
+				canvasPane.drawSeveralSprinklers();
 		});
 
 		canvasPane.setOnMouseClicked(e -> {
 			canvasPane.requestFocus();
-			if (borderButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet
+			if (e.getButton() == MouseButton.PRIMARY && selectLine.isSelected()) {
+				canvasPane.selectLineForSprinklerDrawing(e);
+				if (canvasPane.lineSelected)
+					selectLine.setSelected(false);
+			} else if (borderButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet
 					&& e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.drawNewSprinkler(e);
 			} else if (e.getButton() == MouseButton.PRIMARY && borderButtons.getSelectedToggle() == borderLineBtn
@@ -110,6 +158,7 @@ public class DrawingPanel extends VBox {
 			} else if (e.getButton() == MouseButton.SECONDARY) {
 				canvasPane.selectElement(e);
 			}
+
 			e.consume();
 			canvasPane.requestFocus();
 		});
@@ -126,10 +175,12 @@ public class DrawingPanel extends VBox {
 		canvasPane.setOnMouseReleased(e -> {
 			if (e.getButton() == MouseButton.PRIMARY) {
 				if (borderButtons.getSelectedToggle() == borderRectangleBtn) {
-					canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderLineWidth.getValue());
+					canvasPane.drawBorderRectanlge(e, borderColor.getValue(), borderFillColor.getValue(),
+							borderLineWidth.getValue());
 					canvasPane.borderDrawingOn = false;
 				} else if (borderButtons.getSelectedToggle() == borderCircleBtn) {
-					canvasPane.drawBorderCircle(e, borderColor.getValue(), borderLineWidth.getValue());
+					canvasPane.drawBorderCircle(e, borderColor.getValue(), borderFillColor.getValue(),
+							borderLineWidth.getValue());
 					canvasPane.borderDrawingOn = false;
 				}
 			}
@@ -165,8 +216,41 @@ public class DrawingPanel extends VBox {
 				}
 			}
 
-			if (borderButtons.getSelectedToggle() == borderLineBtn && canvasPane.borderDrawingOn)
+			if (borderButtons.getSelectedToggle() == borderLineBtn && canvasPane.borderDrawingOn) {
 				canvasPane.showTempBorderLine(e, borderColor.getValue());
+				for (Shape border : canvasPane.borderShapes) {
+					if (border instanceof Line) {
+						if ((Math.abs(e.getX() - ((Line) border).getStartX()) < Common.pixelPerMeter / 2
+								&& Math.abs(e.getY() - ((Line) border).getStartY()) < Common.pixelPerMeter / 2)) {
+							canvasPane.setCursor(Cursor.CROSSHAIR);
+							canvasPane.lineEndX = ((Line) border).getStartX();
+							canvasPane.lineEndY = ((Line) border).getStartY();
+							canvasPane.cursorNearLineEnd = true;
+							break;
+						} else if (Math.abs(e.getX() - ((Line) border).getEndX()) < Common.pixelPerMeter / 2
+								&& Math.abs(e.getY() - ((Line) border).getEndY()) < Common.pixelPerMeter / 2) {
+							canvasPane.setCursor(Cursor.CROSSHAIR);
+							canvasPane.lineEndX = ((Line) border).getEndX();
+							canvasPane.lineEndY = ((Line) border).getEndY();
+							canvasPane.cursorNearLineEnd = true;
+							break;
+						} else {
+							canvasPane.setCursor(Cursor.DEFAULT);
+							canvasPane.cursorNearLineEnd = false;
+						}
+					}
+				}
+			}
+			if (selectLine.isSelected()) {
+				canvasPane.preparingForDrawingSeveralSprinklers = true;
+				for (Shape border : canvasPane.borderShapes) {
+					if (border instanceof Line && border.contains(e.getX(), e.getY())) {
+						canvasPane.setCursor(Cursor.CROSSHAIR);
+						break;
+					} else
+						canvasPane.setCursor(Cursor.DEFAULT);
+				}
+			}
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
@@ -174,6 +258,14 @@ public class DrawingPanel extends VBox {
 				canvasPane.showtempBorderRectanlge(e, borderColor.getValue());
 			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == borderCircleBtn)
 				canvasPane.showTempBorderCircle(e, borderColor.getValue());
+		});
+
+		showSprinklers.setOnAction(e -> {
+			if (canvasPane.sprinklerAttributesSet) {
+				canvasPane.showSprinklersInALine(numberOfSprinklers.getValue());
+				selectLine.setSelected(false);
+			} else
+				Common.showAlert("Válaszd ki a szórófej típusát!");
 		});
 
 		showGrid.setOnAction(e -> {
@@ -188,89 +280,6 @@ public class DrawingPanel extends VBox {
 			else
 				Common.hideLayer(canvasPane.sprinklerArcLayer);
 		});
-	}
-
-	private void setSprinklerAttributes() {
-		Stage sprinklerInfoStage = new Stage();
-		VBox root = new VBox();
-		Scene scene = new Scene(root, 800, 400);
-
-		HBox groupPane = new HBox();
-		Text sprinklerGroupText = new Text("Szórófej csoport");
-		ChoiceBox<SprinklerGroup> sprinklerGroupChoiceBox = new ChoiceBox<SprinklerGroup>();
-		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
-		sprinklerGroupChoiceBox.setValue(controller.listSprinklerGroups().get(0));
-		groupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
-
-		TableView<SprinklerType> tableView = new TableView<SprinklerType>();
-		TableColumn<SprinklerType, String> nameCol = new TableColumn<>("Név");
-		TableColumn<SprinklerType, Double> minRadiusCol = new TableColumn<>("Min. sugár (m)");
-		TableColumn<SprinklerType, Double> maxRadiusCol = new TableColumn<>("Max. sugár (m)");
-		TableColumn<SprinklerType, Double> minAngleCol = new TableColumn<>("Min. szög (fok)");
-		TableColumn<SprinklerType, Double> maxAngleCol = new TableColumn<>("Max. szög (fok)");
-		TableColumn<SprinklerType, Boolean> fixWaterConsumptionCol = new TableColumn<>("Fix vízfogyasztás");
-		TableColumn<SprinklerType, Double> waterConsumptionCol = new TableColumn<>("Vízfogyasztás (l/min)");
-		TableColumn<SprinklerType, Double> minPressureCol = new TableColumn<>("Min. víznyomás (bar)");
-
-		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
-				fixWaterConsumptionCol, waterConsumptionCol, minPressureCol);
-		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
-		minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
-		minRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));
-		maxRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		minAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minAngle"));
-		minAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
-		maxAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		fixWaterConsumptionCol
-				.setCellValueFactory(new PropertyValueFactory<SprinklerType, Boolean>("fixWaterConsumption"));
-		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
-		waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
-		minPressureCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-
-		sprinklerGroupChoiceBox.setOnAction(e -> {
-			tableView.getItems().clear();
-			tableView.setItems(
-					//TODO ez vmiért nullpointerexceptiont dob, de miért, kijavítani
-					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
-		});
-
-		Text radiusText = new Text("Sugár: ");
-		TextField radiusField = new TextField();
-		Text meterText = new Text("méter");
-		sprinklerInfoStage.setScene(scene);
-		Button ok = new Button("OK");
-		root.getChildren().addAll(groupPane, tableView, radiusText, radiusField, meterText, ok);
-
-		ok.setOnAction(e -> {
-			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
-				Common.showAlert("Add meg a szórófej sugarát!");
-			} else {
-				try {
-					double radius = Double.parseDouble(radiusField.getText());
-					SprinklerType type = tableView.getSelectionModel().getSelectedItem();
-					// a megrendelõ kérésére csak azt ellenõrzi, hogyha a megengedettnél nagyobb
-					// sugárra próbálja állítani, fizikailag lehetséges kisebb a gyártó által
-					// megadottnál kisebb szögre állítani és néha erre van szükség
-					if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
-
-						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
-					} else {
-						canvasPane.sprinklerRadius = radius * Common.pixelPerMeter;
-						canvasPane.sprinklerAttributesSet = true;
-						canvasPane.sprinklerType = type;
-					}
-
-					canvasPane.requestFocus();
-				} catch (NumberFormatException ex) {
-					Common.showAlert("Számokban add meg a szórófej sugarát!");
-				}
-			}
-			sprinklerInfoStage.close();
-		});
-		sprinklerInfoStage.show();
 	}
 
 	public CanvasPane getCanvasPane() {

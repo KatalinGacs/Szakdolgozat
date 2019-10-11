@@ -24,7 +24,6 @@ public class MainSpr extends Application {
 	private SprinklerController controller = new SprinklerControllerImpl();
 	SprinklerTable table = new SprinklerTable();
 	VBox left = new VBox();
-	Button del = new Button("Törlés");
 	DrawingPanel view = new DrawingPanel();
 
 	private MenuBar menuBar = new MenuBar();
@@ -71,15 +70,8 @@ public class MainSpr extends Application {
 			
 			root.setTop(menuBar);
 			
-			left.getChildren().addAll(del, table);
-			del.setOnAction(e -> {
-				ObservableList<SprinklerShape> toBeDeleted = table.getSelectionModel().getSelectedItems();
-				for (SprinklerShape s : toBeDeleted) {
-					view.getCanvasPane().bordersLayer.getChildren().remove(s.getArc());
-					view.getCanvasPane().bordersLayer.getChildren().remove(s.getCircle());
-					controller.deleteSprinklerShape(s);
-				}
-			});
+			left.getChildren().addAll(table);
+	
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
 			primaryStage.show();
