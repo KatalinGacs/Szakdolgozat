@@ -1,7 +1,9 @@
 package application;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 import application.common.Common;
 import application.common.DecimalCellFactory;
@@ -19,7 +21,6 @@ import javafx.scene.control.MenuItem;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleButton;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseButton;
@@ -92,6 +93,11 @@ public class CanvasPane extends Pane {
 	private List<Circle> tempSprinklerCirclesInALine = new ArrayList<>();
 	private List<Circle> tempSprinklerCentersInALine = new ArrayList<>();
 
+	// TODO esetleg a tervezés fázisait jelzõ egyre több bool helyett egy enum?
+	protected boolean zoneEditingOn = false;
+	protected Set<SprinklerShape> selectedSprinklerShapes = new HashSet<>();
+	protected double flowRateOfSelected = 0;
+
 	private enum sprinklerDrawingState {
 		CENTER, FIRSTSIDE, SECONDSIDE
 	}
@@ -152,32 +158,43 @@ public class CanvasPane extends Pane {
 
 	// Elemek kijelölése, most csak törlésre használható, de ezzel lehetne az adott
 	// elemrõl infókat kilistázni
-	protected void selectElement(MouseEvent e) {
+	protected void selectElement(MouseEvent e, boolean onlySprinklerHeads) {
+
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {
-				rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
-				delMenuItem.setOnAction(ev -> {
-					controller.deleteSprinklerShape(s);
-					irrigationLayer.getChildren().remove(s.getCircle());
-					sprinklerArcLayer.getChildren().remove(s.getArc());
-					ev.consume();
-				});
+				if (onlySprinklerHeads) {
+					selectedSprinklerShapes.add(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes) 
+						flowRateOfSelected += sh.getSprinkler().getWaterConsumption();
+				} else {
+					rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
+					delMenuItem.setOnAction(ev -> {
+						controller.deleteSprinklerShape(s);
+						irrigationLayer.getChildren().remove(s.getCircle());
+						sprinklerArcLayer.getChildren().remove(s.getArc());
+						ev.consume();
+					});
+				}
 			}
 		}
-		for (Shape border : borderShapes) {
-			if (border.contains(e.getX(), e.getY())) {
-				rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
-				delMenuItem.setOnAction(ev -> {
-					borderShapes.remove(border);
-					bordersLayer.getChildren().remove(border);
-					tempBorderLine.setVisible(false);
-					tempRectangle.setVisible(false);
-					tempCircle.setVisible(false);
-					ev.consume();
-				});
+		if (!onlySprinklerHeads) {
+			for (Shape border : borderShapes) {
+				if (border.contains(e.getX(), e.getY())) {
+					rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
+					delMenuItem.setOnAction(ev -> {
+						borderShapes.remove(border);
+						bordersLayer.getChildren().remove(border);
+						tempBorderLine.setVisible(false);
+						tempRectangle.setVisible(false);
+						tempCircle.setVisible(false);
+						ev.consume();
+					});
 
+				}
 			}
 		}
+
 	}
 
 	protected void drawNewSprinkler(MouseEvent mouseEvent) {
@@ -711,8 +728,8 @@ public class CanvasPane extends Pane {
 				tempSprinklerCirclesInALine.add(c);
 				tempSprinklerCentersInALine.add(center);
 			}
-		}
-		else Common.showAlert("A vonal nincs kiválasztva!");
+		} else
+			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
 	public void drawSeveralSprinklers() {

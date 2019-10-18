@@ -4,6 +4,7 @@ import application.common.Common;
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
@@ -11,6 +12,7 @@ import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ColorPicker;
+import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
@@ -23,6 +25,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -36,18 +39,21 @@ import model.bean.SprinklerType;
 
 public class DrawingPanel extends VBox {
 
+
 	private SprinklerController controller = new SprinklerControllerImpl();
 
 	private TabPane tabPane = new TabPane();
 	private Tab borderTab = new Tab("Alaprajz");
-	private Tab sprinklerTab = new Tab("Szorofej");
+	private Tab sprinklerTab = new Tab("Szórófej");
+	private Tab zoneTab = new Tab("Zónák");
 	private HBox borderTabElements = new HBox();
 	private HBox sprinklerTabElements = new HBox();
+	private HBox zoneTabElements = new HBox();
 
 	private Text borderColorText = new Text(" Vonalszín ");
 	protected ColorPicker borderColor = new ColorPicker();
 	private Text borderLineWidthText = new Text(" Vonalvastagság ");
-	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 10, 5);
+	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 20, 5);
 	private ToggleButton borderLineBtn = new ToggleButton("Határvonal");
 	private ToggleButton borderRectangleBtn = new ToggleButton("Tereptárgy téglalap");
 	private ToggleButton borderCircleBtn = new ToggleButton("Tereptárgy kör");
@@ -62,6 +68,8 @@ public class DrawingPanel extends VBox {
 	private ToggleButton selectLine = new ToggleButton("Vonal kiválasztása");
 	private Button showSprinklers = new Button("Mutasd");
 	private Button drawSeveralSprinklers = new Button("OK, szögek beállítása");
+	
+	private Button zoneBtn = new Button("Zóna megadása");
 
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
@@ -70,23 +78,32 @@ public class DrawingPanel extends VBox {
 	private ToggleButton showGrid = new ToggleButton("Rács");
 	private ToggleButton showArcs = new ToggleButton("Szóráskép");
 
+	private ToggleButton addHeads = new ToggleButton("Hozzáadás");
+	private ToggleButton removeHeads = new ToggleButton("Törlés");
+	private Text numberOfSelectedHeadsField = new Text();
+	private Text flowRateOfSelectedHeadsField = new Text();
+
+	
 	public DrawingPanel() {
 
 		getChildren().add(tabPane);
-		tabPane.getTabs().addAll(borderTab, sprinklerTab);
-		tabPane.setMinHeight(50);
-
+		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab);
+		tabPane.setMinHeight(Common.pixelPerMeter*2);
+		borderLineWidth.setPrefWidth(60);
+		
 		borderTab.setContent(borderTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, borderRectangleBtn, borderCircleBtn);
+		borderTabElements.setAlignment(Pos.CENTER_LEFT);
+		borderTabElements.setSpacing(10);
 		borderColor.setValue(Color.LIMEGREEN);
 		borderTabElements.getChildren().addAll(borderColorText, borderColor, borderLineWidthText, borderLineWidth,
 				borderLineBtn, borderRectangleBtn, borderCircleBtn, borderFillText, borderFillColor);
-		borderTabElements.setAlignment(Pos.CENTER_LEFT);
 
 		sprinklerTab.setContent(sprinklerTabElements);
 		sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerOptions, selectLine,
 				numberOfSprinklerText, numberOfSprinklers, showSprinklers, drawSeveralSprinklers);
 		sprinklerTabElements.setAlignment(Pos.CENTER_LEFT);
+		sprinklerTabElements.setSpacing(10);
 		numberOfSprinklerText.setVisible(false);
 		numberOfSprinklers.setVisible(false);
 		showSprinklers.setVisible(false);
@@ -108,13 +125,23 @@ public class DrawingPanel extends VBox {
 			}
 		});
 
+		zoneTab.setContent(zoneTabElements);
+		zoneTabElements.getChildren().addAll(zoneBtn);
+		zoneTabElements.setAlignment(Pos.CENTER_LEFT);
+		zoneTabElements.setSpacing(10);
+		zoneBtn.setOnAction(e-> {
+			setZones();
+		});
+		
 		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 		scrollPane.setFitToWidth(true);
 		scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
 		scrollPane.setMinHeight(USE_COMPUTED_SIZE);
 		getChildren().add(scrollPane);
 
-		viewElements.setMinHeight(25);
+		viewElements.setMinHeight(Common.pixelPerMeter*2);
+		viewElements.setAlignment(Pos.CENTER_LEFT);
+		viewElements.setSpacing(10);
 		showGrid.setSelected(true);
 		showArcs.setSelected(true);
 		viewElements.getChildren().addAll(showGrid, showArcs);
@@ -154,9 +181,12 @@ public class DrawingPanel extends VBox {
 			} else if (e.getButton() == MouseButton.PRIMARY && borderButtons.getSelectedToggle() == borderLineBtn
 					&& canvasPane.borderDrawingOn) {
 				canvasPane.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue());
-
+			} else if (e.getButton() == MouseButton.PRIMARY && canvasPane.zoneEditingOn && addHeads.isSelected()) {
+				canvasPane.selectElement(e, true);
+				numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
+				flowRateOfSelectedHeadsField.setText(canvasPane.flowRateOfSelected + "");
 			} else if (e.getButton() == MouseButton.SECONDARY) {
-				canvasPane.selectElement(e);
+				canvasPane.selectElement(e, false);
 			}
 
 			e.consume();
@@ -282,6 +312,62 @@ public class DrawingPanel extends VBox {
 		});
 	}
 
+	public void setZones() {
+		canvasPane.sprinklerAttributesSet = false;
+		canvasPane.zoneEditingOn = true;
+		canvasPane.selectedSprinklerShapes.clear();
+		numberOfSelectedHeadsField.setText("0");
+		flowRateOfSelectedHeadsField.setText("0");
+		
+		Stage zoneStage = new Stage();
+		GridPane zoneRoot = new GridPane();
+		zoneRoot.setVgap(10);
+		zoneRoot.setHgap(10);
+		zoneRoot.setPadding(new Insets(10, 10, 10, 10));
+		Scene zoneScene = new Scene(zoneRoot, 800, 400);
+		zoneStage.setScene(zoneScene);
+		zoneStage.setAlwaysOnTop(true); 
+		
+		Text zoneNameText = new Text("Zóna elnevezése");
+		TextField zoneNameTextField = new TextField();
+		Text selectionMethodText = new Text("Kijelölés módja");
+		RadioButton selectIndividualHeads = new RadioButton("Egyes fejek kijelölése");
+		RadioButton selectTerritory = new RadioButton("Területbe esõ fejek kijelölése");
+		ToggleGroup selectionMethodGroup = new ToggleGroup();
+		selectIndividualHeads.setToggleGroup(selectionMethodGroup);
+		selectTerritory.setToggleGroup(selectionMethodGroup);
+		Text numberOfSelectedHeadsText = new Text("Kijelölt szórófejek száma");
+		Text flowRateOfSelectedHeadsText = new Text("Kijelölt fejek vízfogyasztása (liter/perc)");
+		
+		ToggleGroup addOrRemoveGroup = new ToggleGroup();
+		addHeads.setToggleGroup(addOrRemoveGroup);
+		removeHeads.setToggleGroup(addOrRemoveGroup);
+		HBox addOrRemoveContainer = new HBox(addHeads, removeHeads);		
+		Button createZoneBtn = new Button("Zóna létrehozása");
+		
+		selectIndividualHeads.setSelected(true);
+		addHeads.setSelected(true);
+		
+		zoneRoot.add(zoneNameText, 0, 0);
+		zoneRoot.add(zoneNameTextField, 1, 0);
+		zoneRoot.add(selectionMethodText, 0, 1);
+		zoneRoot.add(selectIndividualHeads, 0, 2);
+		zoneRoot.add(selectTerritory, 0, 3);
+		zoneRoot.add(numberOfSelectedHeadsText, 0, 4);
+		zoneRoot.add(numberOfSelectedHeadsField, 1, 4);
+		zoneRoot.add(flowRateOfSelectedHeadsText, 0, 5);
+		zoneRoot.add(flowRateOfSelectedHeadsField, 1, 5);
+		zoneRoot.add(addOrRemoveContainer, 0, 6);
+		zoneRoot.add(createZoneBtn, 0, 7);
+		
+		canvasPane.requestFocus();
+		
+		
+		
+		zoneStage.show();
+		
+	}
+	
 	public CanvasPane getCanvasPane() {
 		return canvasPane;
 	}
