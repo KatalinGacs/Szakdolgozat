@@ -9,6 +9,9 @@ import application.common.Common;
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
@@ -41,6 +44,7 @@ import javafx.stage.Stage;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.Zone;
 
 public class CanvasPane extends Pane {
 
@@ -52,8 +56,11 @@ public class CanvasPane extends Pane {
 
 	private double centerX = 0, centerY = 0, firstX = 0, firstY = 0, secondX = 0, secondY = 0;
 	double startAngle, arcExtent;
-	private Color sprinklerColor = Color.BLUE;
 	private int strokeWidth = (int) (Common.pixelPerMeter / 12);
+
+	private Color tempLineColor = Color.DARKTURQUOISE;
+	private Color sprinklerColor = Color.BLUE;
+	private Color selectionColor = Color.CYAN;
 
 	protected SprinklerType sprinklerType;
 	protected double sprinklerRadius;
@@ -65,18 +72,17 @@ public class CanvasPane extends Pane {
 	Group irrigationLayer = new Group();
 	Group sprinklerArcLayer = new Group();
 	Group gridLayer = new Group();
+	Group tempLineLayer = new Group();
 
 	private Line tempFirstSprinklerLine = new Line();
 	private Line tempSecondSprinklerLine = new Line();
-
 	private Circle focusCircle = new Circle(Common.pixelPerMeter / 3);
 	private boolean showingFocusCircle = false;
-	private Color tempLineColor = Color.DARKTURQUOISE;
-
 	private Line tempBorderLine = new Line();
 	private Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 4);
 	private Rectangle tempRectangle = new Rectangle();
 	private Circle tempCircle = new Circle();
+	private Line measuringIntersectionsLine = new Line();
 
 	protected boolean borderDrawingOn = false;
 
@@ -105,7 +111,9 @@ public class CanvasPane extends Pane {
 	private sprinklerDrawingState drawingState = sprinklerDrawingState.CENTER;
 
 	protected List<Shape> borderShapes = new ArrayList<Shape>();
-
+	protected List<Shape> obstacles = new ArrayList<>();
+	public ObservableList<Zone> zones = FXCollections.observableArrayList();
+	
 	private ContextMenu rightClickMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
 
@@ -129,6 +137,9 @@ public class CanvasPane extends Pane {
 			getChildren().add(line);
 			gridLayer.getChildren().add(line);
 		}
+
+		tempLineLayer.getChildren().addAll(tempFirstSprinklerLine, tempSecondSprinklerLine, tempSprinklerCircle,
+				tempBorderLine, tempCircle, tempRectangle, focusCircle, measuringIntersectionsLine);
 		tempFirstSprinklerLine.setVisible(false);
 		tempSprinklerCircle.setVisible(false);
 		tempRectangle.setVisible(false);
@@ -150,51 +161,81 @@ public class CanvasPane extends Pane {
 
 		rightClickMenu.getItems().add(delMenuItem);
 
-		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, angleInput, lengthInput,
-				tempFirstSprinklerLine, tempSecondSprinklerLine, tempBorderLine, tempSprinklerCircle, tempRectangle,
-				tempCircle, focusCircle);
+		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, tempLineLayer, angleInput,
+				lengthInput);
 
 	}
 
-	// Elemek kijelölése, most csak törlésre használható, de ezzel lehetne az adott
-	// elemrõl infókat kilistázni
-	protected void selectElement(MouseEvent e, boolean onlySprinklerHeads) {
-
+	protected void selectElement(MouseEvent e) {
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {
-				if (onlySprinklerHeads) {
+				rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
+				delMenuItem.setOnAction(ev -> {
+					controller.deleteSprinklerShape(s);
+					irrigationLayer.getChildren().remove(s.getCircle());
+					sprinklerArcLayer.getChildren().remove(s.getArc());
+					ev.consume();
+				});
+			}
+		}
+		for (Shape border : borderShapes) {
+			if (border.contains(e.getX(), e.getY())) {
+				rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
+				delMenuItem.setOnAction(ev -> {
+					borderShapes.remove(border);
+					bordersLayer.getChildren().remove(border);
+					if (obstacles.contains(border))
+						obstacles.remove(border);
+					tempBorderLine.setVisible(false);
+					tempRectangle.setVisible(false);
+					tempCircle.setVisible(false);
+					ev.consume();
+				});
+			}
+		}
+	}
+
+	protected void selectIndiviualHeadsForZone(MouseEvent e, boolean adding) {
+		for (SprinklerShape s : controller.listSprinklerShapes()) {
+			if (s.getCircle().contains(e.getX(), e.getY())) {
+
+				if (adding) {
+					s.getCircle().setFill(selectionColor);
 					selectedSprinklerShapes.add(s);
 					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes) 
-						flowRateOfSelected += sh.getSprinkler().getWaterConsumption();
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
 				} else {
-					rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
-					delMenuItem.setOnAction(ev -> {
-						controller.deleteSprinklerShape(s);
-						irrigationLayer.getChildren().remove(s.getCircle());
-						sprinklerArcLayer.getChildren().remove(s.getArc());
-						ev.consume();
-					});
+					s.getCircle().setFill(sprinklerColor);
+					selectedSprinklerShapes.remove(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
 				}
 			}
 		}
-		if (!onlySprinklerHeads) {
-			for (Shape border : borderShapes) {
-				if (border.contains(e.getX(), e.getY())) {
-					rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
-					delMenuItem.setOnAction(ev -> {
-						borderShapes.remove(border);
-						bordersLayer.getChildren().remove(border);
-						tempBorderLine.setVisible(false);
-						tempRectangle.setVisible(false);
-						tempCircle.setVisible(false);
-						ev.consume();
-					});
+	}
+	
 
+	public void selecHeadsWithinArea(MouseEvent e, boolean adding) {
+		for (SprinklerShape s : controller.listSprinklerShapes() ) {
+			if (tempRectangle.intersects(s.getCircle().getBoundsInLocal())) {
+				if (adding) {
+					s.getCircle().setFill(selectionColor);
+					selectedSprinklerShapes.add(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
+				} else {
+					s.getCircle().setFill(sprinklerColor);
+					selectedSprinklerShapes.remove(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
 				}
 			}
 		}
-
+		tempRectangle.setVisible(false);
 	}
 
 	protected void drawNewSprinkler(MouseEvent mouseEvent) {
@@ -206,6 +247,8 @@ public class CanvasPane extends Pane {
 		arc.setStroke(sprinklerColor);
 		arc.setStrokeWidth(strokeWidth);
 		arc.setFill(Color.TRANSPARENT);
+		sprinkler.setSprinkler(sprinklerType);
+		sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
 
 		if (!preparingForDrawingSeveralSprinklers) {
 			if (drawingState == sprinklerDrawingState.CENTER && !drawingSeveralSprinklers) {
@@ -249,7 +292,7 @@ public class CanvasPane extends Pane {
 				angleInput.relocate(centerX, centerY);
 				angleInput.setOnKeyPressed(ke -> {
 					if (ke.getCode().equals(KeyCode.ENTER)) {
-						if (angleInput.getText() == null && angleInput.getText().trim().isEmpty()) {
+						if (angleInput.getText() == null || angleInput.getText().trim().isEmpty()) {
 							Common.showAlert("Add meg a szórófej szögét!");
 						} else
 							try {
@@ -284,8 +327,8 @@ public class CanvasPane extends Pane {
 									controller.addSprinklerShape(sprinkler);
 
 									angleInput.setText("");
-
-									drawingState = sprinklerDrawingState.SECONDSIDE;
+									angleInput.setVisible(false);
+									drawingState = sprinklerDrawingState.CENTER;
 								}
 							} catch (NumberFormatException ex) {
 								Common.showAlert("Számokban add meg a szórófej sugarát!");
@@ -339,7 +382,7 @@ public class CanvasPane extends Pane {
 					circle.setStroke(sprinklerColor);
 					circle.setFill(sprinklerColor);
 					sprinkler.setCircle(circle);
-					sprinkler.setSprinkler(sprinklerType);
+
 					irrigationLayer.getChildren().add(sprinkler.getCircle());
 					tempSprinklerCircle.setVisible(false);
 
@@ -500,7 +543,7 @@ public class CanvasPane extends Pane {
 		borderDrawingOn = false;
 	}
 
-	public void showtempBorderRectanlge(MouseEvent e, Color color) {
+	public void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill) {
 		if (e.getButton() == MouseButton.PRIMARY) {
 			double width = Math.abs(borderX - e.getX());
 			double height = Math.abs(borderY - e.getY());
@@ -517,10 +560,13 @@ public class CanvasPane extends Pane {
 			tempRectangle.setY(y);
 			tempRectangle.setWidth(width);
 			tempRectangle.setHeight(height);
-
-			tempRectangle.setStroke(color);
-			tempRectangle.setFill(null);
-
+			if (zoneEditingOn) {
+				tempRectangle.setStroke(selectionColor);
+				tempRectangle.setFill(null);
+			} else {
+				tempRectangle.setStroke(stroke);
+				tempRectangle.setFill(fill);
+			}
 			tempRectangle.setVisible(true);
 		}
 	}
@@ -531,17 +577,18 @@ public class CanvasPane extends Pane {
 		rect.setStrokeWidth(width);
 		bordersLayer.getChildren().add(rect);
 		borderShapes.add(rect);
+		obstacles.add(rect);
 	}
 
-	public void showTempBorderCircle(MouseEvent e, Color color) {
+	public void showTempBorderCircle(MouseEvent e, Color stroke, Color fill) {
 		if (e.getButton() == MouseButton.PRIMARY) {
 			double r = Math
 					.sqrt((borderX - e.getX()) * (borderX - e.getX()) + (borderY - e.getY()) * (borderY - e.getY()));
 			tempCircle.setCenterX(borderX);
 			tempCircle.setCenterY(borderY);
 			tempCircle.setRadius(r);
-			tempCircle.setFill(Color.TRANSPARENT);
-			tempCircle.setStroke(color);
+			tempCircle.setFill(fill);
+			tempCircle.setStroke(stroke);
 			tempCircle.setVisible(true);
 		}
 	}
@@ -555,7 +602,7 @@ public class CanvasPane extends Pane {
 		circle.setStrokeWidth(width);
 		bordersLayer.getChildren().add(circle);
 		borderShapes.add(circle);
-
+		obstacles.add(circle);
 	}
 
 	public void startDrawingBorder(MouseEvent e) {
@@ -645,7 +692,7 @@ public class CanvasPane extends Pane {
 		});
 
 		ok.setOnAction(e -> {
-			if (radiusField.getText() == null && radiusField.getText().trim().isEmpty()) {
+			if (radiusField.getText() == null || radiusField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a szórófej sugarát!");
 			} else {
 				try {
@@ -682,7 +729,7 @@ public class CanvasPane extends Pane {
 					lineSelected = true;
 					indexOfSelectedLine = borderShapes.indexOf(border);
 					preparingForDrawingSeveralSprinklers = false; // TODO ezt nem itt kell átállítani, hanem amikor már
-																	// kész a berajzolás
+																	// kész a berajzolás?
 				}
 			}
 		}
@@ -691,11 +738,11 @@ public class CanvasPane extends Pane {
 	public void showSprinklersInALine(int numberOfSprinklersInALine) {
 		if (!tempSprinklerCentersInALine.isEmpty())
 			for (Circle c : tempSprinklerCentersInALine) {
-				sprinklerArcLayer.getChildren().remove(c);
+				tempLineLayer.getChildren().remove(c);
 			}
 		if (!tempSprinklerCirclesInALine.isEmpty())
 			for (Circle c : tempSprinklerCirclesInALine) {
-				sprinklerArcLayer.getChildren().remove(c);
+				tempLineLayer.getChildren().remove(c);
 			}
 		tempSprinklerCirclesInALine.clear();
 		tempSprinklerCentersInALine.clear();
@@ -715,7 +762,7 @@ public class CanvasPane extends Pane {
 				center.setFill(tempLineColor);
 				center.setCenterX(startX - i * (diffX / (numberOfSprinklersInALine - 1)));
 				center.setCenterY(startY - i * (diffY / (numberOfSprinklersInALine - 1)));
-				sprinklerArcLayer.getChildren().add(center);
+				tempLineLayer.getChildren().add(center);
 				Circle c = new Circle();
 				c.setStroke(tempLineColor);
 				c.setStrokeWidth(strokeWidth);
@@ -723,7 +770,7 @@ public class CanvasPane extends Pane {
 				c.setFill(null);
 				c.setCenterX(startX - i * (diffX / (numberOfSprinklersInALine - 1)));
 				c.setCenterY(startY - i * (diffY / (numberOfSprinklersInALine - 1)));
-				sprinklerArcLayer.getChildren().add(c);
+				tempLineLayer.getChildren().add(c);
 
 				tempSprinklerCirclesInALine.add(c);
 				tempSprinklerCentersInALine.add(center);
@@ -738,8 +785,8 @@ public class CanvasPane extends Pane {
 			drawingSeveralSprinklers = false;
 		} else {
 			drawingSeveralSprinklers = true;
-			sprinklerArcLayer.getChildren().remove(tempSprinklerCirclesInALine.get(0));
-			sprinklerArcLayer.getChildren().remove(tempSprinklerCentersInALine.get(0));
+			tempLineLayer.getChildren().remove(tempSprinklerCirclesInALine.get(0));
+			tempLineLayer.getChildren().remove(tempSprinklerCentersInALine.get(0));
 			centerX = tempSprinklerCentersInALine.get(0).getCenterX();
 			centerY = tempSprinklerCentersInALine.get(0).getCenterY();
 			tempSprinklerCentersInALine.remove(0);
@@ -752,5 +799,47 @@ public class CanvasPane extends Pane {
 			drawingState = sprinklerDrawingState.FIRSTSIDE;
 		}
 	}
+
+	//TODO kell ellenõrizni, hogy a kijelölt szórófej nem tartozik-e már másik zónába! vagy ezt még a kijelölésnél?
+	public void createZone(String name, double durationInHours) {
+		Zone zone = new Zone();
+		zone.setName(name);
+		zone.setSprinklers(FXCollections.observableArrayList(selectedSprinklerShapes));
+		zone.setDurationOfWatering(durationInHours);
+		zones.add(zone);
+		for (SprinklerShape s : zone.getSprinklers()) {
+			s.getCircle().setFill(sprinklerColor);
+			s.getArc().setFill(Color.LAWNGREEN);
+			s.getArc().setOpacity((s.getFlowRate()*durationInHours)/5);
+		}
+		selectedSprinklerShapes.clear();
+	}
+	
+	public String showInfos(MouseEvent e) {
+
+		double sumOfWaterCoverageInMmPerHour = 0;
+		for (SprinklerShape s : controller.listSprinklerShapes()) {
+			if (s.getArc().contains(e.getX(), e.getY())) {
+				measuringIntersectionsLine.setStartX(s.getCircle().getCenterX());
+				measuringIntersectionsLine.setStartY(s.getCircle().getCenterY());
+				measuringIntersectionsLine.setEndX(e.getX());
+				measuringIntersectionsLine.setEndY(e.getY());
+				measuringIntersectionsLine.setStroke(Color.TRANSPARENT);
+				for (Shape obstacle : obstacles) {
+					Shape intersect = Shape.intersect(measuringIntersectionsLine, obstacle);
+					if (intersect.getBoundsInLocal().getMinX() == 0 && intersect.getBoundsInLocal().getMinY() == 0) {
+						sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
+					}
+				}
+				if (obstacles.isEmpty())
+					sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
+			}
+		}
+		return ("Egy négyzetrács mérete: 1x1 m \r\n" + "Csapadék: "
+				+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "
+				+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
+	}
+
+
 
 }
