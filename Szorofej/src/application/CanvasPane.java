@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
+import java.util.function.Function;
 
 import application.common.Common;
 import application.common.DecimalCellFactory;
@@ -11,7 +12,6 @@ import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.event.ActionEvent;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
@@ -113,7 +113,7 @@ public class CanvasPane extends Pane {
 	protected List<Shape> borderShapes = new ArrayList<Shape>();
 	protected List<Shape> obstacles = new ArrayList<>();
 	public ObservableList<Zone> zones = FXCollections.observableArrayList();
-	
+
 	private ContextMenu rightClickMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
 
@@ -195,49 +195,6 @@ public class CanvasPane extends Pane {
 		}
 	}
 
-	protected void selectIndiviualHeadsForZone(MouseEvent e, boolean adding) {
-		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			if (s.getCircle().contains(e.getX(), e.getY())) {
-
-				if (adding) {
-					s.getCircle().setFill(selectionColor);
-					selectedSprinklerShapes.add(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
-				} else {
-					s.getCircle().setFill(sprinklerColor);
-					selectedSprinklerShapes.remove(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
-				}
-			}
-		}
-	}
-	
-
-	public void selecHeadsWithinArea(MouseEvent e, boolean adding) {
-		for (SprinklerShape s : controller.listSprinklerShapes() ) {
-			if (tempRectangle.intersects(s.getCircle().getBoundsInLocal())) {
-				if (adding) {
-					s.getCircle().setFill(selectionColor);
-					selectedSprinklerShapes.add(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
-				} else {
-					s.getCircle().setFill(sprinklerColor);
-					selectedSprinklerShapes.remove(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
-				}
-			}
-		}
-		tempRectangle.setVisible(false);
-	}
-
 	protected void drawNewSprinkler(MouseEvent mouseEvent) {
 		borderDrawingOn = false;
 		SprinklerShape sprinkler = new SprinklerShape();
@@ -300,7 +257,7 @@ public class CanvasPane extends Pane {
 								if (Double.parseDouble(angleInput.getText()) > sprinklerType.getMaxAngle()
 										|| Double.parseDouble(angleInput.getText()) < sprinklerType.getMinAngle()) {
 									Common.showAlert(
-											"A megadott szög nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+											"A megadott szög (" + angleInput.getText() + ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 													+ sprinklerType.getMinAngle() + ", max. szög: "
 													+ sprinklerType.getMaxAngle());
 								} else {
@@ -351,18 +308,20 @@ public class CanvasPane extends Pane {
 					secondY = firstPoint.getY();
 				}
 				double endAngle = -Math.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX))) - 180;
-				if (centerX <= secondX)
+				if (centerX <= secondX) 
 					endAngle -= 180;
-				if (endAngle < -360)
+				if (endAngle < -360) 
 					endAngle += 360;
-				if (endAngle < 0)
+				if (endAngle < 0) 
 					endAngle += 360;
 				arcExtent = 360 - (360 - endAngle) - startAngle;
 				if (arcExtent <= 0)
 					arcExtent += 360;
+				else if (arcExtent > 360) 
+					arcExtent -= 360;
 				if (arcExtent > sprinklerType.getMaxAngle() || arcExtent < sprinklerType.getMinAngle()) {
 					Common.showAlert(
-							"A megadott szög nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+							"A megadott szög (" + angleInput.getText() + ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 									+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
 				} else {
 
@@ -800,7 +759,41 @@ public class CanvasPane extends Pane {
 		}
 	}
 
-	//TODO kell ellenõrizni, hogy a kijelölt szórófej nem tartozik-e már másik zónába! vagy ezt még a kijelölésnél?
+	protected void selectIndiviualHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
+		for (SprinklerShape s : controller.listSprinklerShapes()) {
+			boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
+					: tempRectangle.intersects(s.getCircle().getBoundsInLocal());
+			if (selected) {
+				if (adding) {
+					s.getCircle().setFill(selectionColor);
+					selectedSprinklerShapes.add(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
+					for (Zone zone : zones) {
+						for (SprinklerShape sInZone : zone.getSprinklers()) {
+							if (s == sInZone) {
+								s.getCircle().setFill(sprinklerColor);
+								selectedSprinklerShapes.remove(s);
+								flowRateOfSelected = 0;
+								for (SprinklerShape sh : selectedSprinklerShapes)
+									flowRateOfSelected += sh.getFlowRate();
+							}
+						}
+					}
+
+				} else {
+					s.getCircle().setFill(sprinklerColor);
+					selectedSprinklerShapes.remove(s);
+					flowRateOfSelected = 0;
+					for (SprinklerShape sh : selectedSprinklerShapes)
+						flowRateOfSelected += sh.getFlowRate();
+				}
+			}
+		}
+		tempRectangle.setVisible(false);	
+	}
+
 	public void createZone(String name, double durationInHours) {
 		Zone zone = new Zone();
 		zone.setName(name);
@@ -810,11 +803,11 @@ public class CanvasPane extends Pane {
 		for (SprinklerShape s : zone.getSprinklers()) {
 			s.getCircle().setFill(sprinklerColor);
 			s.getArc().setFill(Color.LAWNGREEN);
-			s.getArc().setOpacity((s.getFlowRate()*durationInHours)/5);
+			s.getArc().setOpacity((s.getFlowRate() * durationInHours) / 6);
 		}
 		selectedSprinklerShapes.clear();
 	}
-	
+
 	public String showInfos(MouseEvent e) {
 
 		double sumOfWaterCoverageInMmPerHour = 0;
@@ -839,7 +832,5 @@ public class CanvasPane extends Pane {
 				+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "
 				+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
 	}
-
-
 
 }

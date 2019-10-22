@@ -194,12 +194,12 @@ public class DrawingPanel extends VBox {
 				canvasPane.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue());
 			} else if (e.getButton() == MouseButton.PRIMARY && canvasPane.zoneEditingOn && addHeads.isSelected()
 					&& selectIndividualHeads.isSelected()) {
-				canvasPane.selectIndiviualHeadsForZone(e, true);
+				canvasPane.selectIndiviualHeadsForZone(e, true, true);
 				numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
 				flowRateOfSelectedHeadsField.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
 			} else if (e.getButton() == MouseButton.PRIMARY && canvasPane.zoneEditingOn && removeHeads.isSelected()
 					&& selectIndividualHeads.isSelected()) {
-				canvasPane.selectIndiviualHeadsForZone(e, false);
+				canvasPane.selectIndiviualHeadsForZone(e, false, true);
 				numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
 				flowRateOfSelectedHeadsField.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
 			} else if (e.getButton() == MouseButton.SECONDARY) {
@@ -241,9 +241,9 @@ public class DrawingPanel extends VBox {
 					canvasPane.borderDrawingOn = false;
 				} else if (canvasPane.zoneEditingOn && selectTerritory.isSelected()) {
 					if (addHeads.isSelected())
-						canvasPane.selecHeadsWithinArea(e, true);
+						canvasPane.selectIndiviualHeadsForZone(e, true, false);
 					else
-						canvasPane.selecHeadsWithinArea(e, false);
+						canvasPane.selectIndiviualHeadsForZone(e, false, false);
 				}
 			}
 		});
@@ -393,7 +393,7 @@ public class DrawingPanel extends VBox {
 
 		createZoneBtn.setOnAction(e -> {
 			double durationInHours = hourPicker.getValue() + (minutePicker.getValue() / 60);
-			if (zoneNameText.getText() == null || zoneNameText.getText().trim().isEmpty()) {
+			if (zoneNameTextField.getText() == null || zoneNameTextField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a zóna nevét");
 			} else if (canvasPane.selectedSprinklerShapes.isEmpty()) {
 				Common.showAlert("Nincsenek kiválasztott szórófejek");

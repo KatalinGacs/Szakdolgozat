@@ -59,10 +59,6 @@ public class SprinklerShape {
 		return flowRate;
 	}
 
-	public void setFlowRate(double flowRate) {
-		this.flowRate = flowRate;
-	}
-
 	public double getRadius() {
 		return radius;
 	}
@@ -82,9 +78,9 @@ public class SprinklerShape {
 	
 	private double calculateFlowRate() {
 		if (sprinkler.getFixWaterConsumption())
-			return sprinkler.getWaterConsumption();
+			return sprinkler.getWaterConsumption() * (360 / arc.getLength());
 		else
-			return sprinkler.getWaterConsumption() * (arc.getLength() / 360);
+			return sprinkler.getWaterConsumption();
 	}
 }
 
