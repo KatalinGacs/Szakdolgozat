@@ -71,8 +71,18 @@ public class SprinklerShape {
 		return waterCoverageInMmPerHour;
 	}
 	
+	public String getGroup() {
+		return sprinkler.getSprinklerGroup().getName();
+	}
+	
 	private double calculateWaterCoverage() {
-		double area = (arc.getLength() / 360) * radius * radius * Math.PI;
+		double area= 0;
+		if (sprinkler.getFixWaterConsumption()) {
+			area = (arc.getLength() / 360) * radius * radius * Math.PI;
+		}
+		else {
+			area = radius * radius * Math.PI;
+		}
 		return (flowRate  * 0.06 * 1000) / area;
 	}
 	
@@ -82,5 +92,6 @@ public class SprinklerShape {
 		else
 			return sprinkler.getWaterConsumption();
 	}
+
 }
 

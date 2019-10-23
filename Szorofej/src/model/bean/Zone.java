@@ -11,6 +11,7 @@ public class Zone {
 	private ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
 	private double sumOfFlowRate = 0;
 	private double durationOfWatering;
+	private int numberOfHeads;
 	
 	public Zone(String name, ObservableList<SprinklerShape> sprinklers, double durationOfWatering) {
 		this.name = name;
@@ -19,6 +20,7 @@ public class Zone {
 			sumOfFlowRate += s.getFlowRate();
 		}
 		this.durationOfWatering = durationOfWatering;
+		numberOfHeads = sprinklers.size();
 	}
 
 	public Zone() {
@@ -41,6 +43,7 @@ public class Zone {
 		for (SprinklerShape s : sprinklers) {
 			sumOfFlowRate += s.getFlowRate();
 		}
+		numberOfHeads = sprinklers.size();
 	}
 
 	public double getSumOfFlowRate() {
@@ -53,6 +56,10 @@ public class Zone {
 
 	public void setDurationOfWatering(double durationOfWatering) {
 		this.durationOfWatering = durationOfWatering;
+	}
+
+	public int getNumberOfHeads() {
+		return numberOfHeads;
 	}
 	
 	

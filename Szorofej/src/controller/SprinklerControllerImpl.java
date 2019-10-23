@@ -7,6 +7,7 @@ import model.SprinklerDAOImpl;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.Zone;
 
 public class SprinklerControllerImpl implements SprinklerController {
 
@@ -63,5 +64,25 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s) {
 		return dao.listSprinklerTypeByGroup(s);
+	}
+
+	@Override
+	public ObservableList<SprinklerShape> listSprinklerShapes(Zone zone) {
+		return dao.listSprinklerShapes(zone);
+	}
+
+	@Override
+	public ObservableList<Zone> listZones() {
+		return dao.listZones();
+	}
+
+	@Override
+	public void addZone(Zone z) {
+		dao.addZone(z);
+	}
+
+	@Override
+	public void removeZone(Zone z) {
+		dao.removeZone(z);
 	}
 }

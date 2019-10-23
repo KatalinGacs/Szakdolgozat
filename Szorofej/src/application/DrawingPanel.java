@@ -1,29 +1,22 @@
 package application;
 
-import java.time.Duration;
-import java.time.LocalTime;
-
 import application.common.Common;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
 import javafx.scene.Cursor;
-import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
-import javafx.scene.control.RadioButton;
 import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
-import javafx.scene.control.TextField;
+import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
-import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
-import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
@@ -54,6 +47,7 @@ public class DrawingPanel extends VBox {
 	private Text obstacleStrokeText = new Text("Tereptárgy körvonal szín ");
 	protected ColorPicker obstacleStrokeColor = new ColorPicker(Color.DARKGRAY);
 	private ToggleGroup borderButtons = new ToggleGroup();
+	//TODO kéne valahová olyan opció hogy szöveget írkálhasson a rajzvászonra - ide? vagy legyen vmi egyéb fül? lenne ott más is?
 
 	private Button setSprinklerBtn = new Button("Szórófej kiválasztása");
 	private ToggleButton drawSeveralSprinklerOptions = new ToggleButton("Több szórófej rajzolása egy vonalra");
@@ -64,6 +58,7 @@ public class DrawingPanel extends VBox {
 	private Button drawSeveralSprinklers = new Button("OK, szögek beállítása");
 
 	private Button zoneBtn = new Button("Zóna megadása");
+	private Button pipeBtn = new Button("Csövezés");
 
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
@@ -78,9 +73,6 @@ public class DrawingPanel extends VBox {
 	private ToggleButton addHeads = new ToggleButton("Hozzáadás");
 	private ToggleButton removeHeads = new ToggleButton("Törlés");
 	private ToggleGroup addOrRemoveGroup = new ToggleGroup();
-	private RadioButton selectIndividualHeads = new RadioButton("Egyes fejek kijelölése");
-	private RadioButton selectTerritory = new RadioButton("Területbe esõ fejek kijelölése");
-	private ToggleGroup selectionMethodGroup = new ToggleGroup();
 	private Text numberOfSelectedHeadsField = new Text();
 	private Text flowRateOfSelectedHeadsField = new Text();
 
@@ -128,11 +120,9 @@ public class DrawingPanel extends VBox {
 		});
 
 		zoneTab.setContent(zoneTabElements);
-		zoneTabElements.getChildren().addAll(zoneBtn);
+		zoneTabElements.getChildren().addAll(zoneBtn, pipeBtn);
 		zoneTabElements.setAlignment(Pos.CENTER_LEFT);
 		zoneTabElements.setSpacing(10);
-		selectIndividualHeads.setToggleGroup(selectionMethodGroup);
-		selectTerritory.setToggleGroup(selectionMethodGroup);
 		addHeads.setToggleGroup(addOrRemoveGroup);
 		removeHeads.setToggleGroup(addOrRemoveGroup);
 		zoneBtn.setOnAction(e -> {
@@ -193,15 +183,13 @@ public class DrawingPanel extends VBox {
 					&& canvasPane.borderDrawingOn) {
 				canvasPane.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue());
 			} else if (e.getButton() == MouseButton.PRIMARY && canvasPane.zoneEditingOn && addHeads.isSelected()
-					&& selectIndividualHeads.isSelected()) {
-				canvasPane.selectIndiviualHeadsForZone(e, true, true);
-				numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
-				flowRateOfSelectedHeadsField.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
+					) {
+				canvasPane.selectHeadsForZone(e, true, true);
+				updateZoneInfos();
 			} else if (e.getButton() == MouseButton.PRIMARY && canvasPane.zoneEditingOn && removeHeads.isSelected()
-					&& selectIndividualHeads.isSelected()) {
-				canvasPane.selectIndiviualHeadsForZone(e, false, true);
-				numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
-				flowRateOfSelectedHeadsField.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
+					) {
+				canvasPane.selectHeadsForZone(e, false, true);
+				updateZoneInfos();
 			} else if (e.getButton() == MouseButton.SECONDARY) {
 				canvasPane.selectElement(e);
 			}
@@ -216,14 +204,14 @@ public class DrawingPanel extends VBox {
 					&& e.getButton() == MouseButton.PRIMARY) {
 				canvasPane.borderDrawingOn = true;
 				canvasPane.startDrawingBorder(e);
-			} else if (canvasPane.zoneEditingOn && selectTerritory.isSelected()) {
+			} else if (canvasPane.zoneEditingOn) {
 				canvasPane.startDrawingBorder(e);
 			}
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
 			if ((canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == obstacleRectangleBtn)
-					|| (canvasPane.zoneEditingOn && selectTerritory.isSelected()))
+					|| (canvasPane.zoneEditingOn ))
 				canvasPane.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue());
 			else if (canvasPane.borderDrawingOn && borderButtons.getSelectedToggle() == obstacleCircleBtn)
 				canvasPane.showTempBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue());
@@ -239,11 +227,14 @@ public class DrawingPanel extends VBox {
 					canvasPane.drawBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
 							borderLineWidth.getValue());
 					canvasPane.borderDrawingOn = false;
-				} else if (canvasPane.zoneEditingOn && selectTerritory.isSelected()) {
-					if (addHeads.isSelected())
-						canvasPane.selectIndiviualHeadsForZone(e, true, false);
-					else
-						canvasPane.selectIndiviualHeadsForZone(e, false, false);
+				} else if (canvasPane.zoneEditingOn ) {
+					if (addHeads.isSelected()) {
+						canvasPane.selectHeadsForZone(e, true, false);
+						updateZoneInfos();
+					} else {
+						canvasPane.selectHeadsForZone(e, false, false);
+						updateZoneInfos();
+					}
 				}
 			}
 		});
@@ -345,69 +336,16 @@ public class DrawingPanel extends VBox {
 		numberOfSelectedHeadsField.setText("0");
 		flowRateOfSelectedHeadsField.setText("0");
 
-		Stage zoneStage = new Stage();
-		zoneStage.setX(Common.primaryScreenBounds.getWidth() - 500);
-		zoneStage.setY(100);
-		GridPane zoneRoot = new GridPane();
-		zoneRoot.setVgap(10);
-		zoneRoot.setHgap(10);
-		zoneRoot.setPadding(new Insets(10, 10, 10, 10));
-		Scene zoneScene = new Scene(zoneRoot, 400, 300);
-		zoneStage.setScene(zoneScene);
-		zoneStage.setAlwaysOnTop(true);
-
-		Text zoneNameText = new Text("Zóna elnevezése");
-		TextField zoneNameTextField = new TextField();
-		Text selectionMethodText = new Text("Kijelölés módja");
-		Text numberOfSelectedHeadsText = new Text("Kijelölt szórófejek száma");
-		Text flowRateOfSelectedHeadsText = new Text("Kijelölt fejek vízfogyasztása (liter/perc)");
-		Text durationOfWatering = new Text("Zóna mûködésének napi idõtartama");
-		HBox timePicker = new HBox();
-		Spinner<Integer> hourPicker = new Spinner<Integer>(0, 5, 1);
-		hourPicker.setPrefWidth(60);
-		Text colon = new Text(" : ");
-		Spinner<Integer> minutePicker = new Spinner<Integer>(0, 59, 0);
-		minutePicker.setPrefWidth(60);
-		timePicker.getChildren().addAll(hourPicker, colon, minutePicker);
-		timePicker.setAlignment(Pos.CENTER_LEFT);
-
-		HBox addOrRemoveContainer = new HBox(addHeads, removeHeads);
-		Button createZoneBtn = new Button("Zóna létrehozása");
-
-		selectIndividualHeads.setSelected(true);
-		addHeads.setSelected(true);
-
-		zoneRoot.add(zoneNameText, 0, 0);
-		zoneRoot.add(zoneNameTextField, 1, 0);
-		zoneRoot.add(selectionMethodText, 0, 1);
-		zoneRoot.add(selectIndividualHeads, 0, 2);
-		zoneRoot.add(selectTerritory, 0, 3);
-		zoneRoot.add(numberOfSelectedHeadsText, 0, 4);
-		zoneRoot.add(numberOfSelectedHeadsField, 1, 4);
-		zoneRoot.add(flowRateOfSelectedHeadsText, 0, 5);
-		zoneRoot.add(flowRateOfSelectedHeadsField, 1, 5);
-		zoneRoot.add(addOrRemoveContainer, 0, 6);
-		zoneRoot.add(durationOfWatering, 0, 7);
-		zoneRoot.add(timePicker, 1, 7);
-		zoneRoot.add(createZoneBtn, 0, 8);
-
-		createZoneBtn.setOnAction(e -> {
-			double durationInHours = hourPicker.getValue() + (minutePicker.getValue() / 60);
-			if (zoneNameTextField.getText() == null || zoneNameTextField.getText().trim().isEmpty()) {
-				Common.showAlert("Add meg a zóna nevét");
-			} else if (canvasPane.selectedSprinklerShapes.isEmpty()) {
-				Common.showAlert("Nincsenek kiválasztott szórófejek");
-			} else {
-				canvasPane.createZone(zoneNameTextField.getText(), durationInHours);
-				zoneStage.close();
-				// TODO: és a csövezéshez új stage-t nyitni itt?
-			}
-		});
+		Stage zoneStage = new ZoneStage(canvasPane, addHeads, removeHeads, numberOfSelectedHeadsField, flowRateOfSelectedHeadsField);
 
 		canvasPane.requestFocus();
 
 		zoneStage.show();
+	}
 
+	private void updateZoneInfos() {
+		numberOfSelectedHeadsField.setText(canvasPane.selectedSprinklerShapes.size() + "");
+		flowRateOfSelectedHeadsField.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
 	}
 
 	public CanvasPane getCanvasPane() {

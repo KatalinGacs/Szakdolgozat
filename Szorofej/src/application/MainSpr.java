@@ -10,16 +10,23 @@ import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.bean.Zone;
 
 public class MainSpr extends Application {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
-	SprinklerTable table = new SprinklerTable();
-	VBox left = new VBox();
-	DrawingPanel view = new DrawingPanel();
+	
+	private DrawingPanel drawingPanel = new DrawingPanel();
+	
+	private VBox left = new VBox();
+	private SprinklerListTable sprinklerListTable;
+	private ZoneTable zoneTable = new ZoneTable(drawingPanel.getCanvasPane());
+	private Zone selectedZone;
+	private SprinklerDetailTable sprinklerDetailTable;
 
 	private MenuBar menuBar = new MenuBar();
 	private Menu fileMenu = new Menu("Fájl");
@@ -46,7 +53,7 @@ public class MainSpr extends Application {
 			Scene scene = new Scene(root, 800, 600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
-			root.setCenter(view);
+			root.setCenter(drawingPanel);
 
 			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
 			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem, exitMenuItem);
@@ -65,8 +72,28 @@ public class MainSpr extends Application {
 			
 			root.setTop(menuBar);
 			
-			left.getChildren().addAll(table);
-	
+			zoneTable.setOnMouseClicked(e -> {
+				if (e.getButton() == MouseButton.PRIMARY) {
+					selectedZone = zoneTable.getSelectionModel().getSelectedItem();
+					sprinklerListTable.setItems(controller.listSprinklerShapes(selectedZone));
+				}
+			});
+			sprinklerListTable = new SprinklerListTable(selectedZone);
+			
+			sprinklerListTable.setOnMouseClicked(e -> {
+				if (e.getButton() == MouseButton.PRIMARY) {
+					sprinklerDetailTable = new SprinklerDetailTable(sprinklerListTable.getSelectionModel().getSelectedItem());
+					root.setRight(sprinklerDetailTable);
+					
+				}
+			});
+
+			
+			
+			left.getChildren().addAll(zoneTable,sprinklerListTable);
+			
+			
+			
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
 			primaryStage.show();

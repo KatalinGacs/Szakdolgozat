@@ -4,15 +4,15 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
-import java.util.function.Function;
 
 import application.common.Common;
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
-import javafx.collections.ObservableList;
+import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
@@ -46,6 +46,7 @@ import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 import model.bean.Zone;
 
+//TODO túl nagyra nõtt osztály, szétszedni?...
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
@@ -73,7 +74,8 @@ public class CanvasPane extends Pane {
 	Group sprinklerArcLayer = new Group();
 	Group gridLayer = new Group();
 	Group tempLineLayer = new Group();
-
+	//TODO szövegréteg: a szórófejek felett jelenjen meg a nevük + ha a felhasználüó ráírkál vmi szöveget, az is itt? csõvastagság itt vagy külön?
+	
 	private Line tempFirstSprinklerLine = new Line();
 	private Line tempSecondSprinklerLine = new Line();
 	private Circle focusCircle = new Circle(Common.pixelPerMeter / 3);
@@ -112,7 +114,6 @@ public class CanvasPane extends Pane {
 
 	protected List<Shape> borderShapes = new ArrayList<Shape>();
 	protected List<Shape> obstacles = new ArrayList<>();
-	public ObservableList<Zone> zones = FXCollections.observableArrayList();
 
 	private ContextMenu rightClickMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
@@ -161,7 +162,7 @@ public class CanvasPane extends Pane {
 
 		rightClickMenu.getItems().add(delMenuItem);
 
-		getChildren().addAll(bordersLayer, irrigationLayer, sprinklerArcLayer, gridLayer, tempLineLayer, angleInput,
+		getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, angleInput,
 				lengthInput);
 
 	}
@@ -256,10 +257,10 @@ public class CanvasPane extends Pane {
 
 								if (Double.parseDouble(angleInput.getText()) > sprinklerType.getMaxAngle()
 										|| Double.parseDouble(angleInput.getText()) < sprinklerType.getMinAngle()) {
-									Common.showAlert(
-											"A megadott szög (" + angleInput.getText() + ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
-													+ sprinklerType.getMinAngle() + ", max. szög: "
-													+ sprinklerType.getMaxAngle());
+									Common.showAlert("A megadott szög (" + angleInput.getText()
+											+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+											+ sprinklerType.getMinAngle() + ", max. szög: "
+											+ sprinklerType.getMaxAngle());
 								} else {
 									arcExtent = -Double.parseDouble(angleInput.getText());
 									arc.setCenterX(centerX);
@@ -308,21 +309,21 @@ public class CanvasPane extends Pane {
 					secondY = firstPoint.getY();
 				}
 				double endAngle = -Math.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX))) - 180;
-				if (centerX <= secondX) 
+				if (centerX <= secondX)
 					endAngle -= 180;
-				if (endAngle < -360) 
+				if (endAngle < -360)
 					endAngle += 360;
-				if (endAngle < 0) 
+				if (endAngle < 0)
 					endAngle += 360;
 				arcExtent = 360 - (360 - endAngle) - startAngle;
 				if (arcExtent <= 0)
 					arcExtent += 360;
-				else if (arcExtent > 360) 
+				else if (arcExtent > 360)
 					arcExtent -= 360;
 				if (arcExtent > sprinklerType.getMaxAngle() || arcExtent < sprinklerType.getMinAngle()) {
-					Common.showAlert(
-							"A megadott szög (" + angleInput.getText() + ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
-									+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
+					Common.showAlert("A megadott szög (" + angleInput.getText()
+							+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
+							+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
 				} else {
 
 					arc.setCenterY(centerY);
@@ -614,12 +615,18 @@ public class CanvasPane extends Pane {
 		Text radiusText = new Text("Sugár: ");
 		TextField radiusField = new TextField();
 		Text meterText = new Text("méter");
-
+		HBox radiusBox = new HBox();
+		radiusBox.getChildren().addAll(radiusText, radiusField, meterText);
+		radiusBox.setAlignment(Pos.CENTER_LEFT);
+		radiusBox.setPadding(new Insets(5));
+		radiusBox.setSpacing(5);
 		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
 		sprinklerGroupChoiceBox.getSelectionModel().selectFirst();
 		sprinklerGroupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
+		sprinklerGroupPane.setAlignment(Pos.CENTER_LEFT);
 		sprinklerInfoStage.setScene(sprinklerInfoScene);
-		sprinklerInfoRoot.getChildren().addAll(sprinklerGroupPane, tableView, radiusText, radiusField, meterText, ok);
+		sprinklerInfoRoot.getChildren().addAll(sprinklerGroupPane, tableView, radiusBox, ok);
+		sprinklerInfoRoot.setPadding(new Insets(10));
 
 		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
 				fixWaterConsumptionCol, waterConsumptionCol, minPressureCol);
@@ -656,21 +663,19 @@ public class CanvasPane extends Pane {
 			} else {
 				try {
 					double radius = Double.parseDouble(radiusField.getText());
-					SprinklerType type = tableView.getSelectionModel().getSelectedItem();
-					// a megrendelõ kérésére csak azt ellenõrzi, hogyha a megengedettnél nagyobb
-					// sugárra próbálja állítani, fizikailag lehetséges kisebb a gyártó által
-					// megadottnál kisebb szögre állítani és néha erre van szükség
-					// TODO ha nem választ ki elemet és rányom az ok-ra, ez nullpointerexceptiont
-					// dob
-					if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
-
-						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
+					SprinklerType type;
+					if (tableView.getSelectionModel().isEmpty()) {
+						Common.showAlert("Nincs szórófej kijelölve");
 					} else {
-						sprinklerRadius = radius * Common.pixelPerMeter;
-						sprinklerAttributesSet = true;
-						sprinklerType = type;
+						type = tableView.getSelectionModel().getSelectedItem();
+						if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
+							Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
+						} else {
+							sprinklerRadius = radius * Common.pixelPerMeter;
+							sprinklerAttributesSet = true;
+							sprinklerType = type;
+						}
 					}
-
 					requestFocus();
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg a szórófej sugarát!");
@@ -687,8 +692,7 @@ public class CanvasPane extends Pane {
 				if (border.contains(e.getX(), e.getY())) {
 					lineSelected = true;
 					indexOfSelectedLine = borderShapes.indexOf(border);
-					preparingForDrawingSeveralSprinklers = false; // TODO ezt nem itt kell átállítani, hanem amikor már
-																	// kész a berajzolás?
+					preparingForDrawingSeveralSprinklers = false;
 				}
 			}
 		}
@@ -706,8 +710,6 @@ public class CanvasPane extends Pane {
 		tempSprinklerCirclesInALine.clear();
 		tempSprinklerCentersInALine.clear();
 		if (lineSelected) {
-			// TODO valahol még ellenõrizni kéne, hogy tényleg beállított-e értékeket a
-			// szórófejnek - vagy ezt már megcsináltam?
 			double startX = ((Line) borderShapes.get(indexOfSelectedLine)).getStartX();
 			double endX = ((Line) borderShapes.get(indexOfSelectedLine)).getEndX();
 			double diffX = startX - endX;
@@ -759,7 +761,7 @@ public class CanvasPane extends Pane {
 		}
 	}
 
-	protected void selectIndiviualHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
+	protected void selectHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
 					: tempRectangle.intersects(s.getCircle().getBoundsInLocal());
@@ -770,7 +772,7 @@ public class CanvasPane extends Pane {
 					flowRateOfSelected = 0;
 					for (SprinklerShape sh : selectedSprinklerShapes)
 						flowRateOfSelected += sh.getFlowRate();
-					for (Zone zone : zones) {
+					for (Zone zone : controller.listZones()) {
 						for (SprinklerShape sInZone : zone.getSprinklers()) {
 							if (s == sInZone) {
 								s.getCircle().setFill(sprinklerColor);
@@ -791,7 +793,7 @@ public class CanvasPane extends Pane {
 				}
 			}
 		}
-		tempRectangle.setVisible(false);	
+		tempRectangle.setVisible(false);
 	}
 
 	public void createZone(String name, double durationInHours) {
@@ -799,13 +801,19 @@ public class CanvasPane extends Pane {
 		zone.setName(name);
 		zone.setSprinklers(FXCollections.observableArrayList(selectedSprinklerShapes));
 		zone.setDurationOfWatering(durationInHours);
-		zones.add(zone);
+		controller.addZone(zone);
 		for (SprinklerShape s : zone.getSprinklers()) {
-			s.getCircle().setFill(sprinklerColor);
 			s.getArc().setFill(Color.LAWNGREEN);
 			s.getArc().setOpacity((s.getFlowRate() * durationInHours) / 6);
 		}
-		selectedSprinklerShapes.clear();
+		deselectAll();
+	}
+	
+	public void deselectAll() {
+		for (SprinklerShape s : selectedSprinklerShapes) {
+			s.getCircle().setFill(sprinklerColor);
+		}
+		selectedSprinklerShapes.clear();	
 	}
 
 	public String showInfos(MouseEvent e) {

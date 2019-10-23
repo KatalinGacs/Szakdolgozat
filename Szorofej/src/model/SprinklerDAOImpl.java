@@ -12,6 +12,7 @@ import javafx.collections.ObservableList;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.Zone;
 
 public class SprinklerDAOImpl implements SprinklerDAO {
 
@@ -22,6 +23,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
 
 	private static ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
+
+	private static ObservableList<Zone> zones = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -171,6 +174,32 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			e.printStackTrace();
 		}
 		return sprinklertypes;
+	}
+
+	@Override
+	public ObservableList<SprinklerShape> listSprinklerShapes(Zone zone) {
+		ObservableList<SprinklerShape> list = FXCollections.observableArrayList();
+		for (SprinklerShape s : sprinklers) {
+			if (zone.getSprinklers().contains(s)) {
+				list.add(s);
+			}
+		}
+		return list;
+	}
+
+	@Override
+	public ObservableList<Zone> listZones() {
+		return zones;
+	}
+
+	@Override
+	public void addZone(Zone z) {
+		zones.add(z);
+	}
+
+	@Override
+	public void removeZone(Zone z) {
+		zones.remove(z);
 	}
 
 }

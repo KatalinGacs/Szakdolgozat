@@ -5,12 +5,15 @@ import model.DbException;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.Zone;
 
 public interface SprinklerController {
 
 	public void addSprinklerShape(SprinklerShape s);
 
 	public ObservableList<SprinklerShape> listSprinklerShapes();
+	
+	public ObservableList<SprinklerShape> listSprinklerShapes(Zone zone);
 
 	public void deleteSprinklerShape(SprinklerShape s);
 
@@ -27,5 +30,10 @@ public interface SprinklerController {
 	public void deleteSprinklerGroup(SprinklerGroup s);
 	
 	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s);
-
+	
+	public ObservableList<Zone> listZones();
+	
+	public void addZone(Zone z);
+	
+	public void removeZone(Zone z);
 }
