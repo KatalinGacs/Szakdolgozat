@@ -9,6 +9,7 @@ import java.sql.Statement;
 
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
@@ -25,6 +26,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
 
 	private static ObservableList<Zone> zones = FXCollections.observableArrayList();
+
+	private static ObservableList<PipeGraph> pipeGraphs = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -200,6 +203,21 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void removeZone(Zone z) {
 		zones.remove(z);
+	}
+
+	@Override
+	public ObservableList<PipeGraph> listPipeGraphs() {
+		return pipeGraphs;
+	}
+
+	@Override
+	public void addPipeGraph(PipeGraph p) {
+		pipeGraphs.add(p);
+	}
+
+	@Override
+	public void removePipeGraph(PipeGraph p) {
+		pipeGraphs.remove(p);
 	}
 
 }

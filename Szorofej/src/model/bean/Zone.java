@@ -61,6 +61,11 @@ public class Zone {
 	public int getNumberOfHeads() {
 		return numberOfHeads;
 	}
+
+	@Override
+	public String toString() {
+		return name;
+	}
 	
 	
 	

@@ -22,7 +22,7 @@ public class SprinklerGroupDBView {
 
 	private Stage sprinklerGroupDbStage = new Stage();
 	private VBox root = new VBox();
-	private Scene scene = new Scene(root, 400, 400);
+	private Scene scene = new Scene(root);
 
 	private TableView<SprinklerGroup> tableView = new TableView<>();
 	private TableColumn<SprinklerGroup, String> nameCol = new TableColumn<>("Csoport név");
@@ -36,6 +36,7 @@ public class SprinklerGroupDBView {
 		sprinklerGroupDbStage.setScene(scene);
 		root.getChildren().addAll(tableView, deleteBtn, addSprinklerGroupText, nameField, addBtn);
 		tableView.getColumns().add(nameCol);
+		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerGroup, String>("name"));
 		tableView.setItems(controller.listSprinklerGroups());
 		addBtn.setOnAction(e -> {

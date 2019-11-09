@@ -2,6 +2,7 @@ package controller;
 
 import javafx.collections.ObservableList;
 import model.DbException;
+import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
@@ -36,4 +37,10 @@ public interface SprinklerController {
 	public void addZone(Zone z);
 	
 	public void removeZone(Zone z);
+	
+	public ObservableList<PipeGraph> listPipeGraphs();
+	
+	public void addPipeGraph(PipeGraph p);
+	
+	public void removePipeGraph(PipeGraph p);	
 }

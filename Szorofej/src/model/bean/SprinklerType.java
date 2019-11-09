@@ -17,6 +17,7 @@ public class SprinklerType {
 	private SimpleBooleanProperty fixWaterConsumption = new SimpleBooleanProperty();
 	private SimpleDoubleProperty waterConsumption = new SimpleDoubleProperty();
 	private SimpleDoubleProperty minPressure = new SimpleDoubleProperty();
+	
 	private SprinklerGroup sprinklerGroup = new SprinklerGroup();
 
 	public String getName() {
@@ -112,5 +113,6 @@ public class SprinklerType {
 	public String toString() {
 		return name.get();
 	}
+
 
 }

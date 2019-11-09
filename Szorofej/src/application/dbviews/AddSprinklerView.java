@@ -25,7 +25,7 @@ public class AddSprinklerView {
 
 	private Stage addSprinklerDbStage = new Stage();
 	private GridPane root = new GridPane();
-	private Scene scene = new Scene(root, 500, 400);
+	private Scene scene = new Scene(root);
 
 	private ObservableList<SprinklerGroup> sprinklerGroups = controller.listSprinklerGroups();
 
@@ -39,7 +39,7 @@ public class AddSprinklerView {
 	private TextField minAngleField = new TextField();
 	private Text maxAngleText = new Text("Max. szög (fok)");
 	private TextField maxAngleField = new TextField();
-	private Text fixWaterConsumptionText = new Text("Fix vízfogyasztás");
+	private Text fixWaterConsumptionText = new Text("Rotoros? ");
 	private CheckBox fixWaterConsumptionCheckBox = new CheckBox();
 	private Text waterConsumptionText = new Text("Vízfogyasztás (l/min)");
 	private TextField waterConsumptionfField = new TextField();

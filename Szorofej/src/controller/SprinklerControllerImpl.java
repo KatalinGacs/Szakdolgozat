@@ -4,6 +4,7 @@ import javafx.collections.ObservableList;
 import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
+import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
@@ -84,5 +85,20 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void removeZone(Zone z) {
 		dao.removeZone(z);
+	}
+
+	@Override
+	public ObservableList<PipeGraph> listPipeGraphs() {
+		return dao.listPipeGraphs();
+	}
+
+	@Override
+	public void addPipeGraph(PipeGraph p) {
+		dao.addPipeGraph(p);
+	}
+
+	@Override
+	public void removePipeGraph(PipeGraph p) {
+		dao.removePipeGraph(p);
 	}
 }

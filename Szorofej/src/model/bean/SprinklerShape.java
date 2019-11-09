@@ -76,18 +76,19 @@ public class SprinklerShape {
 	}
 	
 	private double calculateWaterCoverage() {
-		double area= 0;
+		double areaInM2= 0;
 		if (sprinkler.getFixWaterConsumption()) {
-			area = (arc.getLength() / 360) * radius * radius * Math.PI;
+			areaInM2 = (arc.getLength() / 360) * radius * radius * Math.PI;
 		}
 		else {
-			area = radius * radius * Math.PI;
+			areaInM2 = radius * radius * Math.PI;
 		}
-		return (flowRate  * 0.06 * 1000) / area;
+		//return (flowRate  * 0.06 * 1000) / areaInM2;
+		return (flowRate*60)/ areaInM2;
 	}
 	
 	private double calculateFlowRate() {
-		if (sprinkler.getFixWaterConsumption())
+		if (!sprinkler.getFixWaterConsumption())
 			return sprinkler.getWaterConsumption() * (360 / arc.getLength());
 		else
 			return sprinkler.getWaterConsumption();
