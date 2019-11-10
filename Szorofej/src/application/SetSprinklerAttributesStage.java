@@ -84,6 +84,11 @@ public class SetSprinklerAttributesStage extends Stage {
 						.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 			}
 		});
+		
+		tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+			radiusField.setText(String.valueOf(newSelection.getMaxRadius()));
+			
+		});
 
 		ok.setOnAction(e -> {
 			if (radiusField.getText() == null || radiusField.getText().trim().isEmpty()) {

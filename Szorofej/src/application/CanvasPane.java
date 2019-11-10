@@ -6,38 +6,24 @@ import java.util.List;
 import java.util.Set;
 
 import application.common.Common;
-import application.common.DecimalCellFactory;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
-import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
-import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.ChoiceBox;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
-import javafx.scene.control.TableColumn;
-import javafx.scene.control.TableView;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
-import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
-import javafx.scene.text.Text;
-import javafx.stage.Stage;
 import model.bean.PipeGraph;
-import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
@@ -46,16 +32,16 @@ public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
 
-	protected KeyCode pressedKey;
+	KeyCode pressedKey;
 
 	public enum Use {
 		NONE, BORDERDRAWING, SPRINKLERDRAWING, PREPAREFORDRAWINGSEVERALSPRINKLERS, ZONEEDITING, PREPAREFORPIPEDRAWING,
 		PIPEDRAWING
 	}
 
-	protected Use stateOfCanvasUse = Use.NONE;
-	protected boolean sprinklerAttributesSet = false;
-	protected boolean drawingSeveralSprinklers = false;
+	Use stateOfCanvasUse = Use.NONE;
+	boolean sprinklerAttributesSet = false;
+	boolean drawingSeveralSprinklers = false;
 
 	static int strokeWidth = (int) (Common.pixelPerMeter / 12);
 
@@ -76,24 +62,24 @@ public class CanvasPane extends Pane {
 	boolean showingFocusCircle = false;
 	private Line measuringIntersectionsLine = new Line();
 
-	protected boolean cursorNearLineEnd = false;
-	protected double lineEndX;
-	protected double lineEndY;
+	boolean cursorNearLineEnd = false;
+	double lineEndX, lineEndY;
 
-	protected boolean cursorNearSprinklerHead = false;
-	protected static double sprinklerHeadX;
-	protected static double sprinklerHeadY;
+	boolean cursorNearSprinklerHead = false;
+	static double sprinklerHeadX, sprinklerHeadY;
 	SprinklerShape sprinklerShapeNearCursor;
 
-	protected boolean lineSelected = false;
-	protected int indexOfSelectedLine;
+	boolean cursorOnPipeLine = false;
+	boolean lineSelected = false;
+	int indexOfSelectedLine;
 	List<Circle> tempSprinklerCirclesInALine = new ArrayList<>();
 	List<Circle> tempSprinklerCentersInALine = new ArrayList<>();
 
-	protected Set<SprinklerShape> selectedSprinklerShapes = new HashSet<>();
-	protected double flowRateOfSelected = 0;
+	Set<SprinklerShape> selectedSprinklerShapes = new HashSet<>();
+	double flowRateOfSelected = 0;
 
 	PipeGraph pipeGraph;
+
 	// TODO ezeket is modelben eltárolni, azon keresztül elérni
 	protected List<Shape> borderShapes = new ArrayList<Shape>();
 	protected List<Shape> obstacles = new ArrayList<>();
@@ -226,38 +212,40 @@ public class CanvasPane extends Pane {
 	}
 
 	protected void selectHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
-		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
-					: BorderDrawing.tempRectangle.intersects(s.getCircle().getBoundsInLocal());
-			if (selected) {
-				if (adding) {
-					s.getCircle().setFill(selectionColor);
-					selectedSprinklerShapes.add(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
-					for (Zone zone : controller.listZones()) {
-						for (SprinklerShape sInZone : zone.getSprinklers()) {
-							if (s == sInZone) {
-								s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
-								selectedSprinklerShapes.remove(s);
-								flowRateOfSelected = 0;
-								for (SprinklerShape sh : selectedSprinklerShapes)
-									flowRateOfSelected += sh.getFlowRate();
+		if (stateOfCanvasUse == Use.ZONEEDITING) {
+			for (SprinklerShape s : controller.listSprinklerShapes()) {
+				boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
+						: BorderDrawing.tempRectangle.intersects(s.getCircle().getBoundsInLocal());
+				if (selected) {
+					if (adding) {
+						s.getCircle().setFill(selectionColor);
+						selectedSprinklerShapes.add(s);
+						flowRateOfSelected = 0;
+						for (SprinklerShape sh : selectedSprinklerShapes)
+							flowRateOfSelected += sh.getFlowRate();
+						for (Zone zone : controller.listZones()) {
+							for (SprinklerShape sInZone : zone.getSprinklers()) {
+								if (s == sInZone) {
+									s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+									selectedSprinklerShapes.remove(s);
+									flowRateOfSelected = 0;
+									for (SprinklerShape sh : selectedSprinklerShapes)
+										flowRateOfSelected += sh.getFlowRate();
+								}
 							}
 						}
-					}
 
-				} else {
-					s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
-					selectedSprinklerShapes.remove(s);
-					flowRateOfSelected = 0;
-					for (SprinklerShape sh : selectedSprinklerShapes)
-						flowRateOfSelected += sh.getFlowRate();
+					} else {
+						s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+						selectedSprinklerShapes.remove(s);
+						flowRateOfSelected = 0;
+						for (SprinklerShape sh : selectedSprinklerShapes)
+							flowRateOfSelected += sh.getFlowRate();
+					}
 				}
 			}
+			BorderDrawing.tempRectangle.setVisible(false);
 		}
-		BorderDrawing.tempRectangle.setVisible(false);
 	}
 
 	public void createZone(String name, double durationInHours) {

@@ -105,6 +105,7 @@ public class BorderDrawing {
 	static Line tempBorderLine = new Line();
 	static Circle tempCircle = new Circle();
 	public static void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
+
 		if (e.getButton() == MouseButton.PRIMARY) {
 			double width = Math.abs(startX - e.getX());
 			double height = Math.abs(startY - e.getY());

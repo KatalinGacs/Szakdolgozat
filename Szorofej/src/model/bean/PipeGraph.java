@@ -7,23 +7,26 @@ import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import application.common.Common;
 import javafx.geometry.Point2D;
+import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 
 public class PipeGraph {
 
 	private Zone zone;
 
+	private Color color;
+	
 	private Set<Vertex> vertices;
 	private Set<Edge> edges;
 	private Map<Vertex, Set<Edge>> adjList;
 
-	public PipeGraph(Zone zone) {
+	public PipeGraph(Zone zone, Color color) {
 		vertices = new HashSet<>();
 		edges = new HashSet<>();
 		adjList = new HashMap<>();
 		this.zone = zone;
+		this.color = color;
 	}
 
 	public boolean addVertex(double x, double y) {
@@ -101,11 +104,22 @@ public class PipeGraph {
 	public void setZone(Zone zone) {
 		this.zone = zone;
 	}
+	
+	
+
+	public Color getColor() {
+		return color;
+	}
+
+	public void setColor(Color color) {
+		this.color = color;
+	}
+
+
 
 	public static class Vertex extends Point2D {
 		private Vertex parent;
-		private Set<Vertex> children;
-		// private boolean sprinklerHead;
+		private Set<Vertex> children = new HashSet<>();
 		private SprinklerShape sprinklerShape;
 
 		public Vertex(Point2D point) {
@@ -145,6 +159,8 @@ public class PipeGraph {
 		public void addChild(Vertex child) {
 			children.add(child);
 		}
+
+		
 	}
 
 	public static class Edge extends Line {
@@ -186,10 +202,8 @@ public class PipeGraph {
 			this.vChild = vChild;
 			this.setEndX(vChild.getX());
 			this.setEndY(vChild.getY());
-			vChild.setParent(this.vParent);
-
 		}
-
+		
 	}
 
 }

@@ -1,5 +1,6 @@
 package application;
 
+import application.CanvasPane.Use;
 import application.common.Common;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
@@ -29,6 +30,7 @@ public class ZoneStage extends Stage{
 	private Button createZoneBtn = new Button("Zóna létrehozása");
 
 	public ZoneStage (CanvasPane canvasPane, ToggleButton addHeads, ToggleButton removeHeads, Text numberOfSelectedHeadsField, Text flowRateOfSelectedHeadsField) {
+
 		setX(Common.primaryScreenBounds.getWidth() - 500);
 		setY(100);
 		root.setVgap(10);
@@ -65,12 +67,14 @@ public class ZoneStage extends Stage{
 				Common.showAlert("Nincsenek kiválasztott szórófejek");
 			} else {
 				canvasPane.createZone(zoneNameTextField.getText(), durationInHours);
+				canvasPane.stateOfCanvasUse = Use.NONE;
 				close();
 			}
 		});
 		
 		setOnCloseRequest(e -> {
 			canvasPane.deselectAll();
+			canvasPane.stateOfCanvasUse = Use.NONE;
 		});
 	}
 	
