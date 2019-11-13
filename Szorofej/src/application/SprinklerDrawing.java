@@ -1,7 +1,5 @@
 package application;
 
-import application.CanvasPane.Use;
-import application.SprinklerDrawing.SprinklerDrawingState;
 import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
@@ -107,7 +105,6 @@ public class SprinklerDrawing {
 						Common.showAlert("Add meg a szórófej szögét!");
 					} else
 						try {
-
 							if (Double.parseDouble(SprinklerDrawing.angleInput
 									.getText()) > SprinklerDrawing.sprinklerType.getMaxAngle()
 									|| Double.parseDouble(SprinklerDrawing.angleInput
@@ -224,11 +221,11 @@ public class SprinklerDrawing {
 	}
 
 	public static void selectLineForSprinklerDrawing(MouseEvent e, CanvasPane canvasPane) {
-		for (Shape border : canvasPane.borderShapes) {
+		for (Shape border : controller.listBorderShapes()) {
 			if (border instanceof Line) {
 				if (border.contains(e.getX(), e.getY())) {
 					canvasPane.lineSelected = true;
-					canvasPane.indexOfSelectedLine = canvasPane.borderShapes.indexOf(border);
+					canvasPane.indexOfSelectedLine = controller.listBorderShapes().indexOf(border);
 					canvasPane.stateOfCanvasUse = CanvasPane.Use.SPRINKLERDRAWING;
 				}
 			}
@@ -304,11 +301,11 @@ public class SprinklerDrawing {
 		canvasPane.tempSprinklerCirclesInALine.clear();
 		canvasPane.tempSprinklerCentersInALine.clear();
 		if (canvasPane.lineSelected) {
-			double startX = ((Line) canvasPane.borderShapes.get(canvasPane.indexOfSelectedLine)).getStartX();
-			double endX = ((Line) canvasPane.borderShapes.get(canvasPane.indexOfSelectedLine)).getEndX();
+			double startX = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getStartX();
+			double endX = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getEndX();
 			double diffX = startX - endX;
-			double startY = ((Line) canvasPane.borderShapes.get(canvasPane.indexOfSelectedLine)).getStartY();
-			double endY = ((Line) canvasPane.borderShapes.get(canvasPane.indexOfSelectedLine)).getEndY();
+			double startY = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getStartY();
+			double endY = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getEndY();
 			double diffY = startY - endY;
 	
 			for (int i = 0; i < numberOfSprinklersInALine; i++) {

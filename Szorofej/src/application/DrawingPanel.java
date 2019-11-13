@@ -213,7 +213,6 @@ public class DrawingPanel extends VBox {
 					}
 					PipeDrawing.startDrawingPipeLine(e, canvasPane);
 					
-					canvasPane.stateOfCanvasUse = Use.PIPEDRAWING;
 				} else if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING) {
 					
 					PipeDrawing.drawPipeLine(e, canvasPane);
@@ -280,9 +279,11 @@ public class DrawingPanel extends VBox {
 
 			canvasPane.pressedKey = e.getCode();
 			if (canvasPane.pressedKey.equals(KeyCode.ESCAPE)) {
+				
 				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				canvasPane.endLineDrawing();
 				borderButtons.selectToggle(null);
+				
 			}
 		});
 
@@ -293,7 +294,7 @@ public class DrawingPanel extends VBox {
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
 
 			if (canvasPane.pressedKey == KeyCode.SHIFT) {
-				for (Shape border : canvasPane.borderShapes) {
+				for (Shape border : controller.listBorderShapes()) {
 					if (border.contains(mousePoint)) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
 						break;
@@ -305,7 +306,7 @@ public class DrawingPanel extends VBox {
 			if (borderButtons.getSelectedToggle() == borderLineBtn
 					&& canvasPane.stateOfCanvasUse == Use.BORDERDRAWING) {
 				BorderDrawing.showTempBorderLine(e, borderColor.getValue(), canvasPane);
-				for (Shape border : canvasPane.borderShapes) {
+				for (Shape border : controller.listBorderShapes()) {
 					if (border instanceof Line) {
 						if ((Math.abs(e.getX() - ((Line) border).getStartX()) < Common.pixelPerMeter / 2
 								&& Math.abs(e.getY() - ((Line) border).getStartY()) < Common.pixelPerMeter / 2)) {
@@ -347,7 +348,8 @@ public class DrawingPanel extends VBox {
 					}
 				}
 				if (!canvasPane.cursorNearSprinklerHead) {
-					for (Edge line : canvasPane.pipeGraph.getEdges()) {
+					
+					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
 						// TODO ehelyett jobb lenne, ha ez azt tudná nézni, hogy a vonal közelében van,
 						// nem csak hogy felette
 						if (line.contains(e.getX(), e.getY())) {
@@ -367,7 +369,7 @@ public class DrawingPanel extends VBox {
 
 			if (selectLine.isSelected()) {
 				canvasPane.stateOfCanvasUse = Use.PREPAREFORDRAWINGSEVERALSPRINKLERS;
-				for (Shape border : canvasPane.borderShapes) {
+				for (Shape border : controller.listBorderShapes()) {
 					if (border instanceof Line && border.contains(e.getX(), e.getY())) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
 						break;

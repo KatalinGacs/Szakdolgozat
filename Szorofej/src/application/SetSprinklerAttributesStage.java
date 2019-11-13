@@ -42,6 +42,7 @@ public class SetSprinklerAttributesStage extends Stage {
 	private Text meterText = new Text("méter");
 	private HBox radiusBox = new HBox();
 	
+	//TODO be kéne állítani, hogy egyszerre csak egy legyen belõle megnyitható
 	public SetSprinklerAttributesStage(CanvasPane canvasPane) {
 
 		setAlwaysOnTop(true);

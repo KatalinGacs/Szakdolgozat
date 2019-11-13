@@ -7,8 +7,11 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Shape;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -28,6 +31,10 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Zone> zones = FXCollections.observableArrayList();
 
 	private static ObservableList<PipeGraph> pipeGraphs = FXCollections.observableArrayList();
+	
+	private static ObservableList<Shape> borderShapes = FXCollections.observableArrayList();
+	
+	private static ObservableList<Shape> obstacles = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -197,6 +204,16 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addZone(Zone z) {
+		if (z == null) {
+			Common.showAlert("Érvénytelen zóna");
+			return;
+		}
+		for (Zone zone : listZones()) {
+			if (zone.getName() == z.getName()) {
+				Common.showAlert("Már létezik ilyen nevû zóna");
+				return;
+			}
+		}
 		zones.add(z);
 	}
 
@@ -212,12 +229,58 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addPipeGraph(PipeGraph p) {
+		for (PipeGraph pg : listPipeGraphs()) {
+			if (p.getZone() == pg.getZone()) {
+				Common.showAlert("Ennek a zónának már létezik megkezdett csövezése!");
+				return;
+			}
+		}
 		pipeGraphs.add(p);
 	}
 
 	@Override
 	public void removePipeGraph(PipeGraph p) {
 		pipeGraphs.remove(p);
+	}
+
+	@Override
+	public void addBorderShape(Shape border) {
+		borderShapes.add(border);
+	}
+
+	@Override
+	public ObservableList<Shape> listBorderShapes() {
+		return borderShapes;
+	}
+
+	@Override
+	public void removeBorderShape(Shape border) {
+		borderShapes.remove(border);
+	}
+
+	@Override
+	public void addObstacle(Shape obstacle) {
+		obstacles.add(obstacle);
+	}
+
+	@Override
+	public ObservableList<Shape> listObstacles() {
+		return obstacles;
+	}
+
+	@Override
+	public void removeObstacle(Shape obstacle) {
+		obstacles.remove(obstacle);
+	}
+
+	@Override
+	public PipeGraph getPipeGraph(Zone zone) {
+		for(PipeGraph pg : pipeGraphs) {
+			if (pg.getZone() == zone) {
+				return pg;
+			}
+		}
+		return null;
 	}
 
 }

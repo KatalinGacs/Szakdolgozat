@@ -2,6 +2,8 @@ package application;
 
 import application.CanvasPane.Use;
 import application.common.Common;
+import controller.SprinklerController;
+import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -13,7 +15,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class BorderDrawing {
-
+	
 	public static void showTempBorderLine(MouseEvent e, Color color, CanvasPane canvasPane) {
 		BorderDrawing.lengthInput.setVisible(true);
 		BorderDrawing.lengthInput.relocate(BorderDrawing.startX, BorderDrawing.startY);
@@ -74,7 +76,8 @@ public class BorderDrawing {
 		line.setEndY(endY);
 		BorderDrawing.startX = endX;
 		BorderDrawing.startY = endY;
-		canvasPane.borderShapes.add(line);
+		
+		canvasPane.controller.addBorderShape(line);
 		canvasPane.bordersLayer.getChildren().add(line);
 	}
 
@@ -83,8 +86,8 @@ public class BorderDrawing {
 		rect.setFill(fillColor);
 		rect.setStrokeWidth(width);
 		canvasPane.bordersLayer.getChildren().add(rect);
-		canvasPane.borderShapes.add(rect);
-		canvasPane.obstacles.add(rect);
+		canvasPane.controller.addBorderShape(rect);
+		canvasPane.controller.addObstacle(rect);
 	}
 
 	public static void showTempBorderCircle(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
@@ -147,8 +150,8 @@ public class BorderDrawing {
 		circle.setFill(fillColor);
 		circle.setStrokeWidth(width);
 		canvasPane.bordersLayer.getChildren().add(circle);
-		canvasPane.borderShapes.add(circle);
-		canvasPane.obstacles.add(circle);
+		canvasPane.controller.addBorderShape(circle);
+		canvasPane.controller.addObstacle(circle);
 	}
 
 }

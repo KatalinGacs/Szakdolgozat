@@ -78,11 +78,7 @@ public class CanvasPane extends Pane {
 	Set<SprinklerShape> selectedSprinklerShapes = new HashSet<>();
 	double flowRateOfSelected = 0;
 
-	PipeGraph pipeGraph;
-
-	// TODO ezeket is modelben eltárolni, azon keresztül elérni
-	protected List<Shape> borderShapes = new ArrayList<Shape>();
-	protected List<Shape> obstacles = new ArrayList<>();
+	PipeGraph pipeGraphUnderEditing;
 
 	private ContextMenu rightClickMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
@@ -154,14 +150,14 @@ public class CanvasPane extends Pane {
 				});
 			}
 		}
-		for (Shape border : borderShapes) {
+		for (Shape border : controller.listBorderShapes()) {
 			if (border.contains(e.getX(), e.getY())) {
 				rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
 				delMenuItem.setOnAction(ev -> {
-					borderShapes.remove(border);
+					controller.removeBorderShape(border);
 					bordersLayer.getChildren().remove(border);
-					if (obstacles.contains(border))
-						obstacles.remove(border);
+					if (controller.listObstacles().contains(border))
+						controller.removeObstacle(border);
 					BorderDrawing.tempBorderLine.setVisible(false);
 					BorderDrawing.tempRectangle.setVisible(false);
 					BorderDrawing.tempCircle.setVisible(false);
@@ -276,21 +272,38 @@ public class CanvasPane extends Pane {
 
 		double sumOfWaterCoverageInMmPerHour = 0;
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
+			boolean counts = false;
 			if (s.getArc().contains(e.getX(), e.getY())) {
 				measuringIntersectionsLine.setStartX(s.getCircle().getCenterX());
 				measuringIntersectionsLine.setStartY(s.getCircle().getCenterY());
 				measuringIntersectionsLine.setEndX(e.getX());
 				measuringIntersectionsLine.setEndY(e.getY());
 				measuringIntersectionsLine.setStroke(Color.TRANSPARENT);
-				for (Shape obstacle : obstacles) {
-					Shape intersect = Shape.intersect(measuringIntersectionsLine, obstacle);
-					if (intersect.getBoundsInLocal().getMinX() == 0 && intersect.getBoundsInLocal().getMinY() == 0) {
-						sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
+				List<Shape> intersects = new ArrayList<>();
+				if (!controller.listObstacles().isEmpty()) {
+					for (Shape obstacle : controller.listObstacles()) {
+						if (Shape.intersect(s.getArc(), obstacle).getBoundsInLocal().getMinX() != 0) {
+							intersects.add(Shape.intersect(s.getArc(), obstacle));
+						}
 					}
 				}
-				if (obstacles.isEmpty())
-					sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
+				if (!intersects.isEmpty()) {
+					for (Shape obstacle : intersects) {
+						Shape intersect = Shape.intersect(measuringIntersectionsLine, obstacle);
+						if (intersect.getBoundsInLocal().getMinX() != 0
+								|| intersect.getBoundsInLocal().getMinY() != 0) {
+							counts = false;
+							break;
+
+						}
+						else counts = true;
+					}
+				} else {
+					counts = true;
+				}
 			}
+			if (counts)
+				sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
 		}
 		return ("Egy négyzetrács mérete: 1x1 m \r\n" + "Csapadék: "
 				+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "

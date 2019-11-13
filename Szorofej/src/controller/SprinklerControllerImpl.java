@@ -1,6 +1,8 @@
 package controller;
 
 import javafx.collections.ObservableList;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Shape;
 import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
@@ -100,5 +102,40 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void removePipeGraph(PipeGraph p) {
 		dao.removePipeGraph(p);
+	}
+
+	@Override
+	public void addBorderShape(Shape border) {
+		dao.addBorderShape(border);
+	}
+
+	@Override
+	public ObservableList<Shape> listBorderShapes() {
+		return dao.listBorderShapes();
+	}
+
+	@Override
+	public void removeBorderShape(Shape border) {
+		dao.removeBorderShape(border);
+	}
+
+	@Override
+	public void addObstacle(Shape obstacle) {
+		dao.addObstacle(obstacle);
+	}
+
+	@Override
+	public ObservableList<Shape> listObstacles() {
+		return dao.listObstacles();
+	}
+
+	@Override
+	public void removeObstacle(Shape obstacle) {
+		dao.removeObstacle(obstacle);
+	}
+
+	@Override
+	public PipeGraph getPipeGraph(Zone zone) {
+		return dao.getPipeGraph(zone);
 	}
 }
