@@ -1,9 +1,6 @@
 package application;
 
-import application.CanvasPane.Use;
 import application.common.Common;
-import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -15,7 +12,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class BorderDrawing {
-	
+
 	public static void showTempBorderLine(MouseEvent e, Color color, CanvasPane canvasPane) {
 		BorderDrawing.lengthInput.setVisible(true);
 		BorderDrawing.lengthInput.relocate(BorderDrawing.startX, BorderDrawing.startY);
@@ -24,7 +21,8 @@ public class BorderDrawing {
 		BorderDrawing.tempBorderLine.setStroke(color);
 		BorderDrawing.tempBorderLine.setVisible(true);
 		if (canvasPane.pressedKey == KeyCode.CONTROL) {
-			Point2D point = Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY());
+			Point2D point = Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(),
+					e.getY());
 			BorderDrawing.tempBorderLine.setEndX(point.getX());
 			BorderDrawing.tempBorderLine.setEndY(point.getY());
 		} else {
@@ -45,44 +43,49 @@ public class BorderDrawing {
 		line.setStrokeWidth(width);
 		line.setStroke(color);
 		double endX, endY;
-		
-		if (canvasPane.pressedKey == KeyCode.CONTROL) {
-			Point2D point = Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY());
-			endX = point.getX();
-			endY = point.getY();
-		}
-		else if (canvasPane.cursorNearLineEnd) {
+
+		if (canvasPane.cursorNearLineEnd) {
 			endX = canvasPane.lineEndX;
 			endY = canvasPane.lineEndY;
-			} else {
-				endX = e.getX();
-				endY = e.getY();
-			}
+		} else {
+			endX = e.getX();
+			endY = e.getY();
+		}
 		if (!BorderDrawing.lengthInput.getText().trim().isEmpty() && BorderDrawing.lengthInput.getText() != null)
 			try {
 				double requiredLength = Double.parseDouble(BorderDrawing.lengthInput.getText()) * Common.pixelPerMeter;
-				double drawnLength = Math
-						.sqrt((BorderDrawing.startX - e.getX()) * (BorderDrawing.startX - e.getX()) + (BorderDrawing.startY - e.getY()) * (BorderDrawing.startY - e.getY()));
+				double drawnLength = Math.sqrt((BorderDrawing.startX - e.getX()) * (BorderDrawing.startX - e.getX())
+						+ (BorderDrawing.startY - e.getY()) * (BorderDrawing.startY - e.getY()));
 				double ratio = requiredLength / drawnLength;
+
 				endX = BorderDrawing.startX + (e.getX() - BorderDrawing.startX) * ratio;
 				endY = BorderDrawing.startY + (e.getY() - BorderDrawing.startY) * ratio;
+				
 				BorderDrawing.lengthInput.setText("");
 				BorderDrawing.lengthInput.setVisible(false);
-	
+
 			} catch (NumberFormatException ex) {
 				Common.showAlert("Számokban add meg a vonal hosszát vagy hagyd üresen a mezõt!");
 			}
+		if (canvasPane.pressedKey == KeyCode.CONTROL) {
+			Point2D point = Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, endX,
+					endY);
+			endX = point.getX();
+			endY = point.getY();
+		}
 		line.setEndX(endX);
 		line.setEndY(endY);
 		BorderDrawing.startX = endX;
 		BorderDrawing.startY = endY;
-		
+
 		canvasPane.controller.addBorderShape(line);
 		canvasPane.bordersLayer.getChildren().add(line);
 	}
 
-	public static void drawBorderRectanlge(MouseEvent e, Color strokeColor, Color fillColor, int width, CanvasPane canvasPane) {
-		Rectangle rect = Common.drawRectangle(strokeColor, BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY());
+	public static void drawBorderRectanlge(MouseEvent e, Color strokeColor, Color fillColor, int width,
+			CanvasPane canvasPane) {
+		Rectangle rect = Common.drawRectangle(strokeColor, BorderDrawing.startX, BorderDrawing.startY, e.getX(),
+				e.getY());
 		rect.setFill(fillColor);
 		rect.setStrokeWidth(width);
 		canvasPane.bordersLayer.getChildren().add(rect);
@@ -92,7 +95,8 @@ public class BorderDrawing {
 
 	public static void showTempBorderCircle(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 		if (e.getButton() == MouseButton.PRIMARY) {
-			double r = Math.sqrt((BorderDrawing.startX - e.getX()) * (BorderDrawing.startX - e.getX()) + (BorderDrawing.startY - e.getY()) * (BorderDrawing.startY - e.getY()));
+			double r = Math.sqrt((BorderDrawing.startX - e.getX()) * (BorderDrawing.startX - e.getX())
+					+ (BorderDrawing.startY - e.getY()) * (BorderDrawing.startY - e.getY()));
 			BorderDrawing.tempCircle.setCenterX(BorderDrawing.startX);
 			BorderDrawing.tempCircle.setCenterY(BorderDrawing.startY);
 			BorderDrawing.tempCircle.setRadius(r);
@@ -107,6 +111,7 @@ public class BorderDrawing {
 	static TextField lengthInput = new TextField();
 	static Line tempBorderLine = new Line();
 	static Circle tempCircle = new Circle();
+
 	public static void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 
 		if (e.getButton() == MouseButton.PRIMARY) {
@@ -137,13 +142,15 @@ public class BorderDrawing {
 	}
 
 	static Rectangle tempRectangle = new Rectangle();
+
 	public static void startDrawingBorder(MouseEvent e) {
 		startX = e.getX();
 		startY = e.getY();
 	}
 
-	public static void drawBorderCircle(MouseEvent e, Color strokeColor, Color fillColor, int width, CanvasPane canvasPane) {
-	
+	public static void drawBorderCircle(MouseEvent e, Color strokeColor, Color fillColor, int width,
+			CanvasPane canvasPane) {
+
 		double r = Math.sqrt((startX - e.getX()) * (startX - e.getX()) + (startY - e.getY()) * (startY - e.getY()));
 		Circle circle = new Circle(startX, startY, r, null);
 		circle.setStroke(strokeColor);
