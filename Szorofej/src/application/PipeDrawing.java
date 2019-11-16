@@ -7,11 +7,14 @@ import application.CanvasPane.Use;
 import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.text.Text;
 import model.GraphException;
 import model.PipeDiameterOptimizer;
 import model.bean.PipeGraph;
+import model.bean.PipeMaterial;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
 import model.bean.SprinklerShape;
@@ -22,6 +25,7 @@ public class PipeDrawing {
 	static SprinklerController controller = new SprinklerControllerImpl();
 
 	static Vertex startVertex;
+	static Vertex breakPointVertex;
 
 	static double lineBreakPointX;
 	static double lineBreakPointY;
@@ -32,17 +36,39 @@ public class PipeDrawing {
 			Common.showAlert("A zóna megkezdett csövezésére kattintva folytasd a rajzolást!");
 			return;
 		}
-		BorderDrawing.startX = e.getX();
-		BorderDrawing.startY = e.getY();
-		startVertex = new Vertex(e.getX(), e.getY(), null);
-		if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
-			canvasPane.pipeGraphUnderEditing
-					.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.pipeLineColor));
-			canvasPane.pipeLineLayer.getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
+		if (canvasPane.cursorOnPipeLine) {
+			breakLine(canvasPane);
+		} else {
+			BorderDrawing.startX = e.getX();
+			BorderDrawing.startY = e.getY();
+			startVertex = new Vertex(e.getX(), e.getY(), null);
+			if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
+				canvasPane.pipeGraphUnderEditing
+						.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.pipeLineColor));
+				canvasPane.pipeLineLayer.getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
+			}
+			canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
+
 		}
-		canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
 		canvasPane.stateOfCanvasUse = Use.PIPEDRAWING;
 
+	}
+
+	public static void breakLine(CanvasPane canvasPane) {
+		Vertex breakPointVertex = new Vertex(lineBreakPointX, lineBreakPointY);
+		breakPointVertex.setBreakPoint(true);
+		breakPointVertex.setParent(pipeLineToSplit.getvParent());
+		breakPointVertex.addChild(pipeLineToSplit.getvChild());
+		pipeLineToSplit.getvChild().setParent(breakPointVertex);
+		pipeLineToSplit.getvParent().getChildren().clear();
+		pipeLineToSplit.getvParent().addChild(breakPointVertex);
+		canvasPane.pipeGraphUnderEditing.addVertex(breakPointVertex);
+		canvasPane.pipeGraphUnderEditing.removeEdge(pipeLineToSplit);
+		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(pipeLineToSplit.getvParent(), breakPointVertex));
+		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(breakPointVertex, pipeLineToSplit.getvChild()));
+		startVertex = breakPointVertex;
+		BorderDrawing.startX = breakPointVertex.getX();
+		BorderDrawing.startY = breakPointVertex.getY();
 	}
 
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
@@ -79,58 +105,147 @@ public class PipeDrawing {
 		canvasPane.pipeGraphUnderEditing.addEdge(line);
 	}
 
-	public static void breakLine(CanvasPane canvasPane) {
-		Vertex breakPointVertex = new Vertex(lineBreakPointX, lineBreakPointY);
-		breakPointVertex.setBreakPoint(true);
-		breakPointVertex.setParent(pipeLineToSplit.getvParent());
-		pipeLineToSplit.getvChild().setParent(breakPointVertex);
-		canvasPane.pipeGraphUnderEditing.addVertex(breakPointVertex);
-		canvasPane.pipeGraphUnderEditing.removeEdge(pipeLineToSplit);
-		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(pipeLineToSplit.getvParent(), breakPointVertex));
-		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(breakPointVertex, pipeLineToSplit.getvChild()));
+	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex startingVertex) {
+		System.out.println("completePipeDrawing called");
+		System.out.println("startingV: " + startingVertex);
+		PipeGraph pg = controller.getPipeGraph(zone);
+		double beginningPressure = pg.getBeginningPressure();
+
+		do {
+			for (Vertex child : startingVertex.getChildren()) {
+				calculatePipeDiameters(canvasPane, pg, startingVertex, child, beginningPressure);
+				beginningPressure = PipeDiameterOptimizer.remainingPressure;
+				if (breakPointVertex != null)
+					completePipeDrawing(canvasPane, zone, breakPointVertex);
+			}
+		} while (breakPointVertex != null);
 
 	}
 
-	public static void calculatePipeDiameters(Zone zone) {
-		PipeGraph pg = controller.getPipeGraph(zone);
-		Vertex startingVertex = pg.getRoot();
-		double beginningPressure = pg.getBeginningPressure();
+	public static void calculatePipeDiameters(CanvasPane canvasPane, PipeGraph pg, Vertex startingVertex,
+			Vertex nextVertex, double beginningPressure) {
+
 		try {
-			// TODO ezt nem is biztos hogy használom
-			List<Vertex> currentLine = getVerticesUntilNextBreakPoint(startingVertex, startingVertex.getChild());
 			ArrayList<Double> pipeLengths = new ArrayList<>();
 			ArrayList<SprinklerShape> sprinklers = new ArrayList<>();
-			Vertex current = startingVertex.getChild();
+			PipeMaterial pipe = new PipeMaterial();
+
+			double totalWaterFlow = calculateSubGraphWaterFlow(pg, startingVertex, nextVertex);
+
+			Vertex current = nextVertex;
 			double currentLength = 0;
 
 			outerloop: while (true) {
 				currentLength += pg.getEdgeByChildVertex(current).getLength() / Common.pixelPerMeter;
 				if (current.getSprinklerShape() != null) {
+					pipe.setLength(currentLength);
 					pipeLengths.add(currentLength);
 					currentLength = 0;
 					sprinklers.add(current.getSprinklerShape());
 				}
-				if (current.getChildren().isEmpty())
+				if (current.getChildren().isEmpty()) {
+					breakPointVertex = null;
 					break;
+				}
 				for (Vertex bp : pg.getBreakpoints()) {
-					if (current == bp)
+					if (current == bp) {
+						breakPointVertex = current;
+						pipe.setLength(currentLength);
+						pipeLengths.add(currentLength);
+						currentLength = 0;
 						break outerloop;
+					}
 				}
 				current = current.getChild();
 			}
-			ArrayList<String> diameters = PipeDiameterOptimizer.optimalPipes(beginningPressure, pipeLengths,
-					sprinklers);
+			ArrayList<String> diameters = PipeDiameterOptimizer.optimalPipes(beginningPressure, pipeLengths, sprinklers,
+					totalWaterFlow);
+
 			System.out.println(diameters);
 			// TODO eddig kiszámolja az elsõ szakaszig a megfelelõ csõátmérõket, ezután
 			// 1. ugyanezt minden elágazás után a következõ szakaszra is kell rekurzívan
 			// 2. a képre ki kell írni szakaszonként az átmérõket
 			// 3. el kell tárolni hogy hány méter milyen átmérõjû csõ kell
 			// 4. el kell tárolni minden elágazásnál, hogy milyen T-idom kell
-			
+
+			String currentDiameter = null;
+			Point2D position = new Point2D(startingVertex.getX(), startingVertex.getY());
+
+			Text diameterText;
+			if (sprinklers.isEmpty()) {
+				if (diameters.get(0) != currentDiameter) {
+					currentDiameter = diameters.get(0);
+					diameterText = new Text(currentDiameter);
+					diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
+					diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
+					diameterText.setStyle(Common.textstyle);
+					canvasPane.pipeTextLayer.getChildren().add(diameterText);
+				}
+			} else {
+				for (SprinklerShape s : sprinklers) {
+					if (diameters.get(sprinklers.indexOf(s)) != currentDiameter) {
+						currentDiameter = diameters.get(sprinklers.indexOf(s));
+						diameterText = new Text(currentDiameter);
+						// TODO: az elágazásnál egymás fölé kerülnek a feliratok, nem így kéne, hanem
+						// aez elsõ csõszakasz közepe fölé pl
+						diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
+						diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
+						diameterText.setStyle(Common.textstyle);
+						canvasPane.pipeTextLayer.getChildren().add(diameterText);
+						position = new Point2D(s.getCircle().getCenterX(), s.getCircle().getCenterY());
+					}
+				}
+			}
+
 		} catch (GraphException ex) {
 			ex.printStackTrace();
 		}
-	
+
+	}
+
+	private static Vertex breakPoint2 = null;
+
+	private static double calculateSubGraphWaterFlow(PipeGraph pg, Vertex startingVertex, Vertex nextVertex) {
+		Vertex current = startingVertex;
+		double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);
+		if (breakPoint2 != null) {
+			for (Vertex child : breakPoint2.getChildren()) {
+				totalWaterFlow += calculateSubGraphWaterFlow(pg, breakPoint2, child);
+			}
+		}
+		return totalWaterFlow;
+	}
+
+	private static double waterFlowUntilBreakpoint(PipeGraph pg, Vertex startingVertex, Vertex child) {
+		double totalWaterFlow = 0;
+		try {
+			Vertex current = child;
+
+			outerloop: while (true) {
+
+				if (current.getSprinklerShape() != null) {
+					totalWaterFlow += current.getSprinklerShape().getFlowRate();
+				}
+
+				if (current.getChildren().isEmpty()) {
+					breakPoint2 = null;
+					break;
+
+				}
+				for (Vertex bp : pg.getBreakpoints()) {
+					if (current == bp) {
+						breakPoint2 = current;
+						break outerloop;
+					}
+				}
+				current = current.getChild();
+			}
+
+		} catch (GraphException e) {
+			e.printStackTrace();
+		}
+
+		return totalWaterFlow;
 	}
 
 	private static List<Vertex> getVerticesUntilNextBreakPoint(Vertex startingBreakPoint, Vertex direction) {

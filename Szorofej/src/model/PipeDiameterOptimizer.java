@@ -10,17 +10,33 @@ import java.util.Set;
 import model.bean.SprinklerShape;
 
 public class PipeDiameterOptimizer {
-	
 
 	private static Simplex simplex;
+	public static double remainingPressure;
 
 	public static ArrayList<String> optimalPipes(double beginningPressure, ArrayList<Double> pipeLengths,
-			ArrayList<SprinklerShape> sprinklers ) {
+			ArrayList<SprinklerShape> sprinklers, double totalWaterFlow) {
+		System.out.println("optimalPipes called");
+		System.out.println("begin press: " + beginningPressure);
+		System.out.println("pipelength: " + pipeLengths);
+		System.out.println("Sprinklers: " + sprinklers);
+		System.out.println("totalwf: " + totalWaterFlow);
+
 		ArrayList<String> result = new ArrayList<String>();
+
+		if (sprinklers.isEmpty()) {
+			double wf = nearestKey(pressureLossTable, totalWaterFlow);
+			double pressureLoss = Collections.max(pressureLossTable.get(wf).values()) * pipeLengths.get(0) / 100;
+			result.add(getDiameter(wf, pressureLoss));
+			return result;
+		}
+
 		double[][] data = new double[pipeLengths.size() * 2 + 1][pipeLengths.size() * 3 + 1];
-		ArrayList<Double> grossWaterFlow = calculateGrossWaterFlow(sprinklers);
-		ArrayList<Double> minPressureOfSprinklers = minPressure(sprinklers);
-		
+		ArrayList<Double> grossWaterFlow = calculateGrossWaterFlow(sprinklers, totalWaterFlow, pipeLengths.size());
+		ArrayList<Double> minPressureOfSprinklers = minPressure(sprinklers, pipeLengths.size());
+		System.out.println("grossWaterFlow: " + grossWaterFlow);
+		System.out.println("minpress" + minPressureOfSprinklers);
+
 		for (int i = 0; i < pipeLengths.size() * 2 + 1; i++) {
 			for (int j = 0; j < pipeLengths.size() * 3 + 1; j++) {
 				if (i >= j && i < pipeLengths.size() && j < pipeLengths.size()) {
@@ -54,8 +70,8 @@ public class PipeDiameterOptimizer {
 					data[i][j] = 0;
 				} else if (i < pipeLengths.size() * 2 && i >= pipeLengths.size() && j == pipeLengths.size() * 3) {
 					int n = i - pipeLengths.size();
-					double pressure = nearestKey(pressureLossTable, grossWaterFlow.get(n));
-					double ertek = Collections.max(pressureLossTable.get(pressure).values()) * pipeLengths.get(n) / 100;
+					double wf = nearestKey(pressureLossTable, grossWaterFlow.get(n));
+					double ertek = Collections.max(pressureLossTable.get(wf).values()) * pipeLengths.get(n) / 100;
 					data[i][j] = ertek;
 				} else if (i - pipeLengths.size() != j - pipeLengths.size() && i < pipeLengths.size() * 2
 						&& i >= pipeLengths.size() && j < pipeLengths.size() * 3 && j >= pipeLengths.size() * 2) {
@@ -65,39 +81,48 @@ public class PipeDiameterOptimizer {
 				}
 			}
 		}
-
 		simplex = new Simplex(data, pipeLengths.size() * 2, pipeLengths.size(), false);
 
-		ArrayList<Double> solution = simplex.resultList();
-		
+		ArrayList<Double> solution = new ArrayList<Double>(); // simplex.resultList();
+
+		for (int i = 0; i < simplex.resultList().size(); i++) {
+			solution.add(simplex.resultList().get(i) / (pipeLengths.get(i)) * 100);
+		}
+
+		remainingPressure = beginningPressure;
 		for (double d : solution) {
+			remainingPressure -= d;
 			result.add(getDiameter(grossWaterFlow.get(solution.indexOf(d)), d));
 		}
-		
 		return result;
+
 	}
-	
-	private static ArrayList<Double> calculateGrossWaterFlow(ArrayList<SprinklerShape> sprinklers){
+
+	private static ArrayList<Double> calculateGrossWaterFlow(ArrayList<SprinklerShape> sprinklers,
+			double totalWaterFlow, int arraySize) {
 		ArrayList<Double> result = new ArrayList<>();
-		double sum = 0;
-		for(SprinklerShape s : sprinklers) {
-			sum += s.getFlowRate();
-		}
-		for(SprinklerShape s : sprinklers) {
+		double sum = totalWaterFlow;
+
+		for (SprinklerShape s : sprinklers) {
 			result.add(sum);
 			sum -= s.getFlowRate();
 		}
-		return result;
-	}
-	
-	private static ArrayList<Double> minPressure(ArrayList<SprinklerShape> sprinklers){
-		ArrayList<Double> result = new ArrayList<>();
-		for(SprinklerShape s : sprinklers) {
-			result.add(s.getSprinkler().getMinPressure());
+		if (sprinklers.size() < arraySize) {
+			result.add(sum);
 		}
 		return result;
 	}
-	
+
+	private static ArrayList<Double> minPressure(ArrayList<SprinklerShape> sprinklers, int arraySize) {
+		ArrayList<Double> result = new ArrayList<>();
+		for (SprinklerShape s : sprinklers) {
+			result.add(s.getSprinkler().getMinPressure());
+		}
+		if (sprinklers.size() < arraySize) {
+			result.add(0.0);
+		}
+		return result;
+	}
 
 	private static double nearestKey(Map<Double, Map<String, Double>> map, double target) {
 		double minDiff = Double.MAX_VALUE;
@@ -111,35 +136,32 @@ public class PipeDiameterOptimizer {
 		}
 		return nearest;
 	}
-	
+
 	private static String getDiameter(double waterFlow, double pressureLoss) {
-		 double wf = nearestKey(pressureLossTable, waterFlow);
-		
-		 double closestPressureLossInTable = 0;
-		 double diff = Double.MAX_VALUE;
-		 for (double d : pressureLossTable.get(wf).values()) {
+		double wf = nearestKey(pressureLossTable, waterFlow);
+
+		double closestPressureLossInTable = 0;
+		double diff = Double.MAX_VALUE;
+		for (double d : pressureLossTable.get(wf).values()) {
 			if (Math.abs(d - pressureLoss) < diff) {
 				diff = Math.abs(d - pressureLoss);
 				closestPressureLossInTable = d;
 			}
-		 }
-		 
-		 int minDiameter = Integer.MAX_VALUE;
-		 String res = null;
-		 for (String s : pressureLossTable.get(wf).keySet()) {
-			 if (pressureLossTable.get(wf).get(s) == closestPressureLossInTable)
-				 if (Integer.parseInt(s) < minDiameter) {
-					 minDiameter = Integer.parseInt(s);
-					 res = s;
-				 }
-		 }
-		
-		 
-		 return res;
+		}
+
+		int minDiameter = Integer.MAX_VALUE;
+		String res = null;
+		for (String s : pressureLossTable.get(wf).keySet()) {
+			if (pressureLossTable.get(wf).get(s) == closestPressureLossInTable)
+				if (Integer.parseInt(s) < minDiameter) {
+					minDiameter = Integer.parseInt(s);
+					res = s;
+				}
+		}
+
+		return res;
 	}
-	
-	
-	
+
 	// Nyomásesés 100 méteren
 	// Az első kulcs a vízfogyasztás értéke, az ehhez tartozó mapban tárolódik, hogy
 	// mekkora nyomásesénél milyen cső használatos

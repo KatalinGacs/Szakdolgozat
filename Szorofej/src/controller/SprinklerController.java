@@ -20,6 +20,7 @@ public interface SprinklerController {
 	public void addSprinklerGroup(SprinklerGroup s) throws DbException;
 	public void deleteSprinklerGroup(SprinklerGroup s);
 	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s);
+	public void updateSprinklerData(String column, double newValue, String name);
 
 	// memory
 	public void addBorderShape(Shape border);

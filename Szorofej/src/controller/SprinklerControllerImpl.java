@@ -138,4 +138,10 @@ public class SprinklerControllerImpl implements SprinklerController {
 	public PipeGraph getPipeGraph(Zone zone) {
 		return dao.getPipeGraph(zone);
 	}
+
+	@Override
+	public void updateSprinklerData(String column, double newValue, String name) {
+		dao.updateSprinklerData(column, newValue, name);
+	}
+
 }

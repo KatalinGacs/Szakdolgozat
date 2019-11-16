@@ -283,4 +283,19 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		return null;
 	}
 
+	@Override
+	public void updateSprinklerData(String column, double newValue, String name) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn.prepareStatement("UPDATE Sprinklertype SET "
+						+ column + " = ? WHERE name = ?");) {
+			pst.setDouble(1, newValue);
+			pst.setString(2, name );
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+		
+	
+
 }

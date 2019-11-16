@@ -15,6 +15,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.bean.PipeGraph;
+import model.bean.PipeGraph.Vertex;
 import model.bean.Zone;
 
 public class PipeStage extends Stage {
@@ -56,7 +57,7 @@ public class PipeStage extends Stage {
 
 		zonePicker.setOnAction(e -> {
 			setColor();
-			
+
 			canvasPane.pipeGraphUnderEditing = controller.getPipeGraph(zonePicker.getValue());
 		});
 
@@ -64,7 +65,8 @@ public class PipeStage extends Stage {
 			CanvasPane.pipeLineColor = colorPicker.getValue();
 			canvasPane.stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
 			colorPicker.setDisable(false);
-			if (canvasPane.pipeGraphUnderEditing == null || canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
+			if (canvasPane.pipeGraphUnderEditing == null
+					|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
 				canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
 				controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
 
@@ -80,18 +82,20 @@ public class PipeStage extends Stage {
 				Common.showAlert("Add meg a kezdeti nyomást!");
 			} else
 				try {
-					canvasPane.pipeGraphUnderEditing.setBeginningPressure(Double.parseDouble(beginningPressureField.getText()));
+					canvasPane.pipeGraphUnderEditing
+							.setBeginningPressure(Double.parseDouble(beginningPressureField.getText()));
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg a kezdeti nyomást!");
 				}
-			PipeDrawing.calculatePipeDiameters(zonePicker.getValue());
-			
-			/*
-			 * for (PipeGraph pg : controller.listPipeGraphs()) { for (Vertex parent :
-			 * pg.getVertices()) {
-			 * 
-			 * System.out.println(parent + " parent: " + parent.getParent()); } }
-			 */
+			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(), controller.getPipeGraph(zonePicker.getValue()).getRoot());
+
+			/*for (PipeGraph pg : controller.listPipeGraphs()) {
+				for (Vertex parent : pg.getVertices()) {
+					System.out.println(parent + " parent: " + parent.getParent());
+					System.out.println(parent + " children: " + parent.getChildren());
+				}
+			}*/
+
 		});
 
 	}
@@ -107,7 +111,8 @@ public class PipeStage extends Stage {
 		// úgy, hogy kb 50 különbözõ színt kiadjon és az egymást követõ színek eléggé
 		// eltérjenek
 		// lehet hogy ennél a random is értelmesebb
-		// vagy felsorolni kb 20 színt egy listában, és ha ezek nem elfogynak, azután random;
+		// vagy felsorolni kb 20 színt egy listában, és ha ezek nem elfogynak, azután
+		// random;
 		colorCounter++;
 		return color;
 	}

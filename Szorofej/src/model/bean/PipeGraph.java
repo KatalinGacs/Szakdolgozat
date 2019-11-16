@@ -70,9 +70,9 @@ public class PipeGraph {
 		return true;
 	}
 
-	public boolean addEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
+/*	public boolean addEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
 		return addEdge(new Edge(new Vertex(vertex1X, vertex1Y), new Vertex(vertex2X, vertex2Y)));
-	}
+	}*/
 
 	public boolean removeEdge(Edge e) {
 		if (!edges.remove(e))
@@ -214,9 +214,9 @@ public class PipeGraph {
 					return v;
 				}
 			} else if (children.size() == 0) {
-				throw new GraphException("This Vertex has no children");
+				throw new GraphException("This Vertex has no children", this);
 			} else
-				throw new GraphException("This Vertex has more than one child");
+				throw new GraphException("This Vertex has more than one child", this);
 			return null;
 		}
 
@@ -256,7 +256,6 @@ public class PipeGraph {
 			this.setEndY(vChild.getY());
 			this.vParent = vParent;
 			this.vChild = vChild;
-			vParent.addChild(vChild);
 		}
 
 		public Edge() {

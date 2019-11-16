@@ -208,9 +208,7 @@ public class DrawingPanel extends VBox {
 					}
 					updateZoneInfos();
 				} else if (canvasPane.stateOfCanvasUse == Use.PREPAREFORPIPEDRAWING) {
-					if (canvasPane.cursorOnPipeLine) {
-						PipeDrawing.breakLine(canvasPane);
-					}
+					
 					PipeDrawing.startDrawingPipeLine(e, canvasPane);
 					
 				} else if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING) {
@@ -348,7 +346,6 @@ public class DrawingPanel extends VBox {
 					}
 				}
 				if (!canvasPane.cursorNearSprinklerHead) {
-					
 					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
 						// TODO ehelyett jobb lenne, ha ez azt tudná nézni, hogy a vonal közelében van,
 						// nem csak hogy felette
@@ -358,8 +355,10 @@ public class DrawingPanel extends VBox {
 							PipeDrawing.lineBreakPointY = e.getY();
 							canvasPane.cursorOnPipeLine = true;
 							PipeDrawing.pipeLineToSplit = line;
+
 							break;
 						} else {
+
 							canvasPane.setCursor(Cursor.DEFAULT);
 							canvasPane.cursorOnPipeLine = false;
 						}

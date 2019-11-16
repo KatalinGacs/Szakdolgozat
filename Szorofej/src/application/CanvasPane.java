@@ -27,7 +27,6 @@ import model.bean.PipeGraph;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
-//TODO túl nagyra nõtt osztály, szétszedni?...
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
@@ -56,6 +55,8 @@ public class CanvasPane extends Pane {
 	Group gridLayer = new Group();
 	Group tempLineLayer = new Group();
 	Group pipeLineLayer = new Group();
+	Group sprinklerTextLayer = new Group();
+	Group pipeTextLayer = new Group();
 	Group textLayer = new Group();
 
 	static private Circle focusCircle = new Circle(Common.pixelPerMeter / 3);
@@ -130,14 +131,14 @@ public class CanvasPane extends Pane {
 		rightClickMenu.getItems().add(delMenuItem);
 
 		getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, pipeLineLayer,
-				textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput);
+				sprinklerTextLayer, pipeTextLayer, textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput);
 
 	}
 
 	// TODO most ha több element van egymáson, nem tudja a felhasználó, melyiket
 	// fogja törölni
 	// delmenu sorolja fel õket? vagy a kijelölt elem színe változzon és akkor tudja
-	// mint jelölt ki?
+	// mit jelölt ki?
 	protected void selectElement(MouseEvent e) {
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {

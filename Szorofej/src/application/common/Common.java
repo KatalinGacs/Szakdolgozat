@@ -14,7 +14,8 @@ public class Common {
 
 	public static Rectangle2D primaryScreenBounds = Screen.getPrimary().getVisualBounds();
 	public static int pixelPerMeter = (int) (primaryScreenBounds.getWidth() / 50);
-
+	public static String textstyle = "-fx-font: 24 arial;";
+	
 	public static void showAlert(String contentText) {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setContentText(contentText);

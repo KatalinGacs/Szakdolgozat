@@ -89,7 +89,7 @@ public class SprinklerShape {
 	
 	private double calculateFlowRate() {
 		if (!sprinkler.getFixWaterConsumption())
-			return sprinkler.getWaterConsumption() * (360 / arc.getLength());
+			return sprinkler.getWaterConsumption() * (arc.getLength()/360);
 		else
 			return sprinkler.getWaterConsumption();
 	}

@@ -13,6 +13,7 @@ import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
@@ -72,6 +73,13 @@ public class SprinklerDrawing {
 				}
 			}
 
+			//TODO: ha a sprinklert törlöm, a szöveg is törlõdjön
+			Text sprinklerName = new Text(sprinkler.getSprinkler().getName());
+			sprinklerName.setX(centerX);
+			sprinklerName.setY(centerY - (Common.pixelPerMeter / 2));
+			sprinklerName.setStyle(Common.textstyle);
+			canvasPane.sprinklerTextLayer.getChildren().add(sprinklerName);
+			
 			SprinklerDrawing.tempSprinklerCircle.setCenterX(centerX);
 			SprinklerDrawing.tempSprinklerCircle.setCenterY(centerY);
 			SprinklerDrawing.tempSprinklerCircle.setStroke(SprinklerDrawing.sprinklerColor);
