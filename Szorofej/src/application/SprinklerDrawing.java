@@ -58,7 +58,8 @@ public class SprinklerDrawing {
 		arc.setFill(Color.TRANSPARENT);
 		sprinkler.setSprinkler(SprinklerDrawing.sprinklerType);
 		sprinkler.setRadius(SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter);
-
+		Text label = new Text(sprinkler.getSprinkler().getName());
+		
 		if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER
 				&& !canvasPane.drawingSeveralSprinklers) {
 
@@ -72,14 +73,8 @@ public class SprinklerDrawing {
 					centerY = center.getY();
 				}
 			}
-
-			//TODO: ha a sprinklert törlöm, a szöveg is törlõdjön
-			Text sprinklerName = new Text(sprinkler.getSprinkler().getName());
-			sprinklerName.setX(centerX);
-			sprinklerName.setY(centerY - (Common.pixelPerMeter / 2));
-			sprinklerName.setStyle(Common.textstyle);
-			canvasPane.sprinklerTextLayer.getChildren().add(sprinklerName);
 			
+
 			SprinklerDrawing.tempSprinklerCircle.setCenterX(centerX);
 			SprinklerDrawing.tempSprinklerCircle.setCenterY(centerY);
 			SprinklerDrawing.tempSprinklerCircle.setStroke(SprinklerDrawing.sprinklerColor);
@@ -210,6 +205,12 @@ public class SprinklerDrawing {
 
 				canvasPane.irrigationLayer.getChildren().add(sprinkler.getCircle());
 				SprinklerDrawing.tempSprinklerCircle.setVisible(false);
+				
+				label.setX(centerX);
+				label.setY(centerY - (Common.pixelPerMeter / 2));
+				label.setStyle(Common.textstyle);
+				sprinkler.setLabel(label);
+				canvasPane.sprinklerTextLayer.getChildren().add(sprinkler.getLabel());
 
 				controller.addSprinklerShape(sprinkler);
 				SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.CENTER;

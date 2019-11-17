@@ -23,6 +23,7 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
+import javafx.scene.text.Text;
 import model.bean.PipeGraph;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
@@ -35,7 +36,7 @@ public class CanvasPane extends Pane {
 
 	public enum Use {
 		NONE, BORDERDRAWING, SPRINKLERDRAWING, PREPAREFORDRAWINGSEVERALSPRINKLERS, ZONEEDITING, PREPAREFORPIPEDRAWING,
-		PIPEDRAWING
+		PIPEDRAWING, TEXTWRITING, PREPAREFORTEXTEDITING
 	}
 
 	Use stateOfCanvasUse = Use.NONE;
@@ -127,11 +128,13 @@ public class CanvasPane extends Pane {
 		BorderDrawing.lengthInput.setMaxWidth(130);
 		BorderDrawing.lengthInput.setFont(Font.font(20));
 		BorderDrawing.lengthInput.setPromptText("Hossz (m)");
+		
+		TextEditing.textField.setVisible(false);
 
 		rightClickMenu.getItems().add(delMenuItem);
 
 		getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, pipeLineLayer,
-				sprinklerTextLayer, pipeTextLayer, textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput);
+				sprinklerTextLayer, pipeTextLayer, textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput, TextEditing.textField);
 
 	}
 
@@ -147,6 +150,7 @@ public class CanvasPane extends Pane {
 					controller.deleteSprinklerShape(s);
 					irrigationLayer.getChildren().remove(s.getCircle());
 					sprinklerArcLayer.getChildren().remove(s.getArc());
+
 					ev.consume();
 				});
 			}
@@ -268,6 +272,7 @@ public class CanvasPane extends Pane {
 		}
 		selectedSprinklerShapes.clear();
 	}
+	
 
 	public String showInfos(MouseEvent e) {
 
@@ -310,5 +315,6 @@ public class CanvasPane extends Pane {
 				+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "
 				+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
 	}
+
 
 }

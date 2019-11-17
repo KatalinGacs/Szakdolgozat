@@ -204,7 +204,6 @@ public class PipeDrawing {
 	}
 
 	private static Vertex breakPoint2 = null;
-
 	private static double calculateSubGraphWaterFlow(PipeGraph pg, Vertex startingVertex, Vertex nextVertex) {
 		Vertex current = startingVertex;
 		double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);

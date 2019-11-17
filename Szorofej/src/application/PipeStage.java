@@ -1,5 +1,9 @@
 package application;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Random;
+
 import application.CanvasPane.Use;
 import application.common.Common;
 import controller.SprinklerController;
@@ -87,32 +91,29 @@ public class PipeStage extends Stage {
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg a kezdeti nyomást!");
 				}
-			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(), controller.getPipeGraph(zonePicker.getValue()).getRoot());
-
-			/*for (PipeGraph pg : controller.listPipeGraphs()) {
-				for (Vertex parent : pg.getVertices()) {
-					System.out.println(parent + " parent: " + parent.getParent());
-					System.out.println(parent + " children: " + parent.getChildren());
-				}
-			}*/
+			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
+					controller.getPipeGraph(zonePicker.getValue()).getRoot());
 
 		});
 
 	}
 
 	private static int colorCounter = 0;
-
+	private static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLUEVIOLET, Color.BROWN, Color.CORAL,
+			Color.GOLD, Color.CRIMSON, Color.DEEPPINK, Color.CHOCOLATE, Color.DARKCYAN, Color.DARKGOLDENROD,
+			Color.DARKGREEN, Color.DARKMAGENTA, Color.DARKORANGE, Color.DARKORCHID, Color.FORESTGREEN, Color.FUCHSIA,
+			Color.GOLDENROD, Color.LIGHTCORAL));
 	private Color nextColor() {
-		int r = (0 + colorCounter * 75) % 256;
-		int g = (150 + colorCounter * 50) % 256;
-		int b = (255 + colorCounter * 30) % 256;
-		Color color = Color.rgb(r, g, b);
-		// TODO vmi számítás, ami a color rgb értékeit a colorcountertõl teszi függõvé
-		// úgy, hogy kb 50 különbözõ színt kiadjon és az egymást követõ színek eléggé
-		// eltérjenek
-		// lehet hogy ennél a random is értelmesebb
-		// vagy felsorolni kb 20 színt egy listában, és ha ezek nem elfogynak, azután
-		// random;
+		Color color;
+		if (colorCounter < colors.size()) {
+			color = colors.get(colorCounter);
+		} else {
+			Random random = new Random();
+			int r = random.nextInt(256);
+			int g = random.nextInt(256);
+			int b = random.nextInt(256);
+			color = Color.rgb(r, g, b);
+		}
 		colorCounter++;
 		return color;
 	}
@@ -129,4 +130,6 @@ public class PipeStage extends Stage {
 			}
 		}
 	}
+
+	
 }

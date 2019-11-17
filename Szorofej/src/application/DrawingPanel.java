@@ -92,6 +92,9 @@ public class DrawingPanel extends VBox {
 		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		tabPane.setMinHeight(Common.pixelPerMeter * 2);
+		tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
+			canvasPane.stateOfCanvasUse = Use.NONE;
+		});
 		borderLineWidth.setPrefWidth(60);
 
 		borderTab.setContent(borderTabElements);
@@ -183,6 +186,10 @@ public class DrawingPanel extends VBox {
 			else
 				SprinklerDrawing.drawSeveralSprinklers(canvasPane);
 		});
+		
+		textButton.setOnAction(e-> {
+			TextEditing.openTextFormatStage(canvasPane);
+		});
 
 		canvasPane.setOnMouseClicked(e -> {
 			canvasPane.requestFocus();
@@ -208,18 +215,17 @@ public class DrawingPanel extends VBox {
 					}
 					updateZoneInfos();
 				} else if (canvasPane.stateOfCanvasUse == Use.PREPAREFORPIPEDRAWING) {
-					
 					PipeDrawing.startDrawingPipeLine(e, canvasPane);
-					
 				} else if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING) {
-					
 					PipeDrawing.drawPipeLine(e, canvasPane);
+				} else if (canvasPane.stateOfCanvasUse == Use.PREPAREFORTEXTEDITING) {
+					TextEditing.startWritingText(e, canvasPane);
 				}
 			} else if (e.getButton() == MouseButton.SECONDARY) {
 				canvasPane.selectElement(e);
 			}
 			e.consume();
-			canvasPane.requestFocus();
+			if (canvasPane.stateOfCanvasUse != Use.PREPAREFORTEXTEDITING) canvasPane.requestFocus();
 		});
 
 		canvasPane.setOnMousePressed(e -> {
@@ -291,6 +297,10 @@ public class DrawingPanel extends VBox {
 			SprinklerDrawing.showTempLine(e, canvasPane);
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
 
+			if (canvasPane.stateOfCanvasUse == Use.PREPAREFORTEXTEDITING) {
+				canvasPane.setCursor(Cursor.TEXT);
+			}
+			
 			if (canvasPane.pressedKey == KeyCode.SHIFT) {
 				for (Shape border : controller.listBorderShapes()) {
 					if (border.contains(mousePoint)) {

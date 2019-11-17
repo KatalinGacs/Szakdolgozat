@@ -2,6 +2,7 @@ package model.bean;
 
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
+import javafx.scene.text.Text;
 
 /**
  * Class that represents the shape of a sprinkler that can be drawn on the canvas
@@ -15,6 +16,8 @@ public class SprinklerShape {
 	private double radius;
 	private double waterCoverageInMmPerHour;
 	private SprinklerType sprinkler = new SprinklerType();
+	private Text label = new Text();
+
 
 	public SprinklerShape() {
 	}
@@ -74,6 +77,15 @@ public class SprinklerShape {
 	public String getGroup() {
 		return sprinkler.getSprinklerGroup().getName();
 	}
+	
+	public Text getLabel() {
+		return label;
+	}
+
+	public void setLabel(Text label) {
+		this.label = label;
+	}
+
 	
 	private double calculateWaterCoverage() {
 		double areaInM2= 0;

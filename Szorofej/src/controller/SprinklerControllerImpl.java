@@ -1,8 +1,8 @@
 package controller;
 
 import javafx.collections.ObservableList;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
@@ -142,6 +142,21 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void updateSprinklerData(String column, double newValue, String name) {
 		dao.updateSprinklerData(column, newValue, name);
+	}
+
+	@Override
+	public ObservableList<Text> listTexts() {
+		return dao.listTexts();
+	}
+
+	@Override
+	public void addText(Text t) {
+		dao.addText(t);
+	}
+
+	@Override
+	public void removeText(Text t) {
+		dao.removeText(t);
 	}
 
 }

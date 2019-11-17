@@ -10,8 +10,9 @@ import java.sql.Statement;
 import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.shape.Line;
+import javafx.scene.control.TextField;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -35,6 +36,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Shape> borderShapes = FXCollections.observableArrayList();
 	
 	private static ObservableList<Shape> obstacles = FXCollections.observableArrayList();
+	
+	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -294,6 +297,21 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
+	}
+
+	@Override
+	public ObservableList<Text> listTexts() {
+		return texts;
+	}
+
+	@Override
+	public void addText(Text t) {
+		texts.add(t);
+	}
+
+	@Override
+	public void removeText(Text t) {
+		texts.remove(t);
 	}
 		
 	

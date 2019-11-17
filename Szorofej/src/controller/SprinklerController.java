@@ -1,8 +1,8 @@
 package controller;
 
 import javafx.collections.ObservableList;
-import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import model.DbException;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
@@ -40,5 +40,8 @@ public interface SprinklerController {
 	public void addPipeGraph(PipeGraph p);
 	public void removePipeGraph(PipeGraph p);	
 	public PipeGraph getPipeGraph(Zone zone);
+	public ObservableList<Text> listTexts();
+	public void addText(Text t);
+	public void removeText(Text t);
 
 }
