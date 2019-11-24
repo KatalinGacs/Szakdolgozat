@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
+import javafx.scene.paint.Color;
 import model.bean.SprinklerShape;
 
 public class PipeDiameterOptimizer {
@@ -21,13 +22,16 @@ public class PipeDiameterOptimizer {
 		System.out.println("pipelength: " + pipeLengths);
 		System.out.println("Sprinklers: " + sprinklers);
 		System.out.println("totalwf: " + totalWaterFlow);
+		System.out.println("remaining pressure: " + remainingPressure);
 
 		ArrayList<String> result = new ArrayList<String>();
 
 		if (sprinklers.isEmpty()) {
 			double wf = nearestKey(pressureLossTable, totalWaterFlow);
 			double pressureLoss = Collections.max(pressureLossTable.get(wf).values()) * pipeLengths.get(0) / 100;
-			result.add(getDiameter(wf, pressureLoss));
+			System.out.println("nearest Key " + wf);
+			System.out.println("pressureloss: " + pressureLoss);
+			result.add(getDiameter(wf, (pressureLoss / (pipeLengths.get(0)) * 100)));
 			return result;
 		}
 

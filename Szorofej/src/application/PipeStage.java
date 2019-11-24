@@ -19,7 +19,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.bean.PipeGraph;
-import model.bean.PipeGraph.Vertex;
+import model.bean.PipeGraph.Edge;
 import model.bean.Zone;
 
 public class PipeStage extends Stage {
@@ -93,6 +93,20 @@ public class PipeStage extends Stage {
 				}
 			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
 					controller.getPipeGraph(zonePicker.getValue()).getRoot());
+			/*for (Vertex v : controller.getPipeGraph(zonePicker.getValue()).getVertices()) {
+				System.out.println("vertex: "  + v);
+				System.out.println("parent: " + v.getParent());
+				for (Vertex child: v.getChildren()) {
+					System.out.println("child: " + child);
+				}
+			}*/
+			
+			/*for (Edge edge :controller.getPipeGraph(zonePicker.getValue()).getEdges()) { 
+				System.out.println("edge: " + edge + " st" + edge.getStartX() + " "+ edge.getStartY() + " end" 
+			+ edge.getEndX() + " " + edge.getEndY());
+				System.out.println("parentv: " + edge.getvParent());
+				System.out.println("childv " + edge.getvChild());
+			}*/
 
 		});
 

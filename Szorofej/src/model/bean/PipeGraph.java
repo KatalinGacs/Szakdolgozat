@@ -70,9 +70,11 @@ public class PipeGraph {
 		return true;
 	}
 
-/*	public boolean addEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
-		return addEdge(new Edge(new Vertex(vertex1X, vertex1Y), new Vertex(vertex2X, vertex2Y)));
-	}*/
+	/*
+	 * public boolean addEdge(double vertex1X, double vertex1Y, double vertex2X,
+	 * double vertex2Y) { return addEdge(new Edge(new Vertex(vertex1X, vertex1Y),
+	 * new Vertex(vertex2X, vertex2Y))); }
+	 */
 
 	public boolean removeEdge(Edge e) {
 		if (!edges.remove(e))
@@ -162,10 +164,20 @@ public class PipeGraph {
 		for (Edge edge : edges) {
 			if (edge.getvChild() == child) {
 				e = edge;
-				//break;
+				// break;
 			}
 		}
 		return e;
+	}
+
+	public int getNumberOfLeaves() {
+		int result = 0;
+		for (Vertex v : vertices) {
+			if (v.getChildren().isEmpty()) {
+				result++;
+			}
+		}
+		return result;
 	}
 
 	public static class Vertex extends Point2D {
