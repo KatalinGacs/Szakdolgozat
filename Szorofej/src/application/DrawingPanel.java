@@ -56,7 +56,6 @@ public class DrawingPanel extends VBox {
 	private Text obstacleStrokeText = new Text("Tereptárgy körvonal szín ");
 	protected ColorPicker obstacleStrokeColor = new ColorPicker(Color.DARKGRAY);
 	private ToggleGroup borderButtons = new ToggleGroup();
-	// TODO kéne valahová olyan opció hogy szöveget írkálhasson a rajzvászonra
 	private Button textButton = new Button("Szöveg hozzáadása");
 
 	private Button setSprinklerBtn = new Button("Szórófej kiválasztása");
@@ -92,6 +91,7 @@ public class DrawingPanel extends VBox {
 		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);
 		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 		tabPane.setMinHeight(Common.pixelPerMeter * 2);
+
 		tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
 			canvasPane.stateOfCanvasUse = Use.NONE;
 		});
@@ -198,7 +198,7 @@ public class DrawingPanel extends VBox {
 					SprinklerDrawing.selectLineForSprinklerDrawing(e, canvasPane);
 					if (canvasPane.lineSelected)
 						selectLine.setSelected(false);
-				} else if (borderButtons.getSelectedToggle() == null && canvasPane.sprinklerAttributesSet) {
+				} else if (canvasPane.stateOfCanvasUse == Use.SPRINKLERDRAWING ) {
 					SprinklerDrawing.drawNewSprinkler(e, canvasPane);
 				} else if (borderButtons.getSelectedToggle() == borderLineBtn
 						&& canvasPane.stateOfCanvasUse != Use.BORDERDRAWING) {
@@ -287,6 +287,9 @@ public class DrawingPanel extends VBox {
 				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				canvasPane.endLineDrawing();
 				borderButtons.selectToggle(null);
+				if(canvasPane.cursorNearSprinklerHead) {
+					canvasPane.cursorNearSprinklerHead = false;
+				}
 				
 			}
 		});

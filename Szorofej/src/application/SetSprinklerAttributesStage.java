@@ -1,5 +1,6 @@
 package application;
 
+import application.CanvasPane.Use;
 import application.common.Common;
 import application.common.DecimalCellFactory;
 import controller.SprinklerController;
@@ -108,6 +109,7 @@ public class SetSprinklerAttributesStage extends Stage {
 							SprinklerDrawing.sprinklerRadius = radius * Common.pixelPerMeter;
 							canvasPane.sprinklerAttributesSet = true;
 							SprinklerDrawing.sprinklerType = type;
+							canvasPane.stateOfCanvasUse = Use.SPRINKLERDRAWING;
 						}
 					}
 					requestFocus();

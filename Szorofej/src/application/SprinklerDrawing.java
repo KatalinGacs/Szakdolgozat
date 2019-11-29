@@ -340,6 +340,7 @@ public class SprinklerDrawing {
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
+	//TODO ha közben ESC-kel megszakítja a rajzolást, a temp körök tûnjenek el
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
 		canvasPane.lineSelected = false;
 		if (canvasPane.tempSprinklerCentersInALine.isEmpty()) {
