@@ -32,7 +32,7 @@ public class Simplex {
 	// run simplex algorithm starting from initial BFS
 	private void solve() {
 		while (true) {
-			show();
+			//show();
 			int q = 0;
 			// find entering column q
 			if (maximizeOrMinimize) {

@@ -13,6 +13,7 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import model.GraphException;
 import model.PipeDiameterOptimizer;
+import model.PressureException;
 import model.bean.PipeGraph;
 import model.bean.PipeMaterial;
 import model.bean.PipeGraph.Edge;
@@ -77,7 +78,7 @@ public class PipeDrawing {
 		Edge line = new Edge();
 		Vertex endVertex = null;
 		line.setvParent(startVertex);
-		line.setStrokeWidth(CanvasPane.strokeWidth);
+		line.setStrokeWidth(CanvasPane.strokeWidth*2);
 		line.setStroke(CanvasPane.pipeLineColor);
 		if (canvasPane.pressedKey == KeyCode.CONTROL) {
 			endVertex = new Vertex(
@@ -107,8 +108,8 @@ public class PipeDrawing {
 	}
 
 	static boolean leaf = false;
+
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) {
-		System.out.println("completePipeDrawing called");
 		PipeGraph pg = controller.getPipeGraph(zone);
 		int leafes = pg.getNumberOfLeaves();
 		Vertex startingVertex = root;
@@ -116,15 +117,14 @@ public class PipeDrawing {
 
 		do {
 			for (Vertex child : startingVertex.getChildren()) {
-				System.out.println("completepipedrawing startingvertex"+ startingVertex);
 				calculatePipeDiameters(canvasPane, pg, startingVertex, child, beginningPressure);
 				beginningPressure = PipeDiameterOptimizer.remainingPressure;
-				
+
 				if (leaf)
-			        leafes--;
+					leafes--;
 			}
 			startingVertex = breakPointVertex;
-		} while (leafes != 0) ;
+		} while (leafes != 0);
 
 	}
 
@@ -169,13 +169,15 @@ public class PipeDrawing {
 					totalWaterFlow);
 
 			System.out.println(diameters);
-			// TODO eddig kiszámolja az elsõ szakaszig a megfelelõ csõátmérõket, ezután
-			// 1. ugyanezt minden elágazás után a következõ szakaszra is kell rekurzívan
-			// 2. a képre ki kell írni szakaszonként az átmérõket
+			// TODO
 			// 3. el kell tárolni hogy hány méter milyen átmérõjû csõ kell
 			// 4. el kell tárolni minden elágazásnál, hogy milyen T-idom kell
 			String currentDiameter = null;
-			Point2D position = new Point2D(startingVertex.getX(), startingVertex.getY());
+			double posStartX = startingVertex.getX();
+			double posStartY = startingVertex.getY();
+			double posEndX = nextVertex.getX();
+			double posEndY = nextVertex.getY();
+			Point2D position = new Point2D((posStartX + posEndX) / 2, (posStartY + posEndY) / 2);
 
 			Text diameterText;
 			if (sprinklers.isEmpty()) {
@@ -189,37 +191,44 @@ public class PipeDrawing {
 				}
 			} else {
 				SprinklerShape s = null;
+				Vertex sprinklerVertex = null;
 				for (int i = 0; i < pipeLengths.size(); i++) {
-					
+
 					if (i < sprinklers.size()) {
-						 s = sprinklers.get(i);
-						 System.out.println("itt" + s.getCircle().getCenterX() + " " + s.getCircle().getCenterY());
+						s = sprinklers.get(i);
+						sprinklerVertex = pg.getVertexBySprinklerShape(s);
 					}
 					if (diameters.get(i) != currentDiameter) {
 
 						currentDiameter = diameters.get(i);
 						diameterText = new Text(currentDiameter);
-						// TODO: az elágazásnál egymás fölé kerülnek a feliratok, nem így kéne, hanem
-						// aez elsõ csõszakasz közepe fölé pl
+
 						diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 						diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
 						diameterText.setStyle(Common.textstyle);
 						canvasPane.pipeTextLayer.getChildren().add(diameterText);
-
-						position = new Point2D(s.getCircle().getCenterX(), s.getCircle().getCenterY());
-					} else {
-						position = new Point2D(s.getCircle().getCenterX(), s.getCircle().getCenterY());
+						if (!sprinklerVertex.getChildren().isEmpty()) {
+							posStartX = sprinklerVertex.getX();
+							posStartY = sprinklerVertex.getY();
+							posEndX = sprinklerVertex.getChild().getX();
+							posEndY = sprinklerVertex.getChild().getY();
+						}
 					}
+					position = new Point2D((posStartX + posEndX) / 2, (posStartY + posEndY) / 2);
+
 				}
 			}
 
 		} catch (GraphException ex) {
 			ex.printStackTrace();
+		} catch (PressureException ex) {
+			Common.showAlert(ex.getMessage());
 		}
 
 	}
 
 	private static Vertex breakPoint2 = null;
+
 	private static double calculateSubGraphWaterFlow(PipeGraph pg, Vertex startingVertex, Vertex nextVertex) {
 		Vertex current = startingVertex;
 		double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);
@@ -230,6 +239,7 @@ public class PipeDrawing {
 		}
 		return totalWaterFlow;
 	}
+
 	private static double waterFlowUntilBreakpoint(PipeGraph pg, Vertex startingVertex, Vertex child) {
 		double totalWaterFlow = 0;
 		try {
@@ -260,7 +270,5 @@ public class PipeDrawing {
 
 		return totalWaterFlow;
 	}
-
-	
 
 }

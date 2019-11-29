@@ -16,21 +16,14 @@ public class PipeDiameterOptimizer {
 	public static double remainingPressure;
 
 	public static ArrayList<String> optimalPipes(double beginningPressure, ArrayList<Double> pipeLengths,
-			ArrayList<SprinklerShape> sprinklers, double totalWaterFlow) {
-		System.out.println("optimalPipes called");
-		System.out.println("begin press: " + beginningPressure);
-		System.out.println("pipelength: " + pipeLengths);
-		System.out.println("Sprinklers: " + sprinklers);
-		System.out.println("totalwf: " + totalWaterFlow);
-		System.out.println("remaining pressure: " + remainingPressure);
+			ArrayList<SprinklerShape> sprinklers, double totalWaterFlow) throws PressureException {
 
+		
 		ArrayList<String> result = new ArrayList<String>();
 
 		if (sprinklers.isEmpty()) {
 			double wf = nearestKey(pressureLossTable, totalWaterFlow);
 			double pressureLoss = Collections.max(pressureLossTable.get(wf).values()) * pipeLengths.get(0) / 100;
-			System.out.println("nearest Key " + wf);
-			System.out.println("pressureloss: " + pressureLoss);
 			result.add(getDiameter(wf, (pressureLoss / (pipeLengths.get(0)) * 100)));
 			return result;
 		}
@@ -38,8 +31,6 @@ public class PipeDiameterOptimizer {
 		double[][] data = new double[pipeLengths.size() * 2 + 1][pipeLengths.size() * 3 + 1];
 		ArrayList<Double> grossWaterFlow = calculateGrossWaterFlow(sprinklers, totalWaterFlow, pipeLengths.size());
 		ArrayList<Double> minPressureOfSprinklers = minPressure(sprinklers, pipeLengths.size());
-		System.out.println("grossWaterFlow: " + grossWaterFlow);
-		System.out.println("minpress" + minPressureOfSprinklers);
 
 		for (int i = 0; i < pipeLengths.size() * 2 + 1; i++) {
 			for (int j = 0; j < pipeLengths.size() * 3 + 1; j++) {
@@ -96,8 +87,15 @@ public class PipeDiameterOptimizer {
 		remainingPressure = beginningPressure;
 		for (double d : solution) {
 			remainingPressure -= d;
+			
+			if (minPressureOfSprinklers.get(solution.indexOf(d)) > remainingPressure) {
+				throw new PressureException("A víznyomás nem tudja kiszolgálni a szórófejeket! "
+						+ "(víznyomás: " + remainingPressure);
+			}
 			result.add(getDiameter(grossWaterFlow.get(solution.indexOf(d)), d));
 		}
+		
+
 		return result;
 
 	}
@@ -123,7 +121,7 @@ public class PipeDiameterOptimizer {
 			result.add(s.getSprinkler().getMinPressure());
 		}
 		if (sprinklers.size() < arraySize) {
-			result.add(0.0);
+			result.add(0.0); //TODO ennek értelmes számnak kéne lennie, az egész optimalizáló meg kéne kapja argumentumban az elején
 		}
 		return result;
 	}

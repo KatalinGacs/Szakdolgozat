@@ -26,14 +26,12 @@ public class PipeGraph {
 
 	private Set<Vertex> vertices;
 	private Set<Edge> edges;
-	private Map<Vertex, Set<Edge>> adjList;
 	private Set<Vertex> breakpoints = new HashSet<>();
 	private Vertex root;
 
 	public PipeGraph(Zone zone, Color color) {
 		vertices = new HashSet<>();
 		edges = new HashSet<>();
-		adjList = new HashMap<>();
 		this.zone = zone;
 		this.color = color;
 	}
@@ -61,43 +59,19 @@ public class PipeGraph {
 	public boolean addEdge(Edge e) {
 		if (!edges.add(e))
 			return false;
-		/*
-		 * adjList.putIfAbsent(e.vParent, new HashSet<>());
-		 * adjList.putIfAbsent(e.vChild, new HashSet<>());
-		 * 
-		 * adjList.get(e.vParent).add(e); adjList.get(e.vChild).add(e);
-		 */
 		return true;
 	}
-
-	/*
-	 * public boolean addEdge(double vertex1X, double vertex1Y, double vertex2X,
-	 * double vertex2Y) { return addEdge(new Edge(new Vertex(vertex1X, vertex1Y),
-	 * new Vertex(vertex2X, vertex2Y))); }
-	 */
 
 	public boolean removeEdge(Edge e) {
 		if (!edges.remove(e))
 			return false;
-		/*
-		 * Set<Edge> edgesOfV1 = adjList.get(e.vParent); Set<Edge> edgesOfV2 =
-		 * adjList.get(e.vChild);
-		 * 
-		 * if (edgesOfV1 != null) edgesOfV1.remove(e); if (edgesOfV2 != null)
-		 * edgesOfV2.remove(e);
-		 */
 		return true;
 	}
 
 	public boolean removeEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
 		return removeEdge(new Edge(new Vertex(vertex1X, vertex1Y), new Vertex(vertex2X, vertex2Y)));
 	}
-	/*
-	 * public Set<Vertex> getAdjVertices(Vertex v) { return
-	 * adjList.get(v).stream().map(e -> e.vParent.equals(v) ? e.vChild :
-	 * e.vParent).collect(Collectors.toSet()); }
-	 */
-
+	
 	public Set<Vertex> getVertices() {
 		return Collections.unmodifiableSet(vertices);
 	}
@@ -106,10 +80,6 @@ public class PipeGraph {
 		return Collections.unmodifiableSet(edges);
 	}
 
-	/*
-	 * public Map<Vertex, Set<Edge>> getAdjList() { return
-	 * Collections.unmodifiableMap(adjList); }
-	 */
 	public Zone getZone() {
 		return zone;
 	}
@@ -170,6 +140,17 @@ public class PipeGraph {
 		return e;
 	}
 
+	public Vertex getVertexBySprinklerShape(SprinklerShape s) {
+		Vertex result = null;
+		for (Vertex v : vertices) {
+			if (v.getSprinklerShape() == s) {
+				result = v;
+				break;
+			}
+		}
+		return result;
+	}
+	
 	public int getNumberOfLeaves() {
 		int result = 0;
 		for (Vertex v : vertices) {

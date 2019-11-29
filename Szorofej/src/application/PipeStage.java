@@ -14,12 +14,12 @@ import javafx.scene.control.Button;
 import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
+import javafx.scene.control.ToggleButton;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.bean.PipeGraph;
-import model.bean.PipeGraph.Edge;
 import model.bean.Zone;
 
 public class PipeStage extends Stage {
@@ -32,10 +32,12 @@ public class PipeStage extends Stage {
 	private ComboBox<Zone> zonePicker = new ComboBox<>();
 	private Text colorText = new Text("Szín");
 	private ColorPicker colorPicker = new ColorPicker(nextColor());
-	private Button startDrawingpipesBtn = new Button("Csövek behúzása");
-	private Button okBtn = new Button("OK");
+	private ToggleButton startDrawingpipesBtn = new ToggleButton("Csövek behúzása");
+
 	private Text beginningPressureText = new Text("Kezdeti nyomás");
 	private TextField beginningPressureField = new TextField();
+
+	private Button okBtn = new Button("OK");
 
 	public PipeStage(CanvasPane canvasPane) {
 		setX(Common.primaryScreenBounds.getWidth() - 500);
@@ -66,18 +68,24 @@ public class PipeStage extends Stage {
 		});
 
 		startDrawingpipesBtn.setOnAction(e -> {
-			CanvasPane.pipeLineColor = colorPicker.getValue();
-			canvasPane.stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
-			colorPicker.setDisable(false);
-			if (canvasPane.pipeGraphUnderEditing == null
-					|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
-				canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
-				controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
-
+			if (startDrawingpipesBtn.isSelected()) {
+				CanvasPane.pipeLineColor = colorPicker.getValue();
+				canvasPane.stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
+				colorPicker.setDisable(false);
+				if (canvasPane.pipeGraphUnderEditing == null
+						|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
+					canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
+					controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
+				}
+			}else {
+				startDrawingpipesBtn.setSelected(false);
+				canvasPane.stateOfCanvasUse = Use.NONE;
 			}
 		});
 
-		okBtn.setOnAction(e -> {
+		okBtn.setOnAction(e ->
+
+		{
 			if (zonePicker.getValue() == null) {
 				Common.showAlert("Nincs kiválasztott zóna");
 			} else if (canvasPane.pipeGraphUnderEditing == null) {
@@ -93,20 +101,20 @@ public class PipeStage extends Stage {
 				}
 			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
 					controller.getPipeGraph(zonePicker.getValue()).getRoot());
-			/*for (Vertex v : controller.getPipeGraph(zonePicker.getValue()).getVertices()) {
-				System.out.println("vertex: "  + v);
-				System.out.println("parent: " + v.getParent());
-				for (Vertex child: v.getChildren()) {
-					System.out.println("child: " + child);
-				}
-			}*/
-			
-			/*for (Edge edge :controller.getPipeGraph(zonePicker.getValue()).getEdges()) { 
-				System.out.println("edge: " + edge + " st" + edge.getStartX() + " "+ edge.getStartY() + " end" 
-			+ edge.getEndX() + " " + edge.getEndY());
-				System.out.println("parentv: " + edge.getvParent());
-				System.out.println("childv " + edge.getvChild());
-			}*/
+			/*
+			 * for (Vertex v : controller.getPipeGraph(zonePicker.getValue()).getVertices())
+			 * { System.out.println("vertex: " + v); System.out.println("parent: " +
+			 * v.getParent()); for (Vertex child: v.getChildren()) {
+			 * System.out.println("child: " + child); } }
+			 */
+
+			/*
+			 * for (Edge edge :controller.getPipeGraph(zonePicker.getValue()).getEdges()) {
+			 * System.out.println("edge: " + edge + " st" + edge.getStartX() + " "+
+			 * edge.getStartY() + " end" + edge.getEndX() + " " + edge.getEndY());
+			 * System.out.println("parentv: " + edge.getvParent());
+			 * System.out.println("childv " + edge.getvChild()); }
+			 */
 
 		});
 
@@ -117,6 +125,7 @@ public class PipeStage extends Stage {
 			Color.GOLD, Color.CRIMSON, Color.DEEPPINK, Color.CHOCOLATE, Color.DARKCYAN, Color.DARKGOLDENROD,
 			Color.DARKGREEN, Color.DARKMAGENTA, Color.DARKORANGE, Color.DARKORCHID, Color.FORESTGREEN, Color.FUCHSIA,
 			Color.GOLDENROD, Color.LIGHTCORAL));
+
 	private Color nextColor() {
 		Color color;
 		if (colorCounter < colors.size()) {
@@ -145,5 +154,4 @@ public class PipeStage extends Stage {
 		}
 	}
 
-	
 }
