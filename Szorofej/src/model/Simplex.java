@@ -2,6 +2,9 @@ package model;
 
 import java.util.ArrayList;
 
+/*
+ * Source: http://jasongoh1987.blogspot.com/2013/12/simplex-implementation-in-java-with.html
+ */
 public class Simplex {
 	private double[][] tableaux; // tableaux
 	private int numberOfConstraints; // number of constraints
