@@ -14,6 +14,7 @@ import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.scene.Group;
+import javafx.scene.control.Label;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
@@ -62,18 +63,19 @@ public class FileHandling {
 			Group irrigationLayer = new Group();
 			for (SprinklerShape s : canvas2.sprinklerShapes) {
 				Color strokeColor = Color.web(s.getStrokeColor());
-				System.out.println(s.getFillColor());
 				Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
 				s.setArc(new Arc(s.getCenterX(), s.getCenterY(), s.getRadius()*Common.pixelPerMeter, s.getRadius()*Common.pixelPerMeter, s.getStartAngle(), s.getLength()));
 				s.getArc().setFill(fillColor);
 				s.getArc().setStroke(strokeColor);
+				s.getArc().setStrokeWidth(s.getStrokeWidth());
 				s.getArc().setType(ArcType.ROUND);
 				s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
+				//s.setLabel(new Label(s.getLabelText()));
+				
 				controller.listSprinklerShapes().add(s);
 				canvasPane.irrigationLayer.getChildren().add(s.getCircle());
 				canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
 				canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
-	
 			}
 			
 		} catch (JAXBException | FileNotFoundException e) {
