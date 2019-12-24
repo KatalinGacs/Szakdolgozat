@@ -4,5 +4,10 @@
 	<classpathentry kind="con" path="org.eclipse.fx.ide.jdt.core.JAVAFX_CONTAINER"/>
 	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/jdbc/sqlite-jdbc-3.23.1.jar"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER"/>
+	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/xml/jaxb-ri/lib/jaxb-api.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/xml/jaxb-ri/lib/jaxb-core.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/xml/jaxb-ri/lib/jaxb-impl.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/xml/jaxb-ri/lib/jaxb-jxc.jar"/>
+	<classpathentry kind="lib" path="C:/Users/Gacs Katalin/git/Szakdolgozat/Szorofej/xml/jaxb-ri/lib/jaxb-xjc.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

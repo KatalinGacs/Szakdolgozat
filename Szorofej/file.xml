@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<canvas>
+    <sprinklerShapes>
+        <sprinklerShape>
+            <CenterX>478.58578646183014</CenterX>
+            <CenterY>516.5857864618301</CenterY>
+            <CircleRadius>9.0</CircleRadius>
+            <FillColor>0x00000000</FillColor>
+            <FlowRate>2.7788343014060692</FlowRate>
+            <LabelX>478.58578646183014</LabelX>
+            <LabelY>497.58578646183014</LabelY>
+            <Length>115.38412324177449</Length>
+            <Radius>2.3</Radius>
+            <SprinklerType>RB 8A</SprinklerType>
+            <StartAngle>19.925580658184344</StartAngle>
+            <StrokeColor>0x0000ffff</StrokeColor>
+            <StrokeWidth>3.0</StrokeWidth>
+            <WaterCoverageInMmPerHour>10.032481249952887</WaterCoverageInMmPerHour>
+        </sprinklerShape>
+        <sprinklerShape>
+            <CenterX>790.5857864618301</CenterX>
+            <CenterY>384.58578646183014</CenterY>
+            <CircleRadius>9.0</CircleRadius>
+            <FillColor>0x00000000</FillColor>
+            <FlowRate>3.185185259597334</FlowRate>
+            <LabelX>790.5857864618301</LabelX>
+            <LabelY>365.58578646183014</LabelY>
+            <Length>132.2568273881246</Length>
+            <Radius>2.3</Radius>
+            <SprinklerType>RB 8A</SprinklerType>
+            <StartAngle>24.734302529052513</StartAngle>
+            <StrokeColor>0x0000ffff</StrokeColor>
+            <StrokeWidth>3.0</StrokeWidth>
+            <WaterCoverageInMmPerHour>11.49953826983042</WaterCoverageInMmPerHour>
+        </sprinklerShape>
+    </sprinklerShapes>
+</canvas>

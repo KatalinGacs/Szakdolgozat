@@ -1,5 +1,7 @@
 package controller;
 
+import javax.xml.bind.annotation.XmlRootElement;
+
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;

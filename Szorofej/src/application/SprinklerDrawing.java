@@ -132,6 +132,8 @@ public class SprinklerDrawing {
 								circle.setFill(SprinklerDrawing.sprinklerColor);
 								sprinkler.setCircle(circle);
 								canvasPane.irrigationLayer.getChildren().add(sprinkler.getCircle());
+
+								
 								SprinklerDrawing.tempSprinklerCircle.setVisible(false);
 
 								sprinkler.setArc(arc);
@@ -202,8 +204,8 @@ public class SprinklerDrawing {
 				circle.setStroke(SprinklerDrawing.sprinklerColor);
 				circle.setFill(SprinklerDrawing.sprinklerColor);
 				sprinkler.setCircle(circle);
-
 				canvasPane.irrigationLayer.getChildren().add(sprinkler.getCircle());
+				
 				SprinklerDrawing.tempSprinklerCircle.setVisible(false);
 				
 				label.setX(centerX);

@@ -59,7 +59,7 @@ public class CanvasPane extends Pane {
 	Group sprinklerTextLayer = new Group();
 	Group pipeTextLayer = new Group();
 	Group textLayer = new Group();
-
+	
 	static private Circle focusCircle = new Circle(Common.pixelPerMeter / 3);
 	boolean showingFocusCircle = false;
 	private Line measuringIntersectionsLine = new Line();
@@ -150,7 +150,7 @@ public class CanvasPane extends Pane {
 					controller.deleteSprinklerShape(s);
 					irrigationLayer.getChildren().remove(s.getCircle());
 					sprinklerArcLayer.getChildren().remove(s.getArc());
-
+					sprinklerTextLayer.getChildren().remove(s.getLabel());
 					ev.consume();
 				});
 			}

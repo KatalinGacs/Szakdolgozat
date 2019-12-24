@@ -60,6 +60,17 @@ public class MainSpr extends Application {
 			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
 			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem, materialDbMenuItem, newMaterialMenuItem);
 			
+			newMenuItem.setOnAction(e ->{
+				//TODO
+			});
+			
+			openMenuItem.setOnAction(e->{
+				FileHandling.loadCanvas(drawingPanel.getCanvasPane());
+			});
+			saveMenuItem.setOnAction(e->{
+				FileHandling.saveCanvas();
+			});
+			
 			sprinklerDbMenuItem.setOnAction(e -> {
 				SprinklerDBView sprinklerDBView = new SprinklerDBView(); 
 			});
