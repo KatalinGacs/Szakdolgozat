@@ -9,6 +9,9 @@ import javax.xml.bind.annotation.XmlTransient;
 
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.scene.shape.Circle;
+import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
@@ -21,9 +24,11 @@ public class Canvas {
 	private SprinklerController controller = new SprinklerControllerImpl();
 	
 	@XmlTransient
-	public ArrayList<Shape> borderShapes = new ArrayList<>(controller.listBorderShapes());
+	public ArrayList<Line> borderLines = borderLines();
 	@XmlTransient
-	public ArrayList<Shape> obstacles = new ArrayList<>(controller.listObstacles());
+	public ArrayList<Circle> circleObstacles = circleObstacles();
+	@XmlTransient
+	public ArrayList<Rectangle> rectangleObstacles = rectangleObstacles();
 	
 	@XmlElementWrapper(name="sprinklerShapes")
     @XmlElement(name="sprinklerShape")
@@ -34,4 +39,31 @@ public class Canvas {
 	public ArrayList<PipeGraph> pipeGraphs = new ArrayList<>(controller.listPipeGraphs());
 	@XmlTransient
 	public ArrayList<Text> texts = new ArrayList<>(controller.listTexts());
+	
+	private ArrayList<Circle> circleObstacles(){
+		ArrayList<Circle> result = new ArrayList<Circle>();
+		for(Shape s: controller.listObstacles()) {
+			if(s instanceof Circle) 
+				result.add((Circle) s);
+		}
+		return result;
+	}
+
+	private ArrayList<Rectangle> rectangleObstacles(){
+		ArrayList<Rectangle> result = new ArrayList<>();
+		for(Shape s: controller.listObstacles()) {
+			if(s instanceof Rectangle) 
+				result.add((Rectangle) s);
+		}
+		return result;
+	}
+	
+	private ArrayList<Line> borderLines() {
+		ArrayList<Line> result = new ArrayList<>();
+		for(Shape s: controller.listObstacles()) {
+			if(s instanceof Line) 
+				result.add((Line) s);
+		}
+		return result;
+	}
 }

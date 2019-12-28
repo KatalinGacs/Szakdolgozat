@@ -1,7 +1,5 @@
 package controller;
 
-import javax.xml.bind.annotation.XmlRootElement;
-
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
@@ -159,6 +157,11 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void removeText(Text t) {
 		dao.removeText(t);
+	}
+
+	@Override
+	public SprinklerType getSprinklerType(String sprinklerType) {
+		return dao.getSprinklerType(sprinklerType);
 	}
 
 }

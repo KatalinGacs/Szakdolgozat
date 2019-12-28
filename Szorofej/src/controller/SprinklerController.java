@@ -43,5 +43,6 @@ public interface SprinklerController {
 	public ObservableList<Text> listTexts();
 	public void addText(Text t);
 	public void removeText(Text t);
+	public SprinklerType getSprinklerType(String sprinklerType);
 
 }

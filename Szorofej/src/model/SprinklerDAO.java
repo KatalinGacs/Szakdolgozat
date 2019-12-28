@@ -20,7 +20,8 @@ public interface SprinklerDAO {
 	public void deleteSprinklerGroup (SprinklerGroup s);
 	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s);
 	public void updateSprinklerData(String column, double newValue, String name);
-
+	public SprinklerType getSprinklerType(String sprinklerType);
+	
 	//memory
 	public void addBorderShape(Shape border);
 	public ObservableList<Shape> listBorderShapes();
@@ -42,4 +43,5 @@ public interface SprinklerDAO {
 	public ObservableList<Text> listTexts();
 	public void addText(Text t);
 	public void removeText(Text t);
+	
 }

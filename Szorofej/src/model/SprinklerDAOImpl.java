@@ -10,7 +10,6 @@ import java.sql.Statement;
 import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import javafx.scene.control.TextField;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
@@ -312,6 +311,16 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void removeText(Text t) {
 		texts.remove(t);
+	}
+
+	@Override
+	public SprinklerType getSprinklerType(String sprinklerType) {
+		for (SprinklerType s : sprinklertypes) {
+			if (s.getName().equals(sprinklerType)) {
+				return s;
+			}
+		}
+		return null;
 	}
 		
 	

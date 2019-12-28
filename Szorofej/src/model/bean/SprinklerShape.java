@@ -37,8 +37,8 @@ public class SprinklerShape {
 	private String sprinklerType;
 	private double length;
 	private double startAngle;
-	private String labelText;
-	private String labelStyle;
+	private String labelText = "";
+	private String labelStyle = "";
 	private double labelX;
 	private double labelY;
 
@@ -300,6 +300,8 @@ public class SprinklerShape {
 				+ ", labelText=" + labelText + ", labelStyle=" + labelStyle + ", labelX=" + labelX + ", labelY="
 				+ labelY + "]";
 	}
+
+	
 
 	
 
