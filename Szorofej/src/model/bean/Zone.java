@@ -5,10 +5,6 @@ import javafx.collections.ObservableList;
 
 public class Zone {
 
-	// TODO további adattagok: hozzá tartozó csövek (?) - csõgráfnál el van tárolva,
-	// melyik zónáé, legyen itt is vagy fölösleges? ha szükség van rá, végig kell
-	// menni az összes csõgráfon
-
 	private String name;
 	private ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
 	private double sumOfFlowRate = 0;
@@ -16,6 +12,7 @@ public class Zone {
 	private int numberOfHeads;
 
 	public Zone(String name, ObservableList<SprinklerShape> sprinklers, double durationOfWatering) {
+		//TODO kéne ellenõrizni hogy létezik-e már ilyen nevû zóna
 		this.name = name;
 		this.sprinklers = sprinklers;
 		for (SprinklerShape s : sprinklers) {

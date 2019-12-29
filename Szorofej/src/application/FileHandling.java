@@ -19,11 +19,15 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
+import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 import model.Canvas;
 import model.bean.BorderLine;
+import model.bean.CircleObstacle;
+import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
 
 public class FileHandling {
@@ -31,6 +35,11 @@ public class FileHandling {
 	private static SprinklerController controller = new SprinklerControllerImpl();
 
 	private static String currentPath = "";
+	
+	public static void newCanvas(CanvasPane canvasPane) {
+		//TODO unsaved changes rákérdezni
+		//TODO groupokat kiüríteni, controller listákat clear
+	}
 
 	public static void saveCanvas(Stage stage, boolean saveAs) {
 
@@ -59,21 +68,14 @@ public class FileHandling {
 
 	}
 
-	// TODO file helyét paraméterben kéne megkapja
 	public static void loadCanvas(CanvasPane canvasPane, Stage stage) {
 
 		FileChooser fileChooser = new FileChooser();
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
 		fileChooser.getExtensionFilters().add(extFilter);
 		File file = fileChooser.showOpenDialog(stage);
-
-		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			canvasPane.irrigationLayer.getChildren().remove(s.getCircle());
-			canvasPane.sprinklerArcLayer.getChildren().remove(s.getArc());
-			canvasPane.sprinklerTextLayer.getChildren().remove(s.getLabel());
-		}
-		controller.listSprinklerShapes().clear();
-
+		currentPath = file.getAbsolutePath();
+		
 		JAXBContext context;
 		try {
 			context = JAXBContext.newInstance(Canvas.class);
@@ -81,6 +83,8 @@ public class FileHandling {
 			Canvas canvas = (Canvas) um.unmarshal(new FileReader(file));
 			loadSprinklerShapes(canvasPane, canvas);
 			loadBorderLines(canvasPane, canvas);
+			loadCircleObstacles(canvasPane, canvas);
+			
 		} catch (JAXBException | FileNotFoundException e) {
 
 			e.printStackTrace();
@@ -89,6 +93,14 @@ public class FileHandling {
 	}
 
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
+		
+		for (SprinklerShape s : controller.listSprinklerShapes()) {
+			canvasPane.irrigationLayer.getChildren().remove(s.getCircle());
+			canvasPane.sprinklerArcLayer.getChildren().remove(s.getArc());
+			canvasPane.sprinklerTextLayer.getChildren().remove(s.getLabel());
+		}
+		controller.listSprinklerShapes().clear();
+		
 		for (SprinklerShape s : canvas.sprinklerShapes) {
 			Color strokeColor = Color.web(s.getStrokeColor());
 			Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
@@ -112,6 +124,11 @@ public class FileHandling {
 	}
 	
 	private static void loadBorderLines(CanvasPane canvasPane, Canvas canvas) {
+		for (Shape s : controller.listBorderShapes()) {
+			canvasPane.bordersLayer.getChildren().remove(s);
+		}
+		controller.listBorderShapes().clear();
+		
 		for (BorderLine b : canvas.borderLines) {
 			Color strokeColor = Color.web(b.getColor());
 			Line line = new Line(b.getStartX(), b.getStartY(), b.getEndX(), b.getEndY());
@@ -119,6 +136,41 @@ public class FileHandling {
 			line.setStroke(strokeColor);
 			controller.addBorderShape(line);
 			canvasPane.bordersLayer.getChildren().add(line);
+		}
+	}
+	
+	private static void loadCircleObstacles(CanvasPane canvasPane, Canvas canvas) {
+		for (Shape s : controller.listObstacles()) {
+			canvasPane.bordersLayer.getChildren().remove(s);
+		}
+		controller.listObstacles().clear();
+		
+		for (CircleObstacle c : canvas.circleObstacles) {
+			Color strokeColor = Color.web(c.getStrokeColor());
+			Color fillColor = Color.web(c.getFillColor());
+			Circle circle = new Circle(c.getCenterX(), c.getCenterY(), c.getRadius(), fillColor);
+			circle.setStroke(strokeColor);
+			circle.setStrokeWidth(c.getStrokeWidth());
+
+			controller.addBorderShape(circle);
+			controller.addObstacle(circle);
+			canvasPane.bordersLayer.getChildren().add(circle);
+		}
+	}
+	
+	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {
+		
+		for (RectangleObstacle r : canvas.rectangleObstacles) {
+			Color strokeColor = Color.web(r.getStrokeColor());
+			Color fillColor = Color.web(r.getFillColor());
+			Rectangle rectangle = new Rectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
+			rectangle.setStroke(strokeColor);
+			rectangle.setFill(fillColor);
+			rectangle.setStrokeWidth(r.getStrokeWidth());
+
+			controller.addBorderShape(rectangle);
+			controller.addObstacle(rectangle);
+			canvasPane.bordersLayer.getChildren().add(rectangle);
 		}
 	}
 }

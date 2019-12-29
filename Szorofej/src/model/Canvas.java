@@ -15,7 +15,9 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.bean.BorderLine;
+import model.bean.CircleObstacle;
 import model.bean.PipeGraph;
+import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
@@ -24,38 +26,45 @@ public class Canvas {
 	@XmlTransient
 	private SprinklerController controller = new SprinklerControllerImpl();
 	
-	@XmlElementWrapper(name="borderLines")
+	@XmlElementWrapper(name="BorderLines")
     @XmlElement(name="borderLine")
 	public ArrayList<BorderLine> borderLines = borderLines();
-	@XmlTransient
-	public ArrayList<Circle> circleObstacles = circleObstacles();
-	@XmlTransient
-	public ArrayList<Rectangle> rectangleObstacles = rectangleObstacles();
 	
-	@XmlElementWrapper(name="sprinklerShapes")
+	@XmlElementWrapper(name="CircleObstacles")
+    @XmlElement(name="CircleObstacle")
+	public ArrayList<CircleObstacle> circleObstacles = circleObstacles();
+	
+	@XmlElementWrapper(name="RectangleObstacles")
+    @XmlElement(name="RectangleObstacle")
+	public ArrayList<RectangleObstacle> rectangleObstacles = rectangleObstacles();
+	
+	@XmlElementWrapper(name="SprinklerShapes")
     @XmlElement(name="sprinklerShape")
 	public ArrayList<SprinklerShape> sprinklerShapes = new ArrayList<>(controller.listSprinklerShapes());
+	
 	@XmlTransient
 	public ArrayList<Zone> zones = new ArrayList<>(controller.listZones());
+	
 	@XmlTransient
 	public ArrayList<PipeGraph> pipeGraphs = new ArrayList<>(controller.listPipeGraphs());
+	
 	@XmlTransient
 	public ArrayList<Text> texts = new ArrayList<>(controller.listTexts());
 	
-	private ArrayList<Circle> circleObstacles(){
-		ArrayList<Circle> result = new ArrayList<Circle>();
+	private ArrayList<CircleObstacle> circleObstacles(){
+		ArrayList<CircleObstacle> result = new ArrayList<>();
 		for(Shape s: controller.listObstacles()) {
 			if(s instanceof Circle) 
-				result.add((Circle) s);
+				result.add(new CircleObstacle((Circle) s));
 		}
 		return result;
 	}
 
-	private ArrayList<Rectangle> rectangleObstacles(){
-		ArrayList<Rectangle> result = new ArrayList<>();
+	private ArrayList<RectangleObstacle> rectangleObstacles(){
+		ArrayList<RectangleObstacle> result = new ArrayList<>();
 		for(Shape s: controller.listObstacles()) {
 			if(s instanceof Rectangle) 
-				result.add((Rectangle) s);
+				result.add(new RectangleObstacle((Rectangle) s));
 		}
 		return result;
 	}
