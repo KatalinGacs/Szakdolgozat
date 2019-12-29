@@ -14,6 +14,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import model.bean.BorderLine;
 import model.bean.PipeGraph;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
@@ -23,8 +24,9 @@ public class Canvas {
 	@XmlTransient
 	private SprinklerController controller = new SprinklerControllerImpl();
 	
-	@XmlTransient
-	public ArrayList<Line> borderLines = borderLines();
+	@XmlElementWrapper(name="borderLines")
+    @XmlElement(name="borderLine")
+	public ArrayList<BorderLine> borderLines = borderLines();
 	@XmlTransient
 	public ArrayList<Circle> circleObstacles = circleObstacles();
 	@XmlTransient
@@ -58,11 +60,11 @@ public class Canvas {
 		return result;
 	}
 	
-	private ArrayList<Line> borderLines() {
-		ArrayList<Line> result = new ArrayList<>();
-		for(Shape s: controller.listObstacles()) {
+	private ArrayList<BorderLine> borderLines() {
+		ArrayList<BorderLine> result = new ArrayList<>();
+		for(Shape s: controller.listBorderShapes()) {
 			if(s instanceof Line) 
-				result.add((Line) s);
+				result.add(new BorderLine((Line) s));
 		}
 		return result;
 	}
