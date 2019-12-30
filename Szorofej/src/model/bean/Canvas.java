@@ -1,4 +1,4 @@
-package model;
+package model.bean;
 
 import java.util.ArrayList;
 
@@ -14,12 +14,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
-import model.bean.BorderLine;
-import model.bean.CircleObstacle;
-import model.bean.PipeGraph;
-import model.bean.RectangleObstacle;
-import model.bean.SprinklerShape;
-import model.bean.Zone;
 
 @XmlRootElement
 public class Canvas {
@@ -42,7 +36,8 @@ public class Canvas {
     @XmlElement(name="sprinklerShape")
 	public ArrayList<SprinklerShape> sprinklerShapes = new ArrayList<>(controller.listSprinklerShapes());
 	
-	@XmlTransient
+	@XmlElementWrapper(name="Zones")
+    @XmlElement(name="Zone")
 	public ArrayList<Zone> zones = new ArrayList<>(controller.listZones());
 	
 	@XmlTransient

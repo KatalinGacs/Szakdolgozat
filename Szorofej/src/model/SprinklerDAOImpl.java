@@ -315,7 +315,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public SprinklerType getSprinklerType(String sprinklerType) {
-		for (SprinklerType s : sprinklertypes) {
+		for (SprinklerType s : listSprinklerTypes()) {
 			if (s.getName().equals(sprinklerType)) {
 				return s;
 			}

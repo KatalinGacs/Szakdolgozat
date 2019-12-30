@@ -1,8 +1,17 @@
 package model.bean;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
+
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 
+@XmlRootElement(name = "Zone")
 public class Zone {
 
 	private String name;
@@ -11,8 +20,11 @@ public class Zone {
 	private double durationOfWatering;
 	private int numberOfHeads;
 
+	private ArrayList<String> sprinklerIDs = new ArrayList<String>();
+
 	public Zone(String name, ObservableList<SprinklerShape> sprinklers, double durationOfWatering) {
-		//TODO kéne ellenõrizni hogy létezik-e már ilyen nevû zóna
+		// TODO kéne ellenõrizni hogy létezik-e már ilyen nevû zóna, de lehet hogy nem
+		// itt hanem a név megadásánál
 		this.name = name;
 		this.sprinklers = sprinklers;
 		for (SprinklerShape s : sprinklers) {
@@ -25,6 +37,7 @@ public class Zone {
 	public Zone() {
 	}
 
+	@XmlElement(name = "Name")
 	public String getName() {
 		return name;
 	}
@@ -33,6 +46,7 @@ public class Zone {
 		this.name = name;
 	}
 
+	@XmlTransient
 	public ObservableList<SprinklerShape> getSprinklers() {
 		return sprinklers;
 	}
@@ -45,10 +59,12 @@ public class Zone {
 		numberOfHeads = sprinklers.size();
 	}
 
+	@XmlTransient
 	public double getSumOfFlowRate() {
 		return sumOfFlowRate;
 	}
 
+	@XmlElement(name = "DurationOfWatering")
 	public double getDurationOfWatering() {
 		return durationOfWatering;
 	}
@@ -57,6 +73,7 @@ public class Zone {
 		this.durationOfWatering = durationOfWatering;
 	}
 
+	@XmlTransient
 	public int getNumberOfHeads() {
 		return numberOfHeads;
 	}
@@ -65,5 +82,37 @@ public class Zone {
 	public String toString() {
 		return name;
 	}
+
+	@XmlElement(name = "SprinklerIDs")
+	public ArrayList<String> getSprinklerIDs() {
+		if(sprinklers.isEmpty())
+		return sprinklerIDs;
+		else {
+			ArrayList<String> result = new ArrayList<String>();
+			for (SprinklerShape s : sprinklers) {
+				result.add(s.getID());
+			}
+			return result;
+		}
+	}
+
+	public void setSprinklerIDs( ArrayList<String>  sprinklerIDs) {
+		this.sprinklerIDs = sprinklerIDs;
+	}
+
+	public void setSumOfFlowRate(double sumOfFlowRate) {
+		this.sumOfFlowRate = sumOfFlowRate;
+	}
+
+	public void setNumberOfHeads(int numberOfHeads) {
+		this.numberOfHeads = numberOfHeads;
+	}
+
+	public void addSprinkler(SprinklerShape sprinkler) {
+		sprinklers.add(sprinkler);
+		sumOfFlowRate += sprinkler.getFlowRate();
+		numberOfHeads++;
+	}
+
 
 }

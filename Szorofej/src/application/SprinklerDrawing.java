@@ -47,22 +47,28 @@ public class SprinklerDrawing {
 
 	static SprinklerDrawingState drawingState = SprinklerDrawingState.CENTER;
 
+	private static SprinklerShape sprinkler;
+	private static Circle circle;
+	private static Arc arc;
+	private static Text label;
+	
 	static void drawNewSprinkler(MouseEvent mouseEvent, CanvasPane canvasPane) {
 		canvasPane.stateOfCanvasUse = CanvasPane.Use.SPRINKLERDRAWING;
-		SprinklerShape sprinkler = new SprinklerShape();
-		Circle circle = new Circle();
-		Arc arc = new Arc();
+		circle = new Circle();
+		arc = new Arc();
 		arc.setType(ArcType.ROUND);
 		arc.setStroke(SprinklerDrawing.sprinklerColor);
 		arc.setStrokeWidth(CanvasPane.strokeWidth);
 		arc.setFill(Color.TRANSPARENT);
-		sprinkler.setSprinkler(SprinklerDrawing.sprinklerType);
-		sprinkler.setRadius(SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter);
-		Text label = new Text(sprinkler.getSprinkler().getName());
+		
 		
 		if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER
 				&& !canvasPane.drawingSeveralSprinklers) {
-
+			 sprinkler = new SprinklerShape();
+			 sprinkler.setSprinkler(SprinklerDrawing.sprinklerType);
+				sprinkler.setRadius(SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter);
+				label = new Text(sprinkler.getSprinkler().getName());
+				
 			centerX = mouseEvent.getX();
 			centerY = mouseEvent.getY();
 
@@ -139,7 +145,7 @@ public class SprinklerDrawing {
 								sprinkler.setArc(arc);
 
 								canvasPane.sprinklerArcLayer.getChildren().add(sprinkler.getArc());
-								controller.addSprinklerShape(sprinkler); // TODO !
+								controller.addSprinklerShape(sprinkler);
 
 								SprinklerDrawing.angleInput.setText("");
 								SprinklerDrawing.angleInput.setVisible(false);

@@ -1,13 +1,11 @@
 package model.bean;
 
+import java.util.concurrent.atomic.AtomicLong;
+
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import com.sun.prism.paint.Color;
-
-import javafx.scene.control.Label;
-import javafx.scene.paint.Paint;
 import javafx.scene.shape.Arc;
 import javafx.scene.shape.Circle;
 import javafx.scene.text.Text;
@@ -28,19 +26,23 @@ public class SprinklerShape {
 	private Text label = new Text();
 
 	// needed for XML unmarshalling
-	private String fillColor;
-	private String strokeColor;
+	private String fillColor = "";
+	private String strokeColor = "";
 	private double strokeWidth;
 	private double centerX;
 	private double centerY;
 	private double circleRadius;
-	private String sprinklerType;
+	private String sprinklerType = "";
 	private double length;
 	private double startAngle;
 	private String labelText = "";
 	private String labelStyle = "";
 	private double labelX;
 	private double labelY;
+	private double fillOpacity;
+
+	private String ID = createID();
+	private static AtomicLong idCounter = new AtomicLong();
 
 	public SprinklerShape() {
 	}
@@ -86,6 +88,9 @@ public class SprinklerShape {
 
 	@XmlElement(name = "FlowRate")
 	public double getFlowRate() {
+		if (flowRate == 0.0) {
+			flowRate = calculateFlowRate();
+		}
 		return flowRate;
 	}
 
@@ -100,11 +105,17 @@ public class SprinklerShape {
 
 	@XmlElement(name = "WaterCoverageInMmPerHour")
 	public double getWaterCoverageInMmPerHour() {
+		if (waterCoverageInMmPerHour == 0.0) {
+			waterCoverageInMmPerHour = calculateWaterCoverage();
+		}
 		return waterCoverageInMmPerHour;
 	}
 
 	public void setWaterCoverageInMmPerHour(double waterCoverageInMmPerHour) {
-		this.waterCoverageInMmPerHour = waterCoverageInMmPerHour;
+		if (waterCoverageInMmPerHour == 0.0) {
+			waterCoverageInMmPerHour = calculateWaterCoverage();
+		} else
+			this.waterCoverageInMmPerHour = waterCoverageInMmPerHour;
 	}
 
 	@XmlTransient
@@ -128,7 +139,6 @@ public class SprinklerShape {
 		} else {
 			areaInM2 = radius * radius * Math.PI;
 		}
-		// return (flowRate * 0.06 * 1000) / areaInM2;
 		return (flowRate * 60) / areaInM2;
 	}
 
@@ -149,10 +159,11 @@ public class SprinklerShape {
 
 	@XmlElement(name = "FillColor")
 	public String getFillColor() {
-		if (arc.getFill() != null)
-			return arc.getFill().toString();
-		else 
+		if (fillColor != "")
 			return fillColor;
+		else
+			return arc.getFill().toString();
+
 	}
 
 	@XmlElement(name = "StrokeWidth")
@@ -167,75 +178,99 @@ public class SprinklerShape {
 	public double getCenterX() {
 		if (centerX == 0) {
 			return circle.getCenterX();
-		}
-		else return centerX;
+		} else
+			return centerX;
 	}
 
 	@XmlElement(name = "CenterY")
 	public double getCenterY() {
 		if (centerY == 0) {
 			return circle.getCenterY();
-		} else return centerY;
+		} else
+			return centerY;
 	}
 
 	@XmlElement(name = "CircleRadius")
 	public double getCircleRadius() {
 		if (circleRadius == 0) {
 			return circle.getRadius();
-		} else return circleRadius;
+		} else
+			return circleRadius;
 	}
 
 	@XmlElement(name = "Length")
 	public double getLength() {
 		if (length == 0) {
 			return arc.getLength();
-		} else return length;
+		} else
+			return length;
 	}
 
 	@XmlElement(name = "StartAngle")
 	public double getStartAngle() {
 		if (startAngle == 0) {
 			return arc.getStartAngle();
-		} else return startAngle;
+		} else
+			return startAngle;
 	}
 
 	@XmlElement(name = "SprinklerType")
 	public String getSprinklerType() {
-		if (sprinkler != null) {
+		if (sprinklerType == "") {
 			return sprinkler.toString();
-		} else return sprinklerType;
+		} else
+			return sprinklerType;
 	}
 
 	@XmlElement(name = "LabelText")
 	public String getLabelText() {
 		if (labelText == "") {
 			return label.getText();
-		} else return labelText;
+		} else
+			return labelText;
 	}
 
 	@XmlElement(name = "LabelStyle")
 	public String getLabelStyle() {
 		if (labelStyle == "") {
 			return label.getStyle();
-		} else return labelStyle;
+		} else
+			return labelStyle;
 	}
 
 	@XmlElement(name = "LabelX")
 	public double getLabelX() {
 		if (labelX == 0) {
 			return label.getX();
-		} else return labelX;
+		} else
+			return labelX;
 	}
 
 	@XmlElement(name = "LabelY")
 	public double getLabelY() {
 		if (labelY == 0) {
 			return label.getY();
-		} else return labelY;
+		} else
+			return labelY;
+	}
+
+	@XmlElement(name = "FillOpacity")
+	public double getFillOpacity() {
+		if (fillOpacity == 0) {
+			return arc.getOpacity();
+		} else
+			return fillOpacity;
+	}
+
+	public void setFillOpacity(double fillOpacity) {
+		this.fillOpacity = fillOpacity;
 	}
 
 	public void setFlowRate(double flowRate) {
-		this.flowRate = calculateFlowRate();
+		if (flowRate == 0.0) {
+			flowRate = calculateFlowRate();
+		} else
+			this.flowRate = calculateFlowRate();
 	}
 
 	public void setFillColor(String fillColor) {
@@ -290,6 +325,19 @@ public class SprinklerShape {
 		this.labelY = labelY;
 	}
 
+	@XmlElement(name = "ID")
+	public String getID() {
+		return ID;
+	}
+
+	public void setID(String iD) {
+		ID = iD;
+	}
+
+	public static String createID() {
+		return String.valueOf(idCounter.getAndIncrement());
+	}
+
 	@Override
 	public String toString() {
 		return "SprinklerShape [circle=" + circle + ", arc=" + arc + ", flowRate=" + flowRate + ", radius=" + radius
@@ -298,11 +346,7 @@ public class SprinklerShape {
 				+ ", centerX=" + centerX + ", centerY=" + centerY + ", circleRadius=" + circleRadius
 				+ ", sprinklerType=" + sprinklerType + ", length=" + length + ", startAngle=" + startAngle
 				+ ", labelText=" + labelText + ", labelStyle=" + labelStyle + ", labelX=" + labelX + ", labelY="
-				+ labelY + "]";
+				+ labelY + ", fillOpacity=" + fillOpacity + ", ID=" + ID + "]";
 	}
-
-	
-
-	
 
 }

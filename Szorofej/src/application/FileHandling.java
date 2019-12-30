@@ -24,17 +24,18 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import model.Canvas;
 import model.bean.BorderLine;
+import model.bean.Canvas;
 import model.bean.CircleObstacle;
 import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
+import model.bean.Zone;
 
 public class FileHandling {
 
 	private static SprinklerController controller = new SprinklerControllerImpl();
 
-	private static String currentPath = "";
+	static String currentPath = "";
 	
 	public static void newCanvas(CanvasPane canvasPane) {
 		//TODO unsaved changes rákérdezni
@@ -49,6 +50,7 @@ public class FileHandling {
 			fileChooser.getExtensionFilters().add(extFilter);
 			File file = fileChooser.showSaveDialog(stage);
 			currentPath = file.getAbsolutePath();
+			stage.setTitle("Öntözõ programka - " + currentPath);
 		}
 
 		try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
@@ -75,7 +77,8 @@ public class FileHandling {
 		fileChooser.getExtensionFilters().add(extFilter);
 		File file = fileChooser.showOpenDialog(stage);
 		currentPath = file.getAbsolutePath();
-		
+		stage.setTitle("Öntözõ programka - " + currentPath);
+
 		JAXBContext context;
 		try {
 			context = JAXBContext.newInstance(Canvas.class);
@@ -84,6 +87,8 @@ public class FileHandling {
 			loadSprinklerShapes(canvasPane, canvas);
 			loadBorderLines(canvasPane, canvas);
 			loadCircleObstacles(canvasPane, canvas);
+			loadRectangleObstacles(canvasPane, canvas);
+			loadZones(canvasPane, canvas);
 			
 		} catch (JAXBException | FileNotFoundException e) {
 
@@ -91,6 +96,7 @@ public class FileHandling {
 		}
 
 	}
+
 
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
 		
@@ -110,13 +116,17 @@ public class FileHandling {
 			s.getArc().setStroke(strokeColor);
 			s.getArc().setStrokeWidth(s.getStrokeWidth());
 			s.getArc().setType(ArcType.ROUND);
+			s.getArc().setOpacity(s.getFillOpacity());
 			s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
 			s.setLabel(new Text(s.getLabelText()));
 			s.getLabel().setX(s.getLabelX());
 			s.getLabel().setY(s.getLabelY());
 			s.getLabel().setStyle(s.getLabelStyle());
 			s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
-			controller.listSprinklerShapes().add(s);
+			s.setFlowRate(s.getFlowRate());
+			s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
+			
+			controller.addSprinklerShape(s);
 			canvasPane.irrigationLayer.getChildren().add(s.getCircle());
 			canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
 			canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
@@ -158,8 +168,7 @@ public class FileHandling {
 		}
 	}
 	
-	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {
-		
+	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {	
 		for (RectangleObstacle r : canvas.rectangleObstacles) {
 			Color strokeColor = Color.web(r.getStrokeColor());
 			Color fillColor = Color.web(r.getFillColor());
@@ -172,5 +181,23 @@ public class FileHandling {
 			controller.addObstacle(rectangle);
 			canvasPane.bordersLayer.getChildren().add(rectangle);
 		}
+	}
+
+	private static void loadZones(CanvasPane canvasPane, Canvas canvas) {
+		for (Zone zone : controller.listZones()) {
+			controller.removeZone(zone);
+		}
+		for (Zone zone : canvas.zones) {
+			for(String ID : zone.getSprinklerIDs()) {
+				for(SprinklerShape sprinkler : controller.listSprinklerShapes()) {
+					if(sprinkler.getID().equals(ID)) {
+						zone.addSprinkler(sprinkler);
+						break;
+					}
+				}
+			}
+			controller.addZone(zone);
+		}	
+		
 	}
 }

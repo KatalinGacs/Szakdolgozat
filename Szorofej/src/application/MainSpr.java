@@ -19,9 +19,11 @@ import model.bean.Zone;
 public class MainSpr extends Application {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
-	
+
+	private String filePath = FileHandling.currentPath.equals("") ? "[nem mentett]" : FileHandling.currentPath;
+
 	private DrawingPanel drawingPanel = new DrawingPanel();
-	
+
 	private VBox left = new VBox();
 	private SprinklerListTable sprinklerListTable;
 	private ZoneTable zoneTable = new ZoneTable(drawingPanel.getCanvasPane());
@@ -45,10 +47,11 @@ public class MainSpr extends Application {
 	private MenuItem sprinklerGroupDbMenuItem = new MenuItem("Szórófej csoportok");
 	private MenuItem materialDbMenuItem = new MenuItem("Anyag adatbázis");
 	private MenuItem newMaterialMenuItem = new MenuItem("Anyag hozzáadása");
-	
+
 	@Override
 	public void start(Stage primaryStage) {
 		try {
+			primaryStage.setTitle("Öntözõ programka - " + filePath);
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root, 800, 600);
 			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
@@ -56,84 +59,84 @@ public class MainSpr extends Application {
 			root.setCenter(drawingPanel);
 
 			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
-			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem, exitMenuItem);
+			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem,
+					exitMenuItem);
 			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
-			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem, materialDbMenuItem, newMaterialMenuItem);
-			
-			newMenuItem.setOnAction(e ->{
-				//TODO ha volt változás, rákérdezzen, menti-e (vagy  ha nem tudom megoldani mindenképp rákérdezzen)
-				// a canvas groupjait lepucolni
+			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem,
+					materialDbMenuItem, newMaterialMenuItem);
+
+			newMenuItem.setOnAction(e -> {
+				// TODO
 			});
-			openMenuItem.setOnAction(e->{
+			openMenuItem.setOnAction(e -> {
 				FileHandling.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
+				zoneTable.setItems(controller.listZones());
 			});
-			saveMenuItem.setOnAction(e->{
+			saveMenuItem.setOnAction(e -> {
 				FileHandling.saveCanvas(primaryStage, false);
 			});
-			saveAsMenuItem.setOnAction(e->{
+			saveAsMenuItem.setOnAction(e -> {
 				FileHandling.saveCanvas(primaryStage, true);
 			});
-			exportMenuItem.setOnAction(e->{
-				//TODO
+			exportMenuItem.setOnAction(e -> {
+				// TODO
 			});
-			exitMenuItem.setOnAction(e->{
-				//TODO rákérdezzen, hogy menti-e
+			exitMenuItem.setOnAction(e -> {
+				// TODO rákérdezzen, hogy menti-e
 				primaryStage.close();
 			});
-			undoMenuItem.setOnAction(e->{
-				//TODO
+			undoMenuItem.setOnAction(e -> {
+				// TODO
 			});
-			redoMenuItem.setOnAction(e->{
-				//TODO
+			redoMenuItem.setOnAction(e -> {
+				// TODO
 			});
 			sprinklerDbMenuItem.setOnAction(e -> {
-				SprinklerDBView sprinklerDBView = new SprinklerDBView(); 
+				SprinklerDBView sprinklerDBView = new SprinklerDBView();
 			});
-			sprinklerGroupDbMenuItem.setOnAction( e-> {
+			sprinklerGroupDbMenuItem.setOnAction(e -> {
 				SprinklerGroupDBView sprinklerGroupDbView = new SprinklerGroupDBView();
 			});
 			newSprinklerMenuItem.setOnAction(e -> {
 				AddSprinklerView addNewSprinklerView = new AddSprinklerView();
 			});
-			materialDbMenuItem.setOnAction(e->{
-				//TODO
+			materialDbMenuItem.setOnAction(e -> {
+				// TODO
 			});
-			newMaterialMenuItem.setOnAction(e->{
-				//TODO
+			newMaterialMenuItem.setOnAction(e -> {
+				// TODO
 			});
 			root.setTop(menuBar);
-			
+
+			// TODO innen jobbkattintásra legyenek zónák törölhetõk, különösen ha az undo/redo nem lesz meg
 			zoneTable.setOnMouseClicked(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
 					selectedZone = zoneTable.getSelectionModel().getSelectedItem();
-					sprinklerListTable.setItems(controller.listSprinklerShapes(selectedZone));
+					if (selectedZone != null)
+						sprinklerListTable.setItems(controller.listSprinklerShapes(selectedZone));
 				}
 			});
 			sprinklerListTable = new SprinklerListTable(selectedZone);
-			
+
 			sprinklerListTable.setOnMouseClicked(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
-					sprinklerDetailTable = new SprinklerDetailTable(sprinklerListTable.getSelectionModel().getSelectedItem());
+					sprinklerDetailTable = new SprinklerDetailTable(
+							sprinklerListTable.getSelectionModel().getSelectedItem());
 					root.setRight(sprinklerDetailTable);
-					
+
 				}
 			});
 
-			
-			
-			left.getChildren().addAll(zoneTable,sprinklerListTable);
-			
-			
-			
+			left.getChildren().addAll(zoneTable, sprinklerListTable);
+
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
 			primaryStage.show();
-	
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		
+
 	}
 
 	public static void main(String[] args) {
