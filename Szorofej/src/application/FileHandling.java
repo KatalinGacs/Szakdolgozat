@@ -206,7 +206,6 @@ public class FileHandling {
 	}
 	
 	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
-	//	List<Text> toRemove = controller.listTexts();
 		for (Text t : controller.listTexts()) {
 			canvasPane.textLayer.getChildren().remove(t);
 		}
