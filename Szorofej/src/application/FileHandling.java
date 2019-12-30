@@ -5,6 +5,7 @@ import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
+import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -21,6 +22,8 @@ import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Font;
+import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
@@ -29,6 +32,7 @@ import model.bean.Canvas;
 import model.bean.CircleObstacle;
 import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
+import model.bean.TextElement;
 import model.bean.Zone;
 
 public class FileHandling {
@@ -89,6 +93,7 @@ public class FileHandling {
 			loadCircleObstacles(canvasPane, canvas);
 			loadRectangleObstacles(canvasPane, canvas);
 			loadZones(canvasPane, canvas);
+			loadTexts(canvasPane, canvas);
 			
 		} catch (JAXBException | FileNotFoundException e) {
 
@@ -198,6 +203,23 @@ public class FileHandling {
 			}
 			controller.addZone(zone);
 		}	
-		
+	}
+	
+	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
+	//	List<Text> toRemove = controller.listTexts();
+		for (Text t : controller.listTexts()) {
+			canvasPane.textLayer.getChildren().remove(t);
+		}
+		for (Text t : controller.listTexts()) {
+			controller.removeText(t);
+		}
+		for (TextElement t : canvas.texts) {
+			Text text = new Text(t.getX(), t.getY(), t.getText());
+			text.setStyle(t.getStyle());
+			text.setFont(Font.font(t.getFont(), FontWeight.SEMI_BOLD, t.getFontSize()));
+			text.setFill(Color.web(t.getFillColor()));
+			controller.addText(text);
+			canvasPane.textLayer.getChildren().add(text);
+		}
 	}
 }
