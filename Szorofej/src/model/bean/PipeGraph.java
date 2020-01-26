@@ -1,27 +1,27 @@
 package model.bean;
 
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
+
+import javax.xml.bind.annotation.XmlAttribute;
+import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlRootElement;
+import javax.xml.bind.annotation.XmlTransient;
 
 import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import model.GraphException;
-import model.bean.PipeGraph.Vertex;
 
+@XmlRootElement(name = "PipeGraph")
 public class PipeGraph {
 
 	private Zone zone;
-
 	private Color color;
-
 	private double beginningPressure;
-
 	private Shape valve;
 
 	private Set<Vertex> vertices;
@@ -29,11 +29,20 @@ public class PipeGraph {
 	private Set<Vertex> breakpoints = new HashSet<>();
 	private Vertex root;
 
+	private String zoneName;
+	private String Color;
+	private double valveX;
+	private double valveY;
+	
 	public PipeGraph(Zone zone, Color color) {
 		vertices = new HashSet<>();
 		edges = new HashSet<>();
 		this.zone = zone;
 		this.color = color;
+	}
+
+	public PipeGraph() {
+		super();
 	}
 
 	public boolean addVertex(double x, double y) {
@@ -71,15 +80,16 @@ public class PipeGraph {
 	public boolean removeEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
 		return removeEdge(new Edge(new Vertex(vertex1X, vertex1Y), new Vertex(vertex2X, vertex2Y)));
 	}
-	
+	@XmlTransient //TODO 
 	public Set<Vertex> getVertices() {
 		return Collections.unmodifiableSet(vertices);
 	}
-
+	
+	@XmlTransient
 	public Set<Edge> getEdges() {
 		return Collections.unmodifiableSet(edges);
 	}
-
+	@XmlTransient
 	public Zone getZone() {
 		return zone;
 	}
@@ -87,7 +97,7 @@ public class PipeGraph {
 	public void setZone(Zone zone) {
 		this.zone = zone;
 	}
-
+	@XmlTransient
 	public Color getColor() {
 		return color;
 	}
@@ -95,7 +105,7 @@ public class PipeGraph {
 	public void setColor(Color color) {
 		this.color = color;
 	}
-
+	@XmlTransient
 	public Shape getValve() {
 		return valve;
 	}
@@ -103,7 +113,8 @@ public class PipeGraph {
 	public void setValve(Shape valve) {
 		this.valve = valve;
 	}
-
+	
+	@XmlElement(name = "BeginningPressure")
 	public double getBeginningPressure() {
 		return beginningPressure;
 	}
@@ -112,6 +123,7 @@ public class PipeGraph {
 		this.beginningPressure = beginningPressure;
 	}
 
+	@XmlTransient
 	public Set<Vertex> getBreakpoints() {
 		return breakpoints;
 	}
@@ -119,7 +131,8 @@ public class PipeGraph {
 	public void setBreakpoints(Set<Vertex> breakpoints) {
 		this.breakpoints = breakpoints;
 	}
-
+	
+	@XmlTransient //TODO 
 	public Vertex getRoot() {
 		return root;
 	}
@@ -127,7 +140,7 @@ public class PipeGraph {
 	public void setRoot(Vertex root) {
 		this.root = root;
 	}
-
+	
 	public Edge getEdgeByChildVertex(Vertex child) {
 		Edge e = null;
 
@@ -150,7 +163,7 @@ public class PipeGraph {
 		}
 		return result;
 	}
-	
+
 	public int getNumberOfLeaves() {
 		int result = 0;
 		for (Vertex v : vertices) {
@@ -234,12 +247,10 @@ public class PipeGraph {
 		}
 
 	}
-
+	
 	public static class Edge extends Line {
 
 		Vertex vParent, vChild;
-		// double weight;
-		// TODO itt kéne eltárolni a csõátmérõt?
 
 		public Edge(Vertex vParent, Vertex vChild) {
 			super();
@@ -254,7 +265,7 @@ public class PipeGraph {
 		public Edge() {
 			super();
 		}
-
+		@XmlTransient
 		public Vertex getvParent() {
 			return vParent;
 		}
@@ -264,7 +275,7 @@ public class PipeGraph {
 			this.setStartX(vParent.getX());
 			this.setStartY(vParent.getY());
 		}
-
+		@XmlTransient
 		public Vertex getvChild() {
 			return vChild;
 		}
@@ -275,11 +286,13 @@ public class PipeGraph {
 			this.setEndY(vChild.getY());
 		}
 
+		@XmlTransient
 		public double getLength() {
 			return Math.sqrt(((getStartX() - getEndX()) * (getStartX() - getEndX()))
 					+ ((getStartY() - getEndY()) * (getStartY() - getEndY())));
 		}
 
 	}
+
 
 }
