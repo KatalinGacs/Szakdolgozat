@@ -36,7 +36,7 @@ public class MainSpr extends Application {
 	private MenuItem openMenuItem = new MenuItem("Megnyitás");
 	private MenuItem saveMenuItem = new MenuItem("Mentés");
 	private MenuItem saveAsMenuItem = new MenuItem("Mentés másként");
-	private MenuItem exportMenuItem = new MenuItem("Exportálás pdf-be");
+	private MenuItem printMenuItem = new MenuItem("Nyomtatás");
 	private MenuItem exitMenuItem = new MenuItem("Kilépés");
 	private Menu editMenu = new Menu("Szerkesztés");
 	private MenuItem undoMenuItem = new MenuItem("Visszavonás");
@@ -59,7 +59,7 @@ public class MainSpr extends Application {
 			root.setCenter(drawingPanel);
 
 			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
-			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem,
+			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, printMenuItem,
 					exitMenuItem);
 			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
 			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem,
@@ -78,8 +78,8 @@ public class MainSpr extends Application {
 			saveAsMenuItem.setOnAction(e -> {
 				FileHandling.saveCanvas(primaryStage, true);
 			});
-			exportMenuItem.setOnAction(e -> {
-				// TODO
+			printMenuItem.setOnAction(e -> {
+				PrintHandler.printSettings(drawingPanel.getCanvasPane());
 			});
 			exitMenuItem.setOnAction(e -> {
 				// TODO rákérdezzen, hogy menti-e
