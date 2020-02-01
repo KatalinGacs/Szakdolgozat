@@ -131,6 +131,7 @@ public class MainSpr extends Application {
 
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
+			
 			primaryStage.show();
 
 		} catch (Exception e) {
@@ -138,6 +139,13 @@ public class MainSpr extends Application {
 		}
 
 	}
+	
+    public static void run()
+    {
+        launch("");
+    }
+    
+
 
 	public static void main(String[] args) {
 		launch(args);

@@ -84,7 +84,9 @@ public class CanvasPane extends Pane {
 
 	private ContextMenu rightClickMenu = new ContextMenu();
 	private MenuItem delMenuItem = new MenuItem("Törlés");
-
+	
+	SetSprinklerAttributesStage sprinklerAttributeStage;
+	
 	public CanvasPane() {
 
 		setWidth(Common.primaryScreenBounds.getWidth() * 6);
@@ -142,7 +144,7 @@ public class CanvasPane extends Pane {
 	// fogja törölni
 	// delmenu sorolja fel õket? vagy a kijelölt elem színe változzon és akkor tudja
 	// mit jelölt ki?
-	protected void selectElement(MouseEvent e) {
+	public void selectElement(MouseEvent e) {
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {
 				rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
@@ -207,12 +209,12 @@ public class CanvasPane extends Pane {
 		}
 	}
 
-	protected void setSprinklerAttributes() {
-		SetSprinklerAttributesStage stage = new SetSprinklerAttributesStage(this);
-		stage.show();
+	public void setSprinklerAttributes() {
+		sprinklerAttributeStage = new SetSprinklerAttributesStage(this);
+		sprinklerAttributeStage.show();
 	}
 
-	protected void selectHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
+	public void selectHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
 		if (stateOfCanvasUse == Use.ZONEEDITING) {
 			for (SprinklerShape s : controller.listSprinklerShapes()) {
 				boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
@@ -316,5 +318,22 @@ public class CanvasPane extends Pane {
 				+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
 	}
 
+	public Set<SprinklerShape> getSelectedSprinklerShapes() {
+		return selectedSprinklerShapes;
+	}
 
+	public SetSprinklerAttributesStage getSprinklerAttributeStage() {
+		return sprinklerAttributeStage;
+	}
+
+	public Use getStateOfCanvasUse() {
+		return stateOfCanvasUse;
+	}
+
+	public void setStateOfCanvasUse(Use stateOfCanvasUse) {
+		this.stateOfCanvasUse = stateOfCanvasUse;
+	}
+
+
+	
 }

@@ -12,6 +12,13 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 
 public class BorderDrawing {
+	
+
+	static double startX;
+	static double startY;
+	static TextField lengthInput = new TextField();
+	static Line tempBorderLine = new Line();
+	static Circle tempCircle = new Circle();
 
 	public static void showTempBorderLine(MouseEvent e, Color color, CanvasPane canvasPane) {
 		BorderDrawing.lengthInput.setVisible(true);
@@ -106,11 +113,6 @@ public class BorderDrawing {
 		}
 	}
 
-	static double startX;
-	static double startY;
-	static TextField lengthInput = new TextField();
-	static Line tempBorderLine = new Line();
-	static Circle tempCircle = new Circle();
 
 	public static void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 
@@ -161,4 +163,30 @@ public class BorderDrawing {
 		canvasPane.controller.addObstacle(circle);
 	}
 
+	public static double getStartX() {
+		return startX;
+	}
+
+	public static double getStartY() {
+		return startY;
+	}
+
+	public static TextField getLengthInput() {
+		return lengthInput;
+	}
+
+	public static Line getTempBorderLine() {
+		return tempBorderLine;
+	}
+
+	public static Circle getTempCircle() {
+		return tempCircle;
+	}
+
+	public static Rectangle getTempRectangle() {
+		return tempRectangle;
+	}
+
+
+	
 }
