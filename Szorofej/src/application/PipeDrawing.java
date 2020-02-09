@@ -5,15 +5,15 @@ import java.util.List;
 
 import application.CanvasPane.Use;
 import application.common.Common;
+import controller.GraphException;
+import controller.PipeDiameterOptimizer;
+import controller.PressureException;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import model.GraphException;
-import model.PipeDiameterOptimizer;
-import model.PressureException;
 import model.bean.PipeGraph;
 import model.bean.PipeMaterial;
 import model.bean.PipeGraph.Edge;
