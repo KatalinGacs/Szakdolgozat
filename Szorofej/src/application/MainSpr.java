@@ -6,6 +6,7 @@ import application.dbviews.SprinklerGroupDBView;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.application.Application;
+import javafx.application.Platform;
 import javafx.scene.Scene;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
@@ -145,7 +146,10 @@ public class MainSpr extends Application {
         launch("");
     }
     
-
+    public static void exit()
+    {
+        Platform.exit();
+    }
 
 	public static void main(String[] args) {
 		launch(args);
