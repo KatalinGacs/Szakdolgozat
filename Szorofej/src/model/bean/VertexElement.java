@@ -1,9 +1,11 @@
 package model.bean;
 
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicLong;
 
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 
@@ -12,11 +14,14 @@ import javax.xml.bind.annotation.XmlRootElement;
 public  class VertexElement{
 	private double X;
 	private double Y;
-	private VertexElement parent;
-	private Set<VertexElement> children;
+	private String parentID;
+	private Set<String> childrenID;
 	private boolean root;
 	private boolean breakpoint;
 	private String sprinklerShapeID;
+	private String ID = createID();
+	private static AtomicLong idCounter = new AtomicLong();
+	
 	public VertexElement() {
 		super();
 	}
@@ -34,20 +39,20 @@ public  class VertexElement{
 	public void setY(double y) {
 		Y = y;
 	}
-    @XmlIDREF
-	public VertexElement getParent() {
-		return parent;
+	@XmlAttribute
+	public String getParentID() {
+		return parentID;
 	}
-	public void setParent(VertexElement parent) {
-		this.parent = parent;
+	public void setParentID(String parentID) {
+		this.parentID = parentID;
 	}
-	@XmlElement(name="Child")
-    @XmlIDREF
-	public Set<VertexElement> getChildren() {
-		return children;
+	@XmlElementWrapper(name = "ChildrenID")
+	@XmlElement(name = "ID")
+	public Set<String> getChildrenID() {
+		return childrenID;
 	}
-	public void setChildren(Set<VertexElement> children) {
-		this.children = children;
+	public void setChildrenID(Set<String> childrenID) {
+		this.childrenID = childrenID;
 	}
 	@XmlAttribute
 	public boolean isRoot() {
@@ -71,5 +76,14 @@ public  class VertexElement{
 	public void setSprinklerShapeID(String sprinklerShapeID) {
 		this.sprinklerShapeID = sprinklerShapeID;
 	}
-	
+	@XmlElement(name="ID")
+	public String getID() {
+		return ID;
+	}
+	public void setID(String iD) {
+		ID = iD;
+	}
+	public static String createID() {
+		return String.valueOf(idCounter.getAndIncrement());
+	}
 }
