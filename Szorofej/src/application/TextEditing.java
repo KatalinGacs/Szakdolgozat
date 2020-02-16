@@ -28,7 +28,7 @@ public class TextEditing {
 	static Color fontColor = Color.BLACK;
 	static TextField textField = new TextField();
 	static Stage stage = new Stage();
-	
+
 	public static void openTextFormatStage(CanvasPane canvasPane) {
 		canvasPane.stateOfCanvasUse = Use.PREPAREFORTEXTEDITING;
 
@@ -48,20 +48,20 @@ public class TextEditing {
 		List<Integer> fontSizes = Arrays.asList(8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 48, 72);
 		fontSizeList.setItems(new ObservableListWrapper<Integer>(fontSizes));
 		fontSizeList.setPrefHeight(100);
-		
+
 		root.add(fontSizeText, 0, 0);
 		root.add(fontSizeList, 0, 1);
 		root.add(colorText, 2, 0);
 		root.add(colorPicker, 2, 1);
 
-		fontSizeList.setOnMouseClicked(e-> {
+		fontSizeList.setOnMouseClicked(e -> {
 			fontSize = fontSizeList.getSelectionModel().getSelectedItem();
 		});
-		
+
 		colorPicker.setOnAction(a -> {
 			fontColor = colorPicker.getValue();
 		});
-		
+
 		stage.setAlwaysOnTop(true);
 		canvasPane.requestFocus();
 		stage.show();
@@ -69,17 +69,18 @@ public class TextEditing {
 	}
 
 	public static void startWritingText(MouseEvent e, CanvasPane canvasPane) {
+		canvasPane.setModifiedSinceLastSave(true);
 		stage.close();
 		textField.setVisible(true);
 		textField.requestFocus();
-		String style = "-fx-text-fill: #" +  fontColor.toString().substring(2) + "; -fx-font-size: " + fontSize + "px;";
+		String style = "-fx-text-fill: #" + fontColor.toString().substring(2) + "; -fx-font-size: " + fontSize + "px;";
 		textField.setBackground(null);
 		textField.setLayoutX(e.getX() - fontSize / 2);
 		textField.setLayoutY(e.getY() - fontSize);
 		textField.setFont(Font.font("arial", FontWeight.SEMI_BOLD, fontSize));
 		textField.setStyle(style);
-		textField.setOnKeyPressed(ke->{
-			if(ke.getCode() == KeyCode.ENTER) {
+		textField.setOnKeyPressed(ke -> {
+			if (ke.getCode() == KeyCode.ENTER) {
 				textField.setVisible(false);
 				Text text = new Text(textField.getText());
 				text.setX(e.getX() + fontSize * 0.1);
@@ -95,7 +96,7 @@ public class TextEditing {
 				canvasPane.setCursor(Cursor.DEFAULT);
 			}
 		});
-		
+
 	}
 
 }

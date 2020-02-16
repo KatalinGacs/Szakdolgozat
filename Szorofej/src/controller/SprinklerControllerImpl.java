@@ -164,4 +164,39 @@ public class SprinklerControllerImpl implements SprinklerController {
 		return dao.getSprinklerType(sprinklerType);
 	}
 
+	@Override
+	public void clearBorderShapes() {
+		dao.clearBorderShapes();
+	}
+
+	@Override
+	public void clearObstacles() {
+		dao.clearObstacles();
+	}
+
+	@Override
+	public void clearSprinklerShapes() {
+		dao.clearSprinklerShapes();
+	}
+
+	@Override
+	public void clearZones() {
+		dao.clearZones();
+	}
+
+	@Override
+	public void clearPipeGraphs() {
+		dao.clearPipeGraphs();
+	}
+
+	@Override
+	public void clearTexts() {
+		dao.clearTexts();
+	}
+
+	@Override
+	public void clearAll() {
+		dao.clearAll();
+	}
+
 }

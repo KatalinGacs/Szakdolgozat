@@ -87,7 +87,8 @@ public class BorderDrawing {
 
 		canvasPane.controller.addBorderShape(line);
 		canvasPane.bordersLayer.getChildren().add(line);
-	}
+		canvasPane.setModifiedSinceLastSave(true);
+}
 
 	public static void drawBorderRectanlge(MouseEvent e, Color strokeColor, Color fillColor, int width,
 			CanvasPane canvasPane) {
@@ -98,7 +99,8 @@ public class BorderDrawing {
 		canvasPane.bordersLayer.getChildren().add(rect);
 		canvasPane.controller.addBorderShape(rect);
 		canvasPane.controller.addObstacle(rect);
-	}
+		canvasPane.setModifiedSinceLastSave(true);
+}
 
 	public static void showTempBorderCircle(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 		if (e.getButton() == MouseButton.PRIMARY) {
@@ -161,6 +163,7 @@ public class BorderDrawing {
 		canvasPane.bordersLayer.getChildren().add(circle);
 		canvasPane.controller.addBorderShape(circle);
 		canvasPane.controller.addObstacle(circle);
+		canvasPane.setModifiedSinceLastSave(true);
 	}
 
 	public static double getStartX() {

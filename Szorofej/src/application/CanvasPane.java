@@ -13,6 +13,7 @@ import javafx.geometry.Point2D;
 import javafx.geometry.Side;
 import javafx.scene.Cursor;
 import javafx.scene.Group;
+import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
 import javafx.scene.input.KeyCode;
@@ -87,6 +88,8 @@ public class CanvasPane extends Pane {
 	
 	SetSprinklerAttributesStage sprinklerAttributeStage;
 	
+	private boolean modifiedSinceLastSave = false;
+	
 	public CanvasPane() {
 
 		setWidth(Common.primaryScreenBounds.getWidth() * 6);
@@ -153,6 +156,7 @@ public class CanvasPane extends Pane {
 					irrigationLayer.getChildren().remove(s.getCircle());
 					sprinklerArcLayer.getChildren().remove(s.getArc());
 					sprinklerTextLayer.getChildren().remove(s.getLabel());
+					modifiedSinceLastSave = true;
 					ev.consume();
 				});
 			}
@@ -266,6 +270,7 @@ public class CanvasPane extends Pane {
 			s.getArc().setOpacity((s.getFlowRate() * durationInHours) / 3);
 		}
 		deselectAll();
+		modifiedSinceLastSave = true;
 	}
 
 	public void deselectAll() {
@@ -334,6 +339,29 @@ public class CanvasPane extends Pane {
 		this.stateOfCanvasUse = stateOfCanvasUse;
 	}
 
+	public boolean isModifiedSinceLastSave() {
+		return modifiedSinceLastSave;
+	}
 
+	public void setModifiedSinceLastSave(boolean modifiedSinceLastSave) {
+		this.modifiedSinceLastSave = modifiedSinceLastSave;
+	}
+
+
+	public void clear() {
+		bordersLayer.getChildren().clear();
+		irrigationLayer.getChildren().clear();
+		pipeLineLayer.getChildren().clear();
+		pipeTextLayer.getChildren().clear();
+		sprinklerArcLayer.getChildren().clear();
+		sprinklerTextLayer.getChildren().clear();
+		textLayer.getChildren().clear();
+		controller.clearAll();
+	}
 	
+	public void hideTempLayer() {
+		for(Node n : tempLineLayer.getChildren()) {
+			n.setVisible(false);
+		}
+	}
 }

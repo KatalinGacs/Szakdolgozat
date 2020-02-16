@@ -160,6 +160,7 @@ public class SprinklerDrawing {
 
 			SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.SECONDSIDE;
 		} else if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.SECONDSIDE) {
+			canvasPane.setModifiedSinceLastSave(true);
 
 			SprinklerDrawing.angleInput.setVisible(false);
 

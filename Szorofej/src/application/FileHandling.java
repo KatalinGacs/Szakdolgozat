@@ -39,38 +39,51 @@ public class FileHandling {
 	private static SprinklerController controller = new SprinklerControllerImpl();
 
 	static String currentPath = "";
-	
+
+	static String currentFileName = "";
+
 	public static void newCanvas(CanvasPane canvasPane) {
-		//TODO unsaved changes rákérdezni
-		//TODO groupokat kiüríteni, controller listákat clear
+		if (canvasPane.isModifiedSinceLastSave()) {
+			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane);
+		}
+		else {
+			canvasPane.clear();
+			canvasPane.hideTempLayer();
+		}
+		canvasPane.setModifiedSinceLastSave(false);
 	}
 
-	public static void saveCanvas(Stage stage, boolean saveAs) {
+	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
 
 		if (currentPath == "" || saveAs == true) {
 			FileChooser fileChooser = new FileChooser();
 			FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
 			fileChooser.getExtensionFilters().add(extFilter);
 			File file = fileChooser.showSaveDialog(stage);
-			currentPath = file.getAbsolutePath();
-			stage.setTitle("Öntözõ programka - " + currentPath);
+			if (file != null) {
+				currentPath = file.getAbsolutePath();
+				currentFileName = file.getName();
+				try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
+
+					Canvas canvas = new Canvas();
+					JAXBContext context = JAXBContext.newInstance(Canvas.class);
+					Marshaller m = context.createMarshaller();
+					m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+					m.marshal(canvas, System.out);
+
+					m.marshal(canvas, fileOS);
+
+					canvasPane.setModifiedSinceLastSave(false);
+
+				} catch (IOException | JAXBException ex) {
+					ex.printStackTrace();
+				}
+
+			}
+			stage.setTitle(Common.programName + " - " + currentPath);
 		}
-
-		try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
-
-			Canvas canvas = new Canvas();
-			JAXBContext context = JAXBContext.newInstance(Canvas.class);
-			Marshaller m = context.createMarshaller();
-			m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-			m.marshal(canvas, System.out);
-
-			m.marshal(canvas, fileOS);
-
-		} catch (IOException | JAXBException ex) {
-			ex.printStackTrace();
-		}
-
+		
 	}
 
 	public static void loadCanvas(CanvasPane canvasPane, Stage stage) {
@@ -80,20 +93,21 @@ public class FileHandling {
 		fileChooser.getExtensionFilters().add(extFilter);
 		File file = fileChooser.showOpenDialog(stage);
 		currentPath = file.getAbsolutePath();
-		stage.setTitle("Öntözõ programka - " + currentPath);
+		stage.setTitle(Common.programName + " - " + currentPath);
 
 		JAXBContext context;
 		try {
 			context = JAXBContext.newInstance(Canvas.class);
 			Unmarshaller um = context.createUnmarshaller();
-			Canvas canvas = (Canvas) um.unmarshal(new FileInputStream( file ));
+			Canvas canvas = (Canvas) um.unmarshal(new FileInputStream(file));
 			loadSprinklerShapes(canvasPane, canvas);
 			loadBorderLines(canvasPane, canvas);
 			loadCircleObstacles(canvasPane, canvas);
 			loadRectangleObstacles(canvasPane, canvas);
 			loadZones(canvasPane, canvas);
 			loadTexts(canvasPane, canvas);
-			
+			canvasPane.setModifiedSinceLastSave(false);
+
 		} catch (JAXBException | FileNotFoundException e) {
 
 			e.printStackTrace();
@@ -101,16 +115,15 @@ public class FileHandling {
 
 	}
 
-
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
-		
+
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			canvasPane.irrigationLayer.getChildren().remove(s.getCircle());
 			canvasPane.sprinklerArcLayer.getChildren().remove(s.getArc());
 			canvasPane.sprinklerTextLayer.getChildren().remove(s.getLabel());
 		}
 		controller.listSprinklerShapes().clear();
-		
+
 		for (SprinklerShape s : canvas.sprinklerShapes) {
 			Color strokeColor = Color.web(s.getStrokeColor());
 			Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
@@ -129,20 +142,20 @@ public class FileHandling {
 			s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
 			s.setFlowRate(s.getFlowRate());
 			s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
-			
+
 			controller.addSprinklerShape(s);
 			canvasPane.irrigationLayer.getChildren().add(s.getCircle());
 			canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
 			canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
 		}
 	}
-	
+
 	private static void loadBorderLines(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listBorderShapes()) {
 			canvasPane.bordersLayer.getChildren().remove(s);
 		}
 		controller.listBorderShapes().clear();
-		
+
 		for (BorderLine b : canvas.borderLines) {
 			Color strokeColor = Color.web(b.getColor());
 			Line line = new Line(b.getStartX(), b.getStartY(), b.getEndX(), b.getEndY());
@@ -152,13 +165,13 @@ public class FileHandling {
 			canvasPane.bordersLayer.getChildren().add(line);
 		}
 	}
-	
+
 	private static void loadCircleObstacles(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listObstacles()) {
 			canvasPane.bordersLayer.getChildren().remove(s);
 		}
 		controller.listObstacles().clear();
-		
+
 		for (CircleObstacle c : canvas.circleObstacles) {
 			Color strokeColor = Color.web(c.getStrokeColor());
 			Color fillColor = Color.web(c.getFillColor());
@@ -171,8 +184,8 @@ public class FileHandling {
 			canvasPane.bordersLayer.getChildren().add(circle);
 		}
 	}
-	
-	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {	
+
+	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {
 		for (RectangleObstacle r : canvas.rectangleObstacles) {
 			Color strokeColor = Color.web(r.getStrokeColor());
 			Color fillColor = Color.web(r.getFillColor());
@@ -192,18 +205,18 @@ public class FileHandling {
 			controller.removeZone(zone);
 		}
 		for (Zone zone : canvas.zones) {
-			for(String ID : zone.getSprinklerIDs()) {
-				for(SprinklerShape sprinkler : controller.listSprinklerShapes()) {
-					if(sprinkler.getID().equals(ID)) {
+			for (String ID : zone.getSprinklerIDs()) {
+				for (SprinklerShape sprinkler : controller.listSprinklerShapes()) {
+					if (sprinkler.getID().equals(ID)) {
 						zone.addSprinkler(sprinkler);
 						break;
 					}
 				}
 			}
 			controller.addZone(zone);
-		}	
+		}
 	}
-	
+
 	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
 		for (Text t : controller.listTexts()) {
 			canvasPane.textLayer.getChildren().remove(t);
@@ -220,4 +233,13 @@ public class FileHandling {
 			canvasPane.textLayer.getChildren().add(text);
 		}
 	}
+
+	public static String getCurrentPath() {
+		return currentPath;
+	}
+
+	public static String getCurrentFileName() {
+		return currentFileName;
+	}
+
 }

@@ -15,6 +15,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.stage.WindowEvent;
 import model.bean.Zone;
 
 public class MainSpr extends Application {
@@ -55,7 +56,7 @@ public class MainSpr extends Application {
 			primaryStage.setTitle("Öntözõ programka - " + filePath);
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root, 800, 600);
-			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			// scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			root.setCenter(drawingPanel);
 
@@ -67,24 +68,28 @@ public class MainSpr extends Application {
 					materialDbMenuItem, newMaterialMenuItem);
 
 			newMenuItem.setOnAction(e -> {
-				// TODO
+				FileHandling.newCanvas(drawingPanel.getCanvasPane());
 			});
 			openMenuItem.setOnAction(e -> {
 				FileHandling.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
 				zoneTable.setItems(controller.listZones());
 			});
 			saveMenuItem.setOnAction(e -> {
-				FileHandling.saveCanvas(primaryStage, false);
+				FileHandling.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), false);
 			});
 			saveAsMenuItem.setOnAction(e -> {
-				FileHandling.saveCanvas(primaryStage, true);
+				FileHandling.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), true);
 			});
 			printMenuItem.setOnAction(e -> {
 				PrintHandler.printSettings(drawingPanel.getCanvasPane());
 			});
 			exitMenuItem.setOnAction(e -> {
-				// TODO rákérdezzen, hogy menti-e
-				primaryStage.close();
+				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane());
+				}
+				else {
+					Platform.exit();
+				}
 			});
 			undoMenuItem.setOnAction(e -> {
 				// TODO
@@ -109,7 +114,19 @@ public class MainSpr extends Application {
 			});
 			root.setTop(menuBar);
 
-			// TODO innen jobbkattintásra legyenek zónák törölhetõk, különösen ha az undo/redo nem lesz meg
+			Platform.setImplicitExit(false);
+
+			primaryStage.setOnCloseRequest(e -> {
+				e.consume();
+				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane());
+				} else {
+					Platform.exit();
+				}
+			});
+
+			// TODO innen jobbkattintásra legyenek zónák törölhetõk, különösen ha az
+			// undo/redo nem lesz meg
 			zoneTable.setOnMouseClicked(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
 					selectedZone = zoneTable.getSelectionModel().getSelectedItem();
@@ -132,7 +149,7 @@ public class MainSpr extends Application {
 
 			root.setLeft(left);
 			primaryStage.setMaximized(true);
-			
+
 			primaryStage.show();
 
 		} catch (Exception e) {
@@ -140,16 +157,14 @@ public class MainSpr extends Application {
 		}
 
 	}
-	
-    public static void run()
-    {
-        launch("");
-    }
-    
-    public static void exit()
-    {
-        Platform.exit();
-    }
+
+	public static void run() {
+		launch("");
+	}
+
+	public static void exit() {
+		Platform.exit();
+	}
 
 	public static void main(String[] args) {
 		launch(args);

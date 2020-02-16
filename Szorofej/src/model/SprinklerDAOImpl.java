@@ -26,16 +26,16 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
 
-	private static ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
+	private static ObservableList<SprinklerShape> sprinklerShapes = FXCollections.observableArrayList();
 
 	private static ObservableList<Zone> zones = FXCollections.observableArrayList();
 
 	private static ObservableList<PipeGraph> pipeGraphs = FXCollections.observableArrayList();
-	
+
 	private static ObservableList<Shape> borderShapes = FXCollections.observableArrayList();
-	
+
 	private static ObservableList<Shape> obstacles = FXCollections.observableArrayList();
-	
+
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
@@ -48,17 +48,17 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addSprinklerShapes(SprinklerShape s) {
-		sprinklers.add(s);
+		sprinklerShapes.add(s);
 	}
 
 	@Override
 	public ObservableList<SprinklerShape> listSprinklerShapes() {
-		return sprinklers;
+		return sprinklerShapes;
 	}
 
 	@Override
 	public void deleteSprinklerShape(SprinklerShape s) {
-		sprinklers.remove(s);
+		sprinklerShapes.remove(s);
 	}
 
 	@Override
@@ -191,7 +191,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<SprinklerShape> listSprinklerShapes(Zone zone) {
 		ObservableList<SprinklerShape> list = FXCollections.observableArrayList();
-		for (SprinklerShape s : sprinklers) {
+		for (SprinklerShape s : sprinklerShapes) {
 			if (zone.getSprinklers().contains(s)) {
 				list.add(s);
 			}
@@ -277,7 +277,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public PipeGraph getPipeGraph(Zone zone) {
-		for(PipeGraph pg : pipeGraphs) {
+		for (PipeGraph pg : pipeGraphs) {
 			if (pg.getZone() == zone) {
 				return pg;
 			}
@@ -288,10 +288,10 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void updateSprinklerData(String column, double newValue, String name) {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn.prepareStatement("UPDATE Sprinklertype SET "
-						+ column + " = ? WHERE name = ?");) {
+				PreparedStatement pst = conn
+						.prepareStatement("UPDATE Sprinklertype SET " + column + " = ? WHERE name = ?");) {
 			pst.setDouble(1, newValue);
-			pst.setString(2, name );
+			pst.setString(2, name);
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
@@ -322,7 +322,46 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		}
 		return null;
 	}
-		
-	
 
+	@Override
+	public void clearBorderShapes() {
+		borderShapes.clear();
+	}
+
+	@Override
+	public void clearObstacles() {
+		obstacles.clear();
+	}
+
+	@Override
+	public void clearSprinklerShapes() {
+		sprinklerShapes.clear();
+	}
+
+	@Override
+	public void clearZones() {
+		zones.clear();
+	}
+
+	@Override
+	public void clearPipeGraphs() {
+		pipeGraphs.clear();
+	}
+
+	@Override
+	public void clearTexts() {
+		texts.clear();
+	}
+
+	@Override
+	public void clearAll() {
+		clearBorderShapes();
+		clearObstacles();
+		clearPipeGraphs();
+		clearSprinklerShapes();
+		clearTexts();
+		clearZones();
+	}
+
+	
 }

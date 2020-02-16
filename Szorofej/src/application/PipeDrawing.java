@@ -71,9 +71,12 @@ public class PipeDrawing {
 		startVertex = breakPointVertex;
 		BorderDrawing.startX = breakPointVertex.getX();
 		BorderDrawing.startY = breakPointVertex.getY();
+		canvasPane.setModifiedSinceLastSave(true);
+
 	}
 
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
+		canvasPane.setModifiedSinceLastSave(true);
 		BorderDrawing.tempBorderLine.setVisible(false);
 		Edge line = new Edge();
 		Vertex endVertex = null;
@@ -110,6 +113,7 @@ public class PipeDrawing {
 	static boolean leaf = false;
 
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) {
+		canvasPane.setModifiedSinceLastSave(true);
 		PipeGraph pg = controller.getPipeGraph(zone);
 		int leafes = pg.getNumberOfLeaves();
 		Vertex startingVertex = root;
