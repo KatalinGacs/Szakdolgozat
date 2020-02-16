@@ -1,11 +1,10 @@
 package application;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.IOException;
-import java.util.List;
 
 import javax.xml.bind.JAXBContext;
 import javax.xml.bind.JAXBException;
@@ -87,7 +86,7 @@ public class FileHandling {
 		try {
 			context = JAXBContext.newInstance(Canvas.class);
 			Unmarshaller um = context.createUnmarshaller();
-			Canvas canvas = (Canvas) um.unmarshal(new FileReader(file));
+			Canvas canvas = (Canvas) um.unmarshal(new FileInputStream( file ));
 			loadSprinklerShapes(canvasPane, canvas);
 			loadBorderLines(canvasPane, canvas);
 			loadCircleObstacles(canvasPane, canvas);

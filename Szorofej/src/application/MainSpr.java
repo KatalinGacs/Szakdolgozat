@@ -55,7 +55,7 @@ public class MainSpr extends Application {
 			primaryStage.setTitle("Öntözõ programka - " + filePath);
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root, 800, 600);
-			scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
+			//scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			root.setCenter(drawingPanel);
 
