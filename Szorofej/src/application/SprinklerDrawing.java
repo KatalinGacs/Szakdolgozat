@@ -12,6 +12,7 @@ import javafx.scene.shape.Arc;
 import javafx.scene.shape.ArcType;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
+import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.bean.SprinklerShape;
@@ -20,7 +21,7 @@ import model.bean.SprinklerType;
 public class SprinklerDrawing {
 
 	static SprinklerController controller = new SprinklerControllerImpl();
-	
+
 	static TextField angleInput = new TextField();
 
 	static double arcExtent;
@@ -31,12 +32,12 @@ public class SprinklerDrawing {
 	static double firstY = 0;
 	static double secondX = 0;
 	static double secondY = 0;
-	
+
 	static Color sprinklerColor = Color.BLUE;
 	protected static double sprinklerRadius;
 	protected static SprinklerType sprinklerType;
 	static double startAngle;
-	
+
 	static Line tempFirstSprinklerLine = new Line();
 	static Line tempSecondSprinklerLine = new Line();
 	static Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 4);
@@ -51,43 +52,54 @@ public class SprinklerDrawing {
 	private static Circle circle;
 	private static Arc arc;
 	private static Text label;
-	
+
 	static void drawNewSprinkler(MouseEvent mouseEvent, CanvasPane canvasPane) {
+
 		canvasPane.stateOfCanvasUse = CanvasPane.Use.SPRINKLERDRAWING;
 		circle = new Circle();
 		arc = new Arc();
 		arc.setType(ArcType.ROUND);
-		arc.setStroke(SprinklerDrawing.sprinklerColor);
+		arc.setStroke(sprinklerColor);
 		arc.setStrokeWidth(CanvasPane.strokeWidth);
 		arc.setFill(Color.TRANSPARENT);
-		
-		
-		if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER
-				&& !canvasPane.drawingSeveralSprinklers) {
-			 sprinkler = new SprinklerShape();
-			 sprinkler.setSprinkler(SprinklerDrawing.sprinklerType);
-				sprinkler.setRadius(SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter);
-				label = new Text(sprinkler.getSprinkler().getName());
-				
-			centerX = mouseEvent.getX();
-			centerY = mouseEvent.getY();
 
-			if (canvasPane.pressedKey == KeyCode.CONTROL) {
-				if (canvasPane.showingFocusCircle) {
-					Point2D center = Common.snapToGrid(centerX, centerY);
-					centerX = center.getX();
-					centerY = center.getY();
+		if (SprinklerDrawing.drawingState == SprinklerDrawingState.CENTER
+				&& !canvasPane.drawingSeveralSprinklers) {
+
+			boolean validPoint = true;
+			for (Shape s : controller.listObstacles()) {
+				if (s.contains(mouseEvent.getX(), mouseEvent.getY()) ) {
+					Common.showAlert("Ezen a ponton tereptárgy található");
+					validPoint = false;
+					break;
 				}
 			}
-			
+			if (validPoint) {
 
-			SprinklerDrawing.tempSprinklerCircle.setCenterX(centerX);
-			SprinklerDrawing.tempSprinklerCircle.setCenterY(centerY);
-			SprinklerDrawing.tempSprinklerCircle.setStroke(SprinklerDrawing.sprinklerColor);
-			SprinklerDrawing.tempSprinklerCircle.setFill(SprinklerDrawing.sprinklerColor);
-			SprinklerDrawing.tempSprinklerCircle.setVisible(true);
-			SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.FIRSTSIDE;
-		} else if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.FIRSTSIDE) {
+				sprinkler = new SprinklerShape();
+				sprinkler.setSprinkler(sprinklerType);
+				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
+				label = new Text(sprinkler.getSprinkler().getName());
+
+				centerX = mouseEvent.getX();
+				centerY = mouseEvent.getY();
+
+				if (canvasPane.pressedKey == KeyCode.CONTROL) {
+					if (canvasPane.showingFocusCircle) {
+						Point2D center = Common.snapToGrid(centerX, centerY);
+						centerX = center.getX();
+						centerY = center.getY();
+					}
+				}
+
+				tempSprinklerCircle.setCenterX(centerX);
+				tempSprinklerCircle.setCenterY(centerY);
+				tempSprinklerCircle.setStroke(sprinklerColor);
+				tempSprinklerCircle.setFill(sprinklerColor);
+				tempSprinklerCircle.setVisible(true);
+				drawingState = SprinklerDrawingState.FIRSTSIDE;
+			}
+		} else if (SprinklerDrawing.drawingState == SprinklerDrawingState.FIRSTSIDE) {
 			firstX = mouseEvent.getX();
 			firstY = mouseEvent.getY();
 
@@ -97,59 +109,58 @@ public class SprinklerDrawing {
 				firstY = firstPoint.getY();
 			}
 
-			SprinklerDrawing.startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
+			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
 			if (centerX <= firstX)
-				SprinklerDrawing.startAngle -= 180;
-			if (SprinklerDrawing.startAngle < 0)
-				SprinklerDrawing.startAngle += 360;
-			SprinklerDrawing.angleInput.setVisible(true);
+				startAngle -= 180;
+			if (startAngle < 0)
+				startAngle += 360;
+			angleInput.setVisible(true);
 
-			SprinklerDrawing.angleInput.setLayoutX(mouseEvent.getX());
-			SprinklerDrawing.angleInput.setLayoutY(mouseEvent.getY());
-			SprinklerDrawing.angleInput.relocate(centerX, centerY);
-			SprinklerDrawing.angleInput.setOnKeyPressed(ke -> {
+			angleInput.setLayoutX(mouseEvent.getX());
+			angleInput.setLayoutY(mouseEvent.getY());
+			angleInput.relocate(centerX, centerY);
+			angleInput.setOnKeyPressed(ke -> {
 				if (ke.getCode().equals(KeyCode.ENTER)) {
-					if (SprinklerDrawing.angleInput.getText() == null
-							|| SprinklerDrawing.angleInput.getText().trim().isEmpty()) {
+					if (angleInput.getText() == null
+							|| angleInput.getText().trim().isEmpty()) {
 						Common.showAlert("Add meg a szórófej szögét!");
 					} else
 						try {
-							if (Double.parseDouble(SprinklerDrawing.angleInput
-									.getText()) > SprinklerDrawing.sprinklerType.getMaxAngle()
-									|| Double.parseDouble(SprinklerDrawing.angleInput
-											.getText()) < SprinklerDrawing.sprinklerType.getMinAngle()) {
-								Common.showAlert("A megadott szög (" + SprinklerDrawing.angleInput.getText()
+							if (Double.parseDouble(angleInput
+									.getText()) > sprinklerType.getMaxAngle()
+									|| Double.parseDouble(angleInput
+											.getText()) < sprinklerType.getMinAngle()) {
+								Common.showAlert("A megadott szög (" + angleInput.getText()
 										+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
-										+ SprinklerDrawing.sprinklerType.getMinAngle() + ", max. szög: "
-										+ SprinklerDrawing.sprinklerType.getMaxAngle());
+										+ sprinklerType.getMinAngle() + ", max. szög: "
+										+ sprinklerType.getMaxAngle());
 							} else {
-								SprinklerDrawing.arcExtent = -Double.parseDouble(SprinklerDrawing.angleInput.getText());
+								arcExtent = -Double.parseDouble(angleInput.getText());
 								arc.setCenterX(centerX);
 								arc.setCenterY(centerY);
-								arc.setRadiusX(SprinklerDrawing.sprinklerRadius);
-								arc.setRadiusY(SprinklerDrawing.sprinklerRadius);
-								arc.setStartAngle(SprinklerDrawing.startAngle);
-								arc.setLength(-SprinklerDrawing.arcExtent);
+								arc.setRadiusX(sprinklerRadius);
+								arc.setRadiusY(sprinklerRadius);
+								arc.setStartAngle(startAngle);
+								arc.setLength(-arcExtent);
 
 								circle.setCenterX(centerX);
 								circle.setCenterY(centerY);
 								circle.setRadius(Common.pixelPerMeter / 4);
-								circle.setStroke(SprinklerDrawing.sprinklerColor);
-								circle.setFill(SprinklerDrawing.sprinklerColor);
+								circle.setStroke(sprinklerColor);
+								circle.setFill(sprinklerColor);
 								sprinkler.setCircle(circle);
 								canvasPane.irrigationLayer.getChildren().add(sprinkler.getCircle());
 
-								
-								SprinklerDrawing.tempSprinklerCircle.setVisible(false);
+								tempSprinklerCircle.setVisible(false);
 
 								sprinkler.setArc(arc);
 
 								canvasPane.sprinklerArcLayer.getChildren().add(sprinkler.getArc());
 								controller.addSprinklerShape(sprinkler);
 
-								SprinklerDrawing.angleInput.setText("");
-								SprinklerDrawing.angleInput.setVisible(false);
-								SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.CENTER;
+								angleInput.setText("");
+								angleInput.setVisible(false);
+								drawingState = SprinklerDrawingState.CENTER;
 							}
 						} catch (NumberFormatException ex) {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
@@ -158,63 +169,63 @@ public class SprinklerDrawing {
 				}
 			});
 
-			SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.SECONDSIDE;
-		} else if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.SECONDSIDE) {
+			drawingState = SprinklerDrawingState.SECONDSIDE;
+		} else if (drawingState == SprinklerDrawingState.SECONDSIDE) {
 			canvasPane.setModifiedSinceLastSave(true);
 
-			SprinklerDrawing.angleInput.setVisible(false);
+			angleInput.setVisible(false);
 
-			SprinklerDrawing.secondX = mouseEvent.getX();
-			SprinklerDrawing.secondY = mouseEvent.getY();
+			secondX = mouseEvent.getX();
+			secondY = mouseEvent.getY();
 
 			if (canvasPane.pressedKey == KeyCode.CONTROL) {
-				Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, centerY, SprinklerDrawing.secondX,
-						SprinklerDrawing.secondY);
-				SprinklerDrawing.secondX = firstPoint.getX();
-				SprinklerDrawing.secondY = firstPoint.getY();
+				Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, centerY, secondX,
+						secondY);
+				secondX = firstPoint.getX();
+				secondY = firstPoint.getY();
 			}
 			double endAngle = -Math
-					.toDegrees(Math.atan((SprinklerDrawing.secondY - centerY) / (SprinklerDrawing.secondX - centerX)))
+					.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX)))
 					- 180;
-			if (centerX <= SprinklerDrawing.secondX)
+			if (centerX <= secondX)
 				endAngle -= 180;
 			if (endAngle < -360)
 				endAngle += 360;
 			if (endAngle < 0)
 				endAngle += 360;
-			SprinklerDrawing.arcExtent = 360 - (360 - endAngle) - SprinklerDrawing.startAngle;
-			if (SprinklerDrawing.arcExtent <= 0)
-				SprinklerDrawing.arcExtent += 360;
-			else if (SprinklerDrawing.arcExtent > 360)
-				SprinklerDrawing.arcExtent -= 360;
-			if (SprinklerDrawing.arcExtent > SprinklerDrawing.sprinklerType.getMaxAngle()
-					|| SprinklerDrawing.arcExtent < SprinklerDrawing.sprinklerType.getMinAngle()) {
-				Common.showAlert("A megadott szög (" + SprinklerDrawing.angleInput.getText()
+			arcExtent = 360 - (360 - endAngle) - startAngle;
+			if (arcExtent <= 0)
+				arcExtent += 360;
+			else if (arcExtent > 360)
+				arcExtent -= 360;
+			if (arcExtent > sprinklerType.getMaxAngle()
+					|| arcExtent < sprinklerType.getMinAngle()) {
+				Common.showAlert("A megadott szög (" + angleInput.getText()
 						+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
-						+ SprinklerDrawing.sprinklerType.getMinAngle() + ", max. szög: "
-						+ SprinklerDrawing.sprinklerType.getMaxAngle());
+						+ sprinklerType.getMinAngle() + ", max. szög: "
+						+ sprinklerType.getMaxAngle());
 			} else {
 
 				arc.setCenterY(centerY);
 				arc.setCenterX(centerX);
 				arc.setCenterY(centerY);
-				arc.setRadiusX(SprinklerDrawing.sprinklerRadius);
-				arc.setRadiusY(SprinklerDrawing.sprinklerRadius);
-				arc.setStartAngle(SprinklerDrawing.startAngle);
-				arc.setLength(SprinklerDrawing.arcExtent);
+				arc.setRadiusX(sprinklerRadius);
+				arc.setRadiusY(sprinklerRadius);
+				arc.setStartAngle(startAngle);
+				arc.setLength(arcExtent);
 				sprinkler.setArc(arc);
 				canvasPane.sprinklerArcLayer.getChildren().add(sprinkler.getArc());
 
 				circle.setCenterX(centerX);
 				circle.setCenterY(centerY);
 				circle.setRadius(Common.pixelPerMeter / 4);
-				circle.setStroke(SprinklerDrawing.sprinklerColor);
-				circle.setFill(SprinklerDrawing.sprinklerColor);
+				circle.setStroke(sprinklerColor);
+				circle.setFill(sprinklerColor);
 				sprinkler.setCircle(circle);
 				canvasPane.irrigationLayer.getChildren().add(sprinkler.getCircle());
-				
-				SprinklerDrawing.tempSprinklerCircle.setVisible(false);
-				
+
+				tempSprinklerCircle.setVisible(false);
+
 				label.setX(centerX);
 				label.setY(centerY - (Common.pixelPerMeter / 2));
 				label.setStyle(Common.textstyle);
@@ -222,7 +233,7 @@ public class SprinklerDrawing {
 				canvasPane.sprinklerTextLayer.getChildren().add(sprinkler.getLabel());
 
 				controller.addSprinklerShape(sprinkler);
-				SprinklerDrawing.drawingState = SprinklerDrawing.SprinklerDrawingState.CENTER;
+				drawingState = SprinklerDrawingState.CENTER;
 				if (canvasPane.drawingSeveralSprinklers)
 					drawSeveralSprinklers(canvasPane);
 			}
@@ -259,49 +270,49 @@ public class SprinklerDrawing {
 	public static void showTempLine(MouseEvent mouseEvent, CanvasPane canvasPane) {
 		if (canvasPane.sprinklerAttributesSet && canvasPane.stateOfCanvasUse == CanvasPane.Use.SPRINKLERDRAWING) {
 
-			SprinklerDrawing.tempFirstSprinklerLine.setStroke(CanvasPane.tempLineColor);
-			SprinklerDrawing.tempFirstSprinklerLine.setStrokeWidth(CanvasPane.strokeWidth);
-			SprinklerDrawing.tempSecondSprinklerLine.setStroke(CanvasPane.tempLineColor);
-			SprinklerDrawing.tempSecondSprinklerLine.setStrokeWidth(CanvasPane.strokeWidth);
+			tempFirstSprinklerLine.setStroke(CanvasPane.tempLineColor);
+			tempFirstSprinklerLine.setStrokeWidth(CanvasPane.strokeWidth);
+			tempSecondSprinklerLine.setStroke(CanvasPane.tempLineColor);
+			tempSecondSprinklerLine.setStrokeWidth(CanvasPane.strokeWidth);
 
-			if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER) {
-				SprinklerDrawing.tempFirstSprinklerLine.setVisible(false);
-				SprinklerDrawing.tempSecondSprinklerLine.setVisible(false);
-			} else if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.FIRSTSIDE) {
-				SprinklerDrawing.tempFirstSprinklerLine.setStartX(centerX);
-				SprinklerDrawing.tempFirstSprinklerLine.setStartY(SprinklerDrawing.centerY);
+			if (drawingState == SprinklerDrawingState.CENTER) {
+				tempFirstSprinklerLine.setVisible(false);
+				tempSecondSprinklerLine.setVisible(false);
+			} else if (drawingState == SprinklerDrawingState.FIRSTSIDE) {
+				tempFirstSprinklerLine.setStartX(centerX);
+				tempFirstSprinklerLine.setStartY(centerY);
 				if (canvasPane.pressedKey == KeyCode.CONTROL) {
-					Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, SprinklerDrawing.centerY,
+					Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, centerY,
 							mouseEvent.getX(), mouseEvent.getY());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndX(firstPoint.getX());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndY(firstPoint.getY());
+					tempFirstSprinklerLine.setEndX(firstPoint.getX());
+					tempFirstSprinklerLine.setEndY(firstPoint.getY());
 				} else {
-					SprinklerDrawing.tempFirstSprinklerLine.setEndX(mouseEvent.getX());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndY(mouseEvent.getY());
+					tempFirstSprinklerLine.setEndX(mouseEvent.getX());
+					tempFirstSprinklerLine.setEndY(mouseEvent.getY());
 				}
-				SprinklerDrawing.tempFirstSprinklerLine.setVisible(true);
-				SprinklerDrawing.tempSecondSprinklerLine.setVisible(false);
-			} else if (SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.SECONDSIDE) {
-				SprinklerDrawing.tempSecondSprinklerLine.setStartX(centerX);
-				SprinklerDrawing.tempSecondSprinklerLine.setStartY(SprinklerDrawing.centerY);
+				tempFirstSprinklerLine.setVisible(true);
+				tempSecondSprinklerLine.setVisible(false);
+			} else if (drawingState == SprinklerDrawingState.SECONDSIDE) {
+				tempSecondSprinklerLine.setStartX(centerX);
+				tempSecondSprinklerLine.setStartY(centerY);
 
-				SprinklerDrawing.tempSecondSprinklerLine.setEndX(SprinklerDrawing.firstX);
-				SprinklerDrawing.tempSecondSprinklerLine.setEndY(SprinklerDrawing.firstY);
-				SprinklerDrawing.tempSecondSprinklerLine.setVisible(true);
-				SprinklerDrawing.tempFirstSprinklerLine.setStartX(centerX);
-				SprinklerDrawing.tempFirstSprinklerLine.setStartY(SprinklerDrawing.centerY);
+				tempSecondSprinklerLine.setEndX(firstX);
+				tempSecondSprinklerLine.setEndY(firstY);
+				tempSecondSprinklerLine.setVisible(true);
+				tempFirstSprinklerLine.setStartX(centerX);
+				tempFirstSprinklerLine.setStartY(centerY);
 
 				if (canvasPane.pressedKey == KeyCode.CONTROL) {
-					Point2D secondPoint = Common.snapToHorizontalOrVertival(centerX, SprinklerDrawing.centerY,
+					Point2D secondPoint = Common.snapToHorizontalOrVertival(centerX, centerY,
 							mouseEvent.getX(), mouseEvent.getY());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndX(secondPoint.getX());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndY(secondPoint.getY());
+					tempFirstSprinklerLine.setEndX(secondPoint.getX());
+					tempFirstSprinklerLine.setEndY(secondPoint.getY());
 				} else {
-					SprinklerDrawing.tempFirstSprinklerLine.setEndX(mouseEvent.getX());
-					SprinklerDrawing.tempFirstSprinklerLine.setEndY(mouseEvent.getY());
+					tempFirstSprinklerLine.setEndX(mouseEvent.getX());
+					tempFirstSprinklerLine.setEndY(mouseEvent.getY());
 				}
 
-				SprinklerDrawing.tempFirstSprinklerLine.setVisible(true);
+				tempFirstSprinklerLine.setVisible(true);
 			}
 
 		}
@@ -325,7 +336,7 @@ public class SprinklerDrawing {
 			double startY = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getStartY();
 			double endY = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getEndY();
 			double diffY = startY - endY;
-	
+
 			for (int i = 0; i < numberOfSprinklersInALine; i++) {
 				Circle center = new Circle(Common.pixelPerMeter / 4);
 				center.setStroke(CanvasPane.tempLineColor);
@@ -341,7 +352,7 @@ public class SprinklerDrawing {
 				c.setCenterX(startX - i * (diffX / (numberOfSprinklersInALine - 1)));
 				c.setCenterY(startY - i * (diffY / (numberOfSprinklersInALine - 1)));
 				canvasPane.tempLineLayer.getChildren().add(c);
-	
+
 				canvasPane.tempSprinklerCirclesInALine.add(c);
 				canvasPane.tempSprinklerCentersInALine.add(center);
 			}
@@ -349,7 +360,7 @@ public class SprinklerDrawing {
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
-	//TODO ha közben ESC-kel megszakítja a rajzolást, a temp körök tûnjenek el
+	// TODO ha közben ESC-kel megszakítja a rajzolást, a temp körök tûnjenek el
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
 		canvasPane.lineSelected = false;
 		if (canvasPane.tempSprinklerCentersInALine.isEmpty()) {

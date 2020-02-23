@@ -23,6 +23,10 @@ import model.bean.SprinklerType;
 
 public class SetSprinklerAttributesStage extends Stage {
 	
+	// TODO amíg ez meg van nyitva, ne lehessen a canvast szerkeszteni
+	
+	// TODO valahol írja ki fixen, milyen szórófej típus van épp kiválasztva
+	
 	private SprinklerController controller = new SprinklerControllerImpl();
 
 	private VBox sprinklerInfoRoot = new VBox();
@@ -93,31 +97,41 @@ public class SetSprinklerAttributesStage extends Stage {
 		});
 
 		ok.setOnAction(e -> {
-			if (radiusField.getText() == null || radiusField.getText().trim().isEmpty()) {
-				Common.showAlert("Add meg a szórófej sugarát!");
-			} else {
-				try {
-					double radius = Double.parseDouble(radiusField.getText());
-					SprinklerType type;
-					if (tableView.getSelectionModel().isEmpty()) {
-						Common.showAlert("Nincs szórófej kijelölve");
-					} else {
-						type = tableView.getSelectionModel().getSelectedItem();
-						if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
-							Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
-						} else {
-							SprinklerDrawing.sprinklerRadius = radius * Common.pixelPerMeter;
-							canvasPane.sprinklerAttributesSet = true;
-							SprinklerDrawing.sprinklerType = type;
-							canvasPane.stateOfCanvasUse = Use.SPRINKLERDRAWING;
-						}
-					}
-					requestFocus();
-				} catch (NumberFormatException ex) {
-					Common.showAlert("Számokban add meg a szórófej sugarát!");
-				}
-			}
-			close();
+			setAttributes(canvasPane);
 		});
+		
+		tableView.setOnMousePressed(e -> {
+			if ( e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+				setAttributes(canvasPane);
+			}
+		});
+	}
+	
+	private void setAttributes(CanvasPane canvasPane) {
+		if (radiusField.getText() == null || radiusField.getText().trim().isEmpty()) {
+			Common.showAlert("Add meg a szórófej sugarát!");
+		} else {
+			try {
+				double radius = Double.parseDouble(radiusField.getText());
+				SprinklerType type;
+				if (tableView.getSelectionModel().isEmpty()) {
+					Common.showAlert("Nincs szórófej kijelölve");
+				} else {
+					type = tableView.getSelectionModel().getSelectedItem();
+					if (radius > tableView.getSelectionModel().getSelectedItem().getMaxRadius()) {
+						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
+					} else {
+						SprinklerDrawing.sprinklerRadius = radius * Common.pixelPerMeter;
+						canvasPane.sprinklerAttributesSet = true;
+						SprinklerDrawing.sprinklerType = type;
+						canvasPane.stateOfCanvasUse = Use.SPRINKLERDRAWING;
+					}
+				}
+				requestFocus();
+			} catch (NumberFormatException ex) {
+				Common.showAlert("Számokban add meg a szórófej sugarát!");
+			}
+		}
+		close();
 	}
 }
