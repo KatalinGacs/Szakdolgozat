@@ -104,8 +104,7 @@ public class SprinklerDBView {
 		    s.setWaterCounsumption(event.getNewValue());
 		    controller.updateSprinklerData("minPressure", event.getNewValue(), s.getName());
 		});
-		
-		stage.show();
+	
 		fixWaterConsumptionCol.setCellFactory(col -> new TableCell<SprinklerType, Boolean>() {
 		    @Override
 		    protected void updateItem(Boolean item, boolean empty) {
@@ -113,7 +112,8 @@ public class SprinklerDBView {
 		        setText(empty ? null : item ? "✓" : "✗" );
 		    }
 		});
-
+		
+		stage.show();
 	}
 
 }

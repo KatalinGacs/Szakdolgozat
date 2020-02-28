@@ -42,9 +42,9 @@ public class FileHandling {
 
 	static String currentFileName = "";
 
-	public static void newCanvas(CanvasPane canvasPane) {
+	public static void newCanvas(CanvasPane canvasPane, Stage stage) {
 		if (canvasPane.isModifiedSinceLastSave()) {
-			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane);
+			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane, stage);
 		}
 		else {
 			canvasPane.clear();

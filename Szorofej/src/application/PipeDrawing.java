@@ -1,7 +1,6 @@
 package application;
 
 import java.util.ArrayList;
-import java.util.List;
 
 import application.CanvasPane.Use;
 import application.common.Common;
@@ -15,7 +14,6 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
-import model.bean.PipeMaterial;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
 import model.bean.SprinklerShape;
@@ -138,7 +136,7 @@ public class PipeDrawing {
 		try {
 			ArrayList<Double> pipeLengths = new ArrayList<>();
 			ArrayList<SprinklerShape> sprinklers = new ArrayList<>();
-			PipeMaterial pipe = new PipeMaterial();
+			
 
 			double totalWaterFlow = calculateSubGraphWaterFlow(pg, startingVertex, nextVertex);
 
@@ -148,7 +146,7 @@ public class PipeDrawing {
 			outerloop: while (true) {
 				currentLength += pg.getEdgeByChildVertex(current).getLength() / Common.pixelPerMeter;
 				if (current.getSprinklerShape() != null) {
-					pipe.setLength(currentLength);
+					
 					pipeLengths.add(currentLength);
 					currentLength = 0;
 					sprinklers.add(current.getSprinklerShape());
@@ -161,7 +159,7 @@ public class PipeDrawing {
 					if (current == bp) {
 						breakPointVertex = current;
 						leaf = false;
-						pipe.setLength(currentLength);
+						
 						pipeLengths.add(currentLength);
 						currentLength = 0;
 						break outerloop;

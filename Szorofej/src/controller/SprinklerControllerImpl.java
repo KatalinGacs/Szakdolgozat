@@ -6,6 +6,7 @@ import javafx.scene.text.Text;
 import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
+import model.bean.Material;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -197,6 +198,22 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public void clearAll() {
 		dao.clearAll();
+	}
+
+	@Override
+	public void addMaterial(Material material) {
+		dao.addMaterial(material);
+		
+	}
+
+	@Override
+	public void deleteMaterial(Material material) {
+		dao.deleteMaterial(material);
+	}
+
+	@Override
+	public ObservableList<Material> listMaterials() {
+		return dao.listMaterials();
 	}
 
 }

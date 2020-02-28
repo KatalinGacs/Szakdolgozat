@@ -1,6 +1,7 @@
 package application;
 
 import application.dbviews.AddSprinklerView;
+import application.dbviews.MaterialListDBView;
 import application.dbviews.SprinklerDBView;
 import application.dbviews.SprinklerGroupDBView;
 import controller.SprinklerController;
@@ -47,8 +48,8 @@ public class MainSpr extends Application {
 	private MenuItem sprinklerDbMenuItem = new MenuItem("Szórófej adatbázis");
 	private MenuItem newSprinklerMenuItem = new MenuItem("Szórófej hozzáadása");
 	private MenuItem sprinklerGroupDbMenuItem = new MenuItem("Szórófej csoportok");
-	private MenuItem materialDbMenuItem = new MenuItem("Anyag adatbázis");
-	private MenuItem newMaterialMenuItem = new MenuItem("Anyag hozzáadása");
+	private MenuItem materialDbMenuItem = new MenuItem("Szórófej-anyag összekapcsolás");
+	private MenuItem newMaterialMenuItem = new MenuItem("Anyag adatbázis");
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -68,7 +69,7 @@ public class MainSpr extends Application {
 					materialDbMenuItem, newMaterialMenuItem);
 
 			newMenuItem.setOnAction(e -> {
-				FileHandling.newCanvas(drawingPanel.getCanvasPane());
+				FileHandling.newCanvas(drawingPanel.getCanvasPane(), primaryStage);
 			});
 			openMenuItem.setOnAction(e -> {
 				FileHandling.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
@@ -85,7 +86,7 @@ public class MainSpr extends Application {
 			});
 			exitMenuItem.setOnAction(e -> {
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane());
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(), primaryStage);
 				}
 				else {
 					Platform.exit();
@@ -110,7 +111,7 @@ public class MainSpr extends Application {
 				// TODO
 			});
 			newMaterialMenuItem.setOnAction(e -> {
-				// TODO
+				MaterialListDBView materialView = new MaterialListDBView();
 			});
 			root.setTop(menuBar);
 
@@ -119,7 +120,7 @@ public class MainSpr extends Application {
 			primaryStage.setOnCloseRequest(e -> {
 				e.consume();
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane());
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(), primaryStage);
 				} else {
 					Platform.exit();
 				}

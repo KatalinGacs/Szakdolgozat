@@ -12,6 +12,7 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import model.bean.Material;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -37,6 +38,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Shape> obstacles = FXCollections.observableArrayList();
 
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
+
+	private static ObservableList<Material> materials = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -363,5 +366,47 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		clearZones();
 	}
 
-	
+	@Override
+	public void addMaterial(Material m) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("INSERT INTO Material (name, unit) " + "VALUES (?, ?)");) {
+			pst.setString(1, m.getName());
+			pst.setString(2, m.getUnit());
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void deleteMaterial(Material m) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn.prepareStatement("DELETE FROM Material WHERE name = ?");) {
+			pst.setString(1, m.getName());
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public ObservableList<Material> listMaterials() {
+		materials.clear();
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				Statement st = conn.createStatement();
+				ResultSet rs = st.executeQuery("SELECT * FROM Material");) {
+			while (rs.next()) {
+				Material m = new Material();
+				m.setName(rs.getString("Name"));
+				m.setUnit(rs.getString("Unit"));
+				materials.add(m);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return materials;
+	}
+
 }
