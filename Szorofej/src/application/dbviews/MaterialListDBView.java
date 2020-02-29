@@ -76,6 +76,7 @@ public class MaterialListDBView {
 			
 			controller.addMaterial(m);
 			tableView.setItems(controller.listMaterials());
+			nameField.setText("");
 		});
 		
 		delBtn.setOnAction(e -> {

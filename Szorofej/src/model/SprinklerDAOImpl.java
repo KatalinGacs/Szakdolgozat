@@ -13,6 +13,7 @@ import javafx.collections.ObservableList;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.bean.Material;
+import model.bean.MaterialSprinklerConnection;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -26,6 +27,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
+	
+	private ObservableList<Material> materials = FXCollections.observableArrayList();
 
 	private static ObservableList<SprinklerShape> sprinklerShapes = FXCollections.observableArrayList();
 
@@ -39,7 +42,6 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
-	private static ObservableList<Material> materials = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -396,6 +398,100 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM Material");) {
+			while (rs.next()) {
+				Material m = new Material();
+				m.setName(rs.getString("Name"));
+				m.setUnit(rs.getString("Unit"));
+				materials.add(m);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		return materials;
+	}
+
+	@Override
+	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) {
+		ObservableList<MaterialSprinklerConnection> materials = FXCollections.observableArrayList();
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("SELECT * FROM Sprinklermaterial WHERE Sprinklertype = ?");) {
+			pst.setString(1, selectedItem.getName());
+			ResultSet rs = pst.executeQuery();
+				
+			while (rs.next()) {
+				MaterialSprinklerConnection item = new MaterialSprinklerConnection();
+				Material m = getMaterial(rs.getString("Materialname"));
+				item.setMaterial(m);
+				item.setQuantity(rs.getInt("Quantity"));
+				materials.add(item);
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return materials;
+	}
+
+	private Material getMaterial(String name) {
+		Material m = new Material();
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("SELECT * FROM Material WHERE name = ?");) {
+			pst.setString(1, name);
+			ResultSet rs = pst.executeQuery();
+				
+			while (rs.next()) {
+				m.setName(name);
+				m.setUnit(rs.getString("unit"));
+			}
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
+		return m;
+	}
+
+	@Override
+	public void addMaterialConnection(SprinklerType s, Material m, int quantity) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("INSERT INTO Sprinklermaterial (sprinklertype, materialname, quantity) " + "VALUES (?, ?, ?)");) {
+			pst.setString(1, s.getName());
+			pst.setString(2, m.getName());
+			pst.setInt(3, quantity);
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public void deleteMaterialConnection(SprinklerType s, Material m) {
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("DELETE FROM Sprinklermaterial WHERE sprinklertype = ? AND materialname = ?");) {
+			pst.setString(1, s.getName());
+			pst.setString(2, m.getName());
+			pst.execute();
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+	}
+
+	@Override
+	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) {
+		ObservableList<Material> materials = FXCollections.observableArrayList();
+
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+				PreparedStatement pst = conn
+						.prepareStatement("SELECT * FROM Material WHERE name NOT IN "
+								+ "(SELECT Materialname FROM Sprinklermaterial WHERE Sprinklertype = ?)");){
+				pst.setString(1, selectedItem.getName());
+				ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
 				Material m = new Material();
 				m.setName(rs.getString("Name"));

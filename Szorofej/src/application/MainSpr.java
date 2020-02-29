@@ -1,6 +1,7 @@
 package application;
 
 import application.dbviews.AddSprinklerView;
+import application.dbviews.ConnectMaterialsDbView;
 import application.dbviews.MaterialListDBView;
 import application.dbviews.SprinklerDBView;
 import application.dbviews.SprinklerGroupDBView;
@@ -16,7 +17,6 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.stage.WindowEvent;
 import model.bean.Zone;
 
 public class MainSpr extends Application {
@@ -108,7 +108,7 @@ public class MainSpr extends Application {
 				AddSprinklerView addNewSprinklerView = new AddSprinklerView();
 			});
 			materialDbMenuItem.setOnAction(e -> {
-				// TODO
+				ConnectMaterialsDbView connectMaterialsDbView = new ConnectMaterialsDbView();
 			});
 			newMaterialMenuItem.setOnAction(e -> {
 				MaterialListDBView materialView = new MaterialListDBView();

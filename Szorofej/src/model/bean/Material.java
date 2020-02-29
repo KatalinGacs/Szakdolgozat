@@ -30,5 +30,10 @@ public class Material {
 	public Material() {
 	}
 
+	@Override
+	public String toString() {
+		return name.get() + " (" + unit.get() + ")";
+	}
+
 	
 }

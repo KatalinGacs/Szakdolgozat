@@ -7,6 +7,7 @@ import model.DbException;
 import model.SprinklerDAO;
 import model.SprinklerDAOImpl;
 import model.bean.Material;
+import model.bean.MaterialSprinklerConnection;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -214,6 +215,26 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public ObservableList<Material> listMaterials() {
 		return dao.listMaterials();
+	}
+
+	@Override
+	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) {
+		return dao.listMaterials(selectedItem);
+	}
+
+	@Override
+	public void addMaterialConnection(SprinklerType s, Material m, int quantity) {
+		dao.addMaterialConnection(s, m, quantity);
+	}
+
+	@Override
+	public void deleteMaterialConnection(SprinklerType s, Material m) {
+		dao.deleteMaterialConnection(s, m);
+	}
+
+	@Override
+	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) {
+		return dao.listNotAddedMaterials(selectedItem);
 	}
 
 }

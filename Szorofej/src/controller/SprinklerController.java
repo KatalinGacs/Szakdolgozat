@@ -5,6 +5,7 @@ import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import model.DbException;
 import model.bean.Material;
+import model.bean.MaterialSprinklerConnection;
 import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
@@ -26,7 +27,11 @@ public interface SprinklerController {
 	public void addMaterial(Material material);
 	public void deleteMaterial(Material material);
 	public ObservableList<Material> listMaterials();
-	
+	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem);
+	public void addMaterialConnection(SprinklerType s, Material m, int quantity);
+	public void deleteMaterialConnection(SprinklerType s, Material m);
+	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem);
+
 	// memory
 	public void addBorderShape(Shape border);
 	public ObservableList<Shape> listBorderShapes();
@@ -61,5 +66,4 @@ public interface SprinklerController {
 	public void clearTexts();	
 
 	public void clearAll();
-
 }
