@@ -76,6 +76,7 @@ public class DrawingPanel extends VBox {
 	private HBox viewElements = new HBox();
 	private ToggleButton showGrid = new ToggleButton("Rács");
 	private ToggleButton showArcs = new ToggleButton("Szóráskép");
+	private ToggleButton showTexts = new ToggleButton("Szövegek");
 	private HBox infoBox = new HBox();
 	private Text infoText = new Text("");
 
@@ -164,7 +165,8 @@ public class DrawingPanel extends VBox {
 		viewElements.setSpacing(10);
 		showGrid.setSelected(true);
 		showArcs.setSelected(true);
-		viewElements.getChildren().addAll(showGrid, showArcs);
+		showTexts.setSelected(true);
+		viewElements.getChildren().addAll(showGrid, showArcs, showTexts);
 		infoBox.getChildren().addAll(infoText);
 		infoBox.setAlignment(Pos.CENTER_RIGHT);
 		getChildren().add(footer);
@@ -405,11 +407,19 @@ public class DrawingPanel extends VBox {
 			else
 				Common.hideLayer(canvasPane.gridLayer);
 		});
+		
 		showArcs.setOnAction(e -> {
 			if (showArcs.isSelected())
 				Common.showLayer(canvasPane.sprinklerArcLayer);
 			else
 				Common.hideLayer(canvasPane.sprinklerArcLayer);
+		});
+		
+		showTexts.setOnAction(e -> {
+			if (showTexts.isSelected())
+				Common.showLayer(canvasPane.textLayer);
+			else
+				Common.hideLayer(canvasPane.textLayer);
 		});
 	}
 
