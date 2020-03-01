@@ -23,7 +23,7 @@ public class MainSpr extends Application {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
 
-	private String filePath = FileHandling.currentPath.equals("") ? "[nem mentett]" : FileHandling.currentPath;
+	private String filePath = FileHandler.currentPath.equals("") ? "[nem mentett]" : FileHandler.currentPath;
 
 	private DrawingPanel drawingPanel = new DrawingPanel();
 
@@ -39,7 +39,7 @@ public class MainSpr extends Application {
 	private MenuItem openMenuItem = new MenuItem("Megnyitás");
 	private MenuItem saveMenuItem = new MenuItem("Mentés");
 	private MenuItem saveAsMenuItem = new MenuItem("Mentés másként");
-	private MenuItem printMenuItem = new MenuItem("Nyomtatás");
+	private MenuItem printMenuItem = new MenuItem("Mentés képként");
 	private MenuItem exitMenuItem = new MenuItem("Kilépés");
 	private Menu editMenu = new Menu("Szerkesztés");
 	private MenuItem undoMenuItem = new MenuItem("Visszavonás");
@@ -69,20 +69,20 @@ public class MainSpr extends Application {
 					materialDbMenuItem, newMaterialMenuItem);
 
 			newMenuItem.setOnAction(e -> {
-				FileHandling.newCanvas(drawingPanel.getCanvasPane(), primaryStage);
+				FileHandler.newCanvas(drawingPanel.getCanvasPane(), primaryStage);
 			});
 			openMenuItem.setOnAction(e -> {
-				FileHandling.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
+				FileHandler.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
 				zoneTable.setItems(controller.listZones());
 			});
 			saveMenuItem.setOnAction(e -> {
-				FileHandling.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), false);
+				FileHandler.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), false);
 			});
 			saveAsMenuItem.setOnAction(e -> {
-				FileHandling.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), true);
+				FileHandler.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), true);
 			});
 			printMenuItem.setOnAction(e -> {
-				PrintHandler.printSettings(drawingPanel.getCanvasPane());
+				PrintHandler.print(primaryStage, drawingPanel.getCanvasPane());
 			});
 			exitMenuItem.setOnAction(e -> {
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {

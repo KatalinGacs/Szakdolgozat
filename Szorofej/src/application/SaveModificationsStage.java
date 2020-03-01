@@ -22,7 +22,7 @@ public class SaveModificationsStage extends Alert {
 		super(AlertType.CONFIRMATION);
 
 		setTitle(windowTitle);
-		setHeaderText(saveQuestionPart1 + FileHandling.currentFileName + saveQuestionPart2);
+		setHeaderText(saveQuestionPart1 + FileHandler.currentFileName + saveQuestionPart2);
 		
 		ButtonType yesButton = new ButtonType("Igen");
 		ButtonType noButton = new ButtonType("Nem");
@@ -32,7 +32,7 @@ public class SaveModificationsStage extends Alert {
 
 		Optional<ButtonType> result = showAndWait();
 		if (result.get() == yesButton){
-			FileHandling.saveCanvas(stage, canvasPane, false);
+			FileHandler.saveCanvas(stage, canvasPane, false);
 			if (exit) {
 				Platform.exit();
 			} else {

@@ -34,7 +34,7 @@ import model.bean.SprinklerShape;
 import model.bean.TextElement;
 import model.bean.Zone;
 
-public class FileHandling {
+public class FileHandler {
 
 	private static SprinklerController controller = new SprinklerControllerImpl();
 
