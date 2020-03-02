@@ -10,6 +10,7 @@ import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.UsedMaterial;
 import model.bean.Zone;
 
 public interface SprinklerController {
@@ -64,6 +65,10 @@ public interface SprinklerController {
 	public void addText(Text t);
 	public void removeText(Text t);
 	public void clearTexts();	
+	
+	public ObservableList<UsedMaterial> summarizeMaterials();
 
+	public void addPipeMaterial(String pipename, Double length);
+	
 	public void clearAll();
 }

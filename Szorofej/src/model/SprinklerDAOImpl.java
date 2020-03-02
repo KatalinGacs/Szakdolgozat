@@ -18,6 +18,7 @@ import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.UsedMaterial;
 import model.bean.Zone;
 
 public class SprinklerDAOImpl implements SprinklerDAO {
@@ -27,7 +28,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
-	
+
 	private ObservableList<Material> materials = FXCollections.observableArrayList();
 
 	private static ObservableList<SprinklerShape> sprinklerShapes = FXCollections.observableArrayList();
@@ -42,6 +43,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
+	private static ObservableList<UsedMaterial> materialSum = FXCollections.observableArrayList();
 
 	public SprinklerDAOImpl() {
 		try {
@@ -419,7 +421,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 						.prepareStatement("SELECT * FROM Sprinklermaterial WHERE Sprinklertype = ?");) {
 			pst.setString(1, selectedItem.getName());
 			ResultSet rs = pst.executeQuery();
-				
+
 			while (rs.next()) {
 				MaterialSprinklerConnection item = new MaterialSprinklerConnection();
 				Material m = getMaterial(rs.getString("Materialname"));
@@ -431,35 +433,16 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
-		
+
 		return materials;
-	}
-
-	private Material getMaterial(String name) {
-		Material m = new Material();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn
-						.prepareStatement("SELECT * FROM Material WHERE name = ?");) {
-			pst.setString(1, name);
-			ResultSet rs = pst.executeQuery();
-				
-			while (rs.next()) {
-				m.setName(name);
-				m.setUnit(rs.getString("unit"));
-			}
-
-		} catch (SQLException e) {
-			e.printStackTrace();
-		}
-		
-		return m;
 	}
 
 	@Override
 	public void addMaterialConnection(SprinklerType s, Material m, int quantity) {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn
-						.prepareStatement("INSERT INTO Sprinklermaterial (sprinklertype, materialname, quantity) " + "VALUES (?, ?, ?)");) {
+						.prepareStatement("INSERT INTO Sprinklermaterial (sprinklertype, materialname, quantity) "
+								+ "VALUES (?, ?, ?)");) {
 			pst.setString(1, s.getName());
 			pst.setString(2, m.getName());
 			pst.setInt(3, quantity);
@@ -472,8 +455,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public void deleteMaterialConnection(SprinklerType s, Material m) {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn
-						.prepareStatement("DELETE FROM Sprinklermaterial WHERE sprinklertype = ? AND materialname = ?");) {
+				PreparedStatement pst = conn.prepareStatement(
+						"DELETE FROM Sprinklermaterial WHERE sprinklertype = ? AND materialname = ?");) {
 			pst.setString(1, s.getName());
 			pst.setString(2, m.getName());
 			pst.execute();
@@ -487,11 +470,10 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		ObservableList<Material> materials = FXCollections.observableArrayList();
 
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
-				PreparedStatement pst = conn
-						.prepareStatement("SELECT * FROM Material WHERE name NOT IN "
-								+ "(SELECT Materialname FROM Sprinklermaterial WHERE Sprinklertype = ?)");){
-				pst.setString(1, selectedItem.getName());
-				ResultSet rs = pst.executeQuery();
+				PreparedStatement pst = conn.prepareStatement("SELECT * FROM Material WHERE name NOT IN "
+						+ "(SELECT Materialname FROM Sprinklermaterial WHERE Sprinklertype = ?)");) {
+			pst.setString(1, selectedItem.getName());
+			ResultSet rs = pst.executeQuery();
 			while (rs.next()) {
 				Material m = new Material();
 				m.setName(rs.getString("Name"));
@@ -503,6 +485,73 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			e.printStackTrace();
 		}
 		return materials;
+	}
+
+	@Override
+	public ObservableList<UsedMaterial> summarizeMaterials() {
+
+		for (SprinklerShape s : sprinklerShapes) {
+			for (MaterialSprinklerConnection mConn : listMaterials(getSprinklerType(s.getSprinklerType()))) {
+				UsedMaterial m = new UsedMaterial();
+				m.setMaterial(mConn.getMaterial());
+				m.setQuantity(mConn.getQuantity());
+				materialSum.add(m);
+			}
+		}
+		UsedMaterial solenoid = new UsedMaterial();
+		solenoid.setMaterial(getMaterial("Mágnesszelep"));
+		solenoid.setQuantity(listZones().size());
+		materialSum.add(solenoid);
+		return materialSum;
+	}
+
+	@Override
+	public Material getMaterial(String name) {
+		for (Material m : listMaterials()) {
+			if (m.getName().equals(name)) {
+				return m;
+			}
+		}
+		return null;
+	}
+
+	@Override
+	public void addPipeMaterial(String pipename, Double length) {
+
+		UsedMaterial m = new UsedMaterial();
+		String name = null;
+		switch (pipename) {
+		case "20":
+			name = "20-as csõ";
+			break;
+		case "25":
+			name = "25-ös csõ";
+			break;
+		case "32":
+			name = "32-es csõ";
+			break;
+		case "40":
+			name = "40-es csõ";
+			break;
+		case "50":
+			name = "50-es csõ";
+			break;
+		case "63":
+			name = "63-as csõ";
+			break;
+		case "75":
+			name = "75-ös csõ";
+			break;
+		case "90":
+			name = "90-es csõ";
+			break;
+		case "110":
+			name = "110-es csõ";
+			break;
+		}
+		m.setMaterial(getMaterial(name));
+		m.setQuantity((int) Math.round(length));
+		materialSum.add(m);
 	}
 
 }

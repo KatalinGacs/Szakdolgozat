@@ -1,5 +1,6 @@
 package model.bean;
 
+import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleStringProperty;
 
 /**
@@ -10,7 +11,7 @@ public class Material {
 	private SimpleStringProperty name = new SimpleStringProperty();
 
 	private SimpleStringProperty unit = new SimpleStringProperty();
-
+	
 	public String getName() {
 		return name.get();
 	}
@@ -33,7 +34,5 @@ public class Material {
 	@Override
 	public String toString() {
 		return name.get() + " (" + unit.get() + ")";
-	}
-
-	
+	}	
 }

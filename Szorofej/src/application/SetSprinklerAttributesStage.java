@@ -92,8 +92,8 @@ public class SetSprinklerAttributesStage extends Stage {
 		});
 		
 		tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			radiusField.setText(String.valueOf(newSelection.getMaxRadius()));
-			
+			// TODO nullpointer check
+			radiusField.setText(String.valueOf(newSelection.getMaxRadius()));	
 		});
 
 		ok.setOnAction(e -> {

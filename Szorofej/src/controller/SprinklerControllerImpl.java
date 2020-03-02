@@ -12,6 +12,7 @@ import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.UsedMaterial;
 import model.bean.Zone;
 
 public class SprinklerControllerImpl implements SprinklerController {
@@ -235,6 +236,16 @@ public class SprinklerControllerImpl implements SprinklerController {
 	@Override
 	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) {
 		return dao.listNotAddedMaterials(selectedItem);
+	}
+
+	@Override
+	public void addPipeMaterial(String pipename, Double length) {
+		dao.addPipeMaterial(pipename, length);
+	}
+
+	@Override
+	public ObservableList<UsedMaterial> summarizeMaterials() {
+		return dao.summarizeMaterials();
 	}
 
 }

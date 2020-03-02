@@ -68,6 +68,7 @@ public class DrawingPanel extends VBox {
 
 	private Button zoneBtn = new Button("Zóna megadása");
 	private Button pipeBtn = new Button("Csövezés");
+	private Button summarizeBtn = new Button("Terv összegzés");
 
 	private CanvasPane canvasPane = new CanvasPane();
 	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
@@ -134,7 +135,7 @@ public class DrawingPanel extends VBox {
 		});
 
 		zoneTab.setContent(zoneTabElements);
-		zoneTabElements.getChildren().addAll(zoneBtn, pipeBtn);
+		zoneTabElements.getChildren().addAll(zoneBtn, pipeBtn, summarizeBtn);
 		zoneTabElements.setAlignment(Pos.CENTER_LEFT);
 		zoneTabElements.setSpacing(10);
 		addHeads.setToggleGroup(addOrRemoveGroup);
@@ -144,6 +145,10 @@ public class DrawingPanel extends VBox {
 		});
 		pipeBtn.setOnAction(e -> {
 			setPipes();
+		});
+		summarizeBtn.setOnAction(e->{
+			MaterialSumStage materialSumStage = new MaterialSumStage();
+			materialSumStage.show();
 		});
 
 		miscTab.setContent(miscTabElements);

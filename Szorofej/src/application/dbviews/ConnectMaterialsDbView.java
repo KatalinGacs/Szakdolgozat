@@ -94,6 +94,7 @@ public class ConnectMaterialsDbView {
 		addConnectionPane.setAlignment(Pos.TOP_CENTER);
 
 		addButton.setOnAction(e -> {
+			// TODO nullpointer check
 			SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
 			Material m = materials.getSelectionModel().getSelectedItem();
 			int quantity = quantityPicker.getValue();

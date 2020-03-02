@@ -9,6 +9,7 @@ import model.bean.PipeGraph;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
+import model.bean.UsedMaterial;
 import model.bean.Zone;
 
 public interface SprinklerDAO {
@@ -30,7 +31,8 @@ public interface SprinklerDAO {
 	public void addMaterialConnection(SprinklerType s, Material m, int quantity);
 	public void deleteMaterialConnection(SprinklerType s, Material m);
 	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem);
-
+	public Material getMaterial(String name);
+	
 	//memory
 	public void addBorderShape(Shape border);
 	public ObservableList<Shape> listBorderShapes();
@@ -64,5 +66,8 @@ public interface SprinklerDAO {
 	public void removeText(Text t);
 	public void clearTexts();	
 	
+	public ObservableList<UsedMaterial> summarizeMaterials();
+	public void addPipeMaterial(String pipename, Double length);
+
 	public void clearAll();
 }

@@ -221,6 +221,11 @@ public class PipeDrawing {
 				}
 			}
 
+			for(Double length : pipeLengths) {
+				controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
+			}
+			
+			
 		} catch (GraphException ex) {
 			ex.printStackTrace();
 		} catch (PressureException ex) {
