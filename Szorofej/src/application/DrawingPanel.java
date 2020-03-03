@@ -287,10 +287,8 @@ public class DrawingPanel extends VBox {
 		});
 
 		canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-
 			canvasPane.pressedKey = e.getCode();
 			if (canvasPane.pressedKey.equals(KeyCode.ESCAPE)) {
-				
 				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				canvasPane.endLineDrawing();
 				borderButtons.selectToggle(null);

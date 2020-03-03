@@ -63,6 +63,10 @@ public class SprinklerDrawing {
 		arc.setStrokeWidth(CanvasPane.strokeWidth);
 		arc.setFill(Color.TRANSPARENT);
 
+		sprinkler = new SprinklerShape();
+
+		label = new Text(sprinkler.getSprinkler().getName());
+
 		if (SprinklerDrawing.drawingState == SprinklerDrawingState.CENTER
 				&& !canvasPane.drawingSeveralSprinklers) {
 
@@ -76,11 +80,9 @@ public class SprinklerDrawing {
 			}
 			if (validPoint) {
 
-				sprinkler = new SprinklerShape();
 				sprinkler.setSprinkler(sprinklerType);
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
-				label = new Text(sprinkler.getSprinkler().getName());
-
+				
 				centerX = mouseEvent.getX();
 				centerY = mouseEvent.getY();
 
@@ -247,6 +249,8 @@ public class SprinklerDrawing {
 		angleInput.setVisible(false);
 		angleInput.setText("");
 		canvasPane.sprinklerAttributesSet = false;
+		clearTempSprinklersInALine(canvasPane);
+System.out.println("endsprinklerdrawing");
 	}
 
 	public static void selectLineForSprinklerDrawing(MouseEvent e, CanvasPane canvasPane) {
@@ -256,6 +260,7 @@ public class SprinklerDrawing {
 					canvasPane.lineSelected = true;
 					canvasPane.indexOfSelectedLine = controller.listBorderShapes().indexOf(border);
 					canvasPane.stateOfCanvasUse = CanvasPane.Use.SPRINKLERDRAWING;
+					
 				}
 			}
 		}
@@ -319,16 +324,7 @@ public class SprinklerDrawing {
 	}
 
 	public static void showSprinklersInALine(int numberOfSprinklersInALine, CanvasPane canvasPane) {
-		if (!canvasPane.tempSprinklerCentersInALine.isEmpty())
-			for (Circle c : canvasPane.tempSprinklerCentersInALine) {
-				canvasPane.tempLineLayer.getChildren().remove(c);
-			}
-		if (!canvasPane.tempSprinklerCirclesInALine.isEmpty())
-			for (Circle c : canvasPane.tempSprinklerCirclesInALine) {
-				canvasPane.tempLineLayer.getChildren().remove(c);
-			}
-		canvasPane.tempSprinklerCirclesInALine.clear();
-		canvasPane.tempSprinklerCentersInALine.clear();
+		clearTempSprinklersInALine(canvasPane);
 		if (canvasPane.lineSelected) {
 			double startX = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getStartX();
 			double endX = ((Line) controller.listBorderShapes().get(canvasPane.indexOfSelectedLine)).getEndX();
@@ -355,12 +351,15 @@ public class SprinklerDrawing {
 
 				canvasPane.tempSprinklerCirclesInALine.add(c);
 				canvasPane.tempSprinklerCentersInALine.add(center);
+	
 			}
 		} else
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
 	// TODO ha közben ESC-kel megszakítja a rajzolást, a temp körök tûnjenek el
+	// TODO ha az elsõnél nyomok escapet, rosszul mûködik - mert az event filter targetje nem a canvaspane
+	// https://stackoverflow.com/questions/25740103/javafx-what-is-the-difference-between-eventhandler-and-eventfilter
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
 		canvasPane.lineSelected = false;
 		if (canvasPane.tempSprinklerCentersInALine.isEmpty()) {
@@ -382,4 +381,18 @@ public class SprinklerDrawing {
 		}
 	}
 
+	private static void clearTempSprinklersInALine(CanvasPane canvasPane) {
+		if (!canvasPane.tempSprinklerCentersInALine.isEmpty())
+			for (Circle c : canvasPane.tempSprinklerCentersInALine) {
+				canvasPane.tempLineLayer.getChildren().remove(c);
+			}
+		if (!canvasPane.tempSprinklerCirclesInALine.isEmpty())
+			for (Circle c : canvasPane.tempSprinklerCirclesInALine) {
+				canvasPane.tempLineLayer.getChildren().remove(c);
+			}
+		canvasPane.tempSprinklerCirclesInALine.clear();
+		canvasPane.tempSprinklerCentersInALine.clear();
+	}
+	
+	
 }
