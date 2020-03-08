@@ -63,10 +63,7 @@ public class SprinklerDrawing {
 		arc.setStrokeWidth(CanvasPane.strokeWidth);
 		arc.setFill(Color.TRANSPARENT);
 
-		sprinkler = new SprinklerShape();
-
-		label = new Text(sprinkler.getSprinkler().getName());
-
+		
 		if (SprinklerDrawing.drawingState == SprinklerDrawingState.CENTER
 				&& !canvasPane.drawingSeveralSprinklers) {
 
@@ -79,10 +76,13 @@ public class SprinklerDrawing {
 				}
 			}
 			if (validPoint) {
+				sprinkler = new SprinklerShape();
+
+				label = new Text(sprinkler.getSprinkler().getName());
 
 				sprinkler.setSprinkler(sprinklerType);
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
-				
+
 				centerX = mouseEvent.getX();
 				centerY = mouseEvent.getY();
 
@@ -111,6 +111,13 @@ public class SprinklerDrawing {
 				firstY = firstPoint.getY();
 			}
 
+			if (canvasPane.drawingSeveralSprinklers) {
+				sprinkler = new SprinklerShape();
+
+				label = new Text(sprinkler.getSprinkler().getName());
+
+			}
+			
 			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
 			if (centerX <= firstX)
 				startAngle -= 180;
@@ -240,6 +247,7 @@ public class SprinklerDrawing {
 					drawSeveralSprinklers(canvasPane);
 			}
 		}
+
 	}
 
 	public static void endSprinklerDrawing(CanvasPane canvasPane) {
@@ -250,7 +258,6 @@ public class SprinklerDrawing {
 		angleInput.setText("");
 		canvasPane.sprinklerAttributesSet = false;
 		clearTempSprinklersInALine(canvasPane);
-System.out.println("endsprinklerdrawing");
 	}
 
 	public static void selectLineForSprinklerDrawing(MouseEvent e, CanvasPane canvasPane) {
@@ -357,7 +364,6 @@ System.out.println("endsprinklerdrawing");
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
-	// TODO ha közben ESC-kel megszakítja a rajzolást, a temp körök tûnjenek el
 	// TODO ha az elsõnél nyomok escapet, rosszul mûködik - mert az event filter targetje nem a canvaspane
 	// https://stackoverflow.com/questions/25740103/javafx-what-is-the-difference-between-eventhandler-and-eventfilter
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
