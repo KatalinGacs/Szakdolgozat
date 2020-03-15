@@ -247,7 +247,6 @@ public class SprinklerDrawing {
 					drawSeveralSprinklers(canvasPane);
 			}
 		}
-
 	}
 
 	public static void endSprinklerDrawing(CanvasPane canvasPane) {

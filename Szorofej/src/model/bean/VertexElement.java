@@ -6,7 +6,6 @@ import java.util.concurrent.atomic.AtomicLong;
 import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
-import javax.xml.bind.annotation.XmlIDREF;
 import javax.xml.bind.annotation.XmlRootElement;
 
 
@@ -18,7 +17,7 @@ public  class VertexElement{
 	private Set<String> childrenID;
 	private boolean root;
 	private boolean breakpoint;
-	private String sprinklerShapeID;
+	private SprinklerShape sprinklerShape;
 	private String ID = createID();
 	private static AtomicLong idCounter = new AtomicLong();
 	
@@ -46,7 +45,7 @@ public  class VertexElement{
 	public void setParentID(String parentID) {
 		this.parentID = parentID;
 	}
-	@XmlElementWrapper(name = "ChildrenID")
+	@XmlElementWrapper(name = "ChildrenIDs")
 	@XmlElement(name = "ID")
 	public Set<String> getChildrenID() {
 		return childrenID;
@@ -68,13 +67,13 @@ public  class VertexElement{
 	public void setBreakpoint(boolean breakpoint) {
 		this.breakpoint = breakpoint;
 	}
-	@XmlElement(name="SprinklerId")
-	public String getSprinklerShapeID() {
-		return sprinklerShapeID;
+	@XmlElement(name="Sprinkler")
+	public SprinklerShape getSprinklerShape() {
+		return sprinklerShape;
 	}
 	
-	public void setSprinklerShapeID(String sprinklerShapeID) {
-		this.sprinklerShapeID = sprinklerShapeID;
+	public void setSprinklerShape(SprinklerShape sprinklerShape) {
+		this.sprinklerShape = sprinklerShape;
 	}
 	@XmlElement(name="ID")
 	public String getID() {

@@ -49,6 +49,7 @@ public interface SprinklerController {
 	public ObservableList<SprinklerShape> listSprinklerShapes(Zone zone);
 	public void deleteSprinklerShape(SprinklerShape s);
 	public void clearSprinklerShapes();
+	public ObservableList<SprinklerShape> listSprinklerShapesNotInZones();
 	
 	public ObservableList<Zone> listZones();
 	public void addZone(Zone z);

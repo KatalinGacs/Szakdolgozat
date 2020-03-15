@@ -1,8 +1,6 @@
 package model.bean;
 
 import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
@@ -16,7 +14,6 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
-import model.bean.PipeGraph.Vertex;
 
 /**
  * This class is serving as a wrapper for saving and loading the project. It
@@ -39,22 +36,15 @@ public class Canvas {
 	@XmlElement(name = "RectangleObstacle")
 	public ArrayList<RectangleObstacle> rectangleObstacles = rectangleObstacles();
 
-	@XmlElementWrapper(name = "SprinklerShapes")
+	@XmlElementWrapper(name = "SprinklerShapesNotInZone")
 	@XmlElement(name = "sprinklerShape")
-	public ArrayList<SprinklerShape> sprinklerShapes = new ArrayList<>(controller.listSprinklerShapes());
+	public ArrayList<SprinklerShape> sprinklerShapesNotInZone = new ArrayList<>(
+			controller.listSprinklerShapesNotInZones());
 
 	@XmlElementWrapper(name = "Zones")
 	@XmlElement(name = "Zone")
 	public ArrayList<Zone> zones = new ArrayList<>(controller.listZones());
 
-	@XmlElementWrapper(name = "PipeGraphs")
-	@XmlElement(name = "PipeGraph")
-	public ArrayList<PipeGraph> pipeGraphs = new ArrayList<>(controller.listPipeGraphs());
-	
-	@XmlElementWrapper(name = "VertexElements")
-	@XmlElement(name = "VertexElement")
-	public ArrayList<VertexElement> vertexElements = listVertexElements();
-	
 	@XmlElementWrapper(name = "Texts")
 	@XmlElement(name = "TextElement")
 	public ArrayList<TextElement> texts = listTexts();
@@ -96,24 +86,4 @@ public class Canvas {
 		return result;
 	}
 
-
-	private ArrayList<VertexElement> listVertexElements() {
-		ArrayList<VertexElement> result = new ArrayList<>();
-		for(PipeGraph pg : controller.listPipeGraphs()) {
-			for(Vertex v : pg.getVertices()) {
-				VertexElement ve = new VertexElement();
-				ve.setBreakpoint(v.isBreakPoint());
-				ve.setRoot(v.getParent()==null);
-				ve.setX(v.getX());
-				ve.setY(v.getY());
-				//TODO :(
-				//ve.setParent(parent);
-				//Set<VertexElement> children = new HashSet<>();
-				//ve.setChildren(children);
-			}
-		}
-		return result;
-	}
 }
-
-

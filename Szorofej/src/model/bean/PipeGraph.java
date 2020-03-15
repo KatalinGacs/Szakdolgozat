@@ -4,9 +4,8 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import javax.xml.bind.annotation.XmlAttribute;
 import javax.xml.bind.annotation.XmlElement;
-import javax.xml.bind.annotation.XmlIDREF;
+import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
@@ -24,19 +23,12 @@ public class PipeGraph {
 	private double beginningPressure;
 	private Shape valve;
 
-	private Set<Vertex> vertices;
-	private Set<Edge> edges;
+	private Set<Vertex> vertices = new HashSet<>();
+	private Set<Edge> edges= new HashSet<>();
 	private Set<Vertex> breakpoints = new HashSet<>();
 	private Vertex root;
-
-	private String zoneName;
-	private String Color;
-	private double valveX;
-	private double valveY;
 	
 	public PipeGraph(Zone zone, Color color) {
-		vertices = new HashSet<>();
-		edges = new HashSet<>();
 		this.zone = zone;
 		this.color = color;
 	}
@@ -80,7 +72,9 @@ public class PipeGraph {
 	public boolean removeEdge(double vertex1X, double vertex1Y, double vertex2X, double vertex2Y) {
 		return removeEdge(new Edge(new Vertex(vertex1X, vertex1Y), new Vertex(vertex2X, vertex2Y)));
 	}
-	@XmlTransient //TODO 
+	
+	@XmlElementWrapper(name = "Vertices")
+	@XmlElement(name = "Vertex")
 	public Set<Vertex> getVertices() {
 		return Collections.unmodifiableSet(vertices);
 	}
@@ -89,6 +83,7 @@ public class PipeGraph {
 	public Set<Edge> getEdges() {
 		return Collections.unmodifiableSet(edges);
 	}
+	
 	@XmlTransient
 	public Zone getZone() {
 		return zone;
@@ -132,7 +127,7 @@ public class PipeGraph {
 		this.breakpoints = breakpoints;
 	}
 	
-	@XmlTransient //TODO 
+	@XmlTransient
 	public Vertex getRoot() {
 		return root;
 	}
@@ -180,6 +175,10 @@ public class PipeGraph {
 		private SprinklerShape sprinklerShape;
 		private boolean breakPoint = false;
 
+		
+		// needed for XML marshalling
+		private VertexElement vertexElement;
+		
 		public Vertex(Point2D point) {
 			super(point.getX(), point.getY());
 		}
@@ -246,6 +245,15 @@ public class PipeGraph {
 			this.sprinklerShape = sprinklerShape;
 		}
 
+		public VertexElement getVertexElement() {
+			return vertexElement;
+		}
+
+		public void setVertexElement(VertexElement vertexElement) {
+			this.vertexElement = vertexElement;
+		}
+
+		
 	}
 	
 	public static class Edge extends Line {

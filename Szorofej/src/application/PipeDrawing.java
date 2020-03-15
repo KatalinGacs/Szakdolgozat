@@ -146,7 +146,6 @@ public class PipeDrawing {
 			outerloop: while (true) {
 				currentLength += pg.getEdgeByChildVertex(current).getLength() / Common.pixelPerMeter;
 				if (current.getSprinklerShape() != null) {
-					
 					pipeLengths.add(currentLength);
 					currentLength = 0;
 					sprinklers.add(current.getSprinklerShape());
@@ -159,7 +158,6 @@ public class PipeDrawing {
 					if (current == bp) {
 						breakPointVertex = current;
 						leaf = false;
-						
 						pipeLengths.add(currentLength);
 						currentLength = 0;
 						break outerloop;
@@ -170,9 +168,7 @@ public class PipeDrawing {
 			ArrayList<String> diameters = PipeDiameterOptimizer.optimalPipes(beginningPressure, pipeLengths, sprinklers,
 					totalWaterFlow);
 
-			System.out.println(diameters);
 			// TODO
-			// 3. el kell tárolni hogy hány méter milyen átmérõjû csõ kell
 			// 4. el kell tárolni minden elágazásnál, hogy milyen T-idom kell
 			String currentDiameter = null;
 			double posStartX = startingVertex.getX();

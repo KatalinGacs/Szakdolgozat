@@ -29,9 +29,13 @@ import javafx.stage.Stage;
 import model.bean.BorderLine;
 import model.bean.Canvas;
 import model.bean.CircleObstacle;
+import model.bean.PipeGraph;
+import model.bean.PipeGraph.Edge;
+import model.bean.PipeGraph.Vertex;
 import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
 import model.bean.TextElement;
+import model.bean.VertexElement;
 import model.bean.Zone;
 
 public class FileHandler {
@@ -45,8 +49,7 @@ public class FileHandler {
 	public static void newCanvas(CanvasPane canvasPane, Stage stage) {
 		if (canvasPane.isModifiedSinceLastSave()) {
 			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane, stage);
-		}
-		else {
+		} else {
 			canvasPane.clear();
 			canvasPane.hideTempLayer();
 		}
@@ -64,7 +67,7 @@ public class FileHandler {
 				currentPath = file.getAbsolutePath();
 				currentFileName = file.getName();
 				try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
-
+					updateZoneInfos();
 					Canvas canvas = new Canvas();
 					JAXBContext context = JAXBContext.newInstance(Canvas.class);
 					Marshaller m = context.createMarshaller();
@@ -83,7 +86,7 @@ public class FileHandler {
 			}
 			stage.setTitle(Common.programName + " - " + currentPath);
 		}
-		
+
 	}
 
 	public static void loadCanvas(CanvasPane canvasPane, Stage stage) {
@@ -124,29 +127,8 @@ public class FileHandler {
 		}
 		controller.listSprinklerShapes().clear();
 
-		for (SprinklerShape s : canvas.sprinklerShapes) {
-			Color strokeColor = Color.web(s.getStrokeColor());
-			Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
-			s.setArc(new Arc(s.getCenterX(), s.getCenterY(), s.getRadius() * Common.pixelPerMeter,
-					s.getRadius() * Common.pixelPerMeter, s.getStartAngle(), s.getLength()));
-			s.getArc().setFill(fillColor);
-			s.getArc().setStroke(strokeColor);
-			s.getArc().setStrokeWidth(s.getStrokeWidth());
-			s.getArc().setType(ArcType.ROUND);
-			s.getArc().setOpacity(s.getFillOpacity());
-			s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
-			s.setLabel(new Text(s.getLabelText()));
-			s.getLabel().setX(s.getLabelX());
-			s.getLabel().setY(s.getLabelY());
-			s.getLabel().setStyle(s.getLabelStyle());
-			s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
-			s.setFlowRate(s.getFlowRate());
-			s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
-
-			controller.addSprinklerShape(s);
-			canvasPane.irrigationLayer.getChildren().add(s.getCircle());
-			canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
-			canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
+		for (SprinklerShape s : canvas.sprinklerShapesNotInZone) {
+			loadSprinkler(s, canvasPane);
 		}
 	}
 
@@ -205,15 +187,54 @@ public class FileHandler {
 			controller.removeZone(zone);
 		}
 		for (Zone zone : canvas.zones) {
-			for (String ID : zone.getSprinklerIDs()) {
-				for (SprinklerShape sprinkler : controller.listSprinklerShapes()) {
-					if (sprinkler.getID().equals(ID)) {
-						zone.addSprinkler(sprinkler);
-						break;
+			PipeGraph pg = new PipeGraph();
+			pg.setZone(zone);
+			pg.setBeginningPressure(zone.getBeginningPressure());
+			for (VertexElement vE : zone.getVertices()) {
+				Vertex vertex = new Vertex(vE.getX(), vE.getY());
+				if (vE.getSprinklerShape() != null) {
+					loadSprinkler(vE.getSprinklerShape(), canvasPane);
+					vertex.setSprinklerShape(vE.getSprinklerShape());
+					zone.addSprinkler(vE.getSprinklerShape());
+				}
+
+				vertex.setBreakPoint(vE.isBreakpoint());
+				if (vE.isRoot()) {
+					pg.setRoot(vertex);
+				}
+				vertex.setVertexElement(vE);
+				pg.addVertex(vertex);
+			}
+			for (Vertex vertex : pg.getVertices()) {
+				for (Vertex other : pg.getVertices()) {
+					if (vertex.getVertexElement().getParentID() == other.getVertexElement().getID()) {
+						vertex.setParent(other);
+					}
+					if (vertex.getVertexElement().getChildrenID().contains(other.getVertexElement().getID())) {
+						vertex.addChild(other);
 					}
 				}
 			}
+			for (Vertex vertex : pg.getVertices()) {
+				for (Vertex child : vertex.getChildren()) {
+					Edge edge = new Edge();
+					edge.setStartX(vertex.getX());
+					edge.setStartY(vertex.getY());
+					edge.setEndX(child.getX());
+					edge.setEndY(child.getY());
+					edge.setvParent(vertex);
+					edge.setStrokeWidth(CanvasPane.strokeWidth * 2);
+					edge.setStroke(Color.valueOf(zone.getColor()));
+					edge.setvChild(child);
+					pg.addEdge(edge);
+					canvasPane.pipeLineLayer.getChildren().add(edge);
+				}
+			}
+			pg.setValve(ValveIcon.valveIcon(pg.getRoot().getX(), pg.getRoot().getY(), Color.valueOf(zone.getColor())));
+			canvasPane.pipeLineLayer.getChildren().add(pg.getValve());
 			controller.addZone(zone);
+			controller.addPipeGraph(pg);
+			PipeDrawing.completePipeDrawing(canvasPane, zone, pg.getRoot());
 		}
 	}
 
@@ -242,4 +263,34 @@ public class FileHandler {
 		return currentFileName;
 	}
 
+	private static void updateZoneInfos() {
+		for (Zone z : controller.listZones()) {
+			z.updateVertices();
+		}
+	}
+
+	private static void loadSprinkler(SprinklerShape s, CanvasPane canvasPane) {
+		Color strokeColor = Color.web(s.getStrokeColor());
+		Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
+		s.setArc(new Arc(s.getCenterX(), s.getCenterY(), s.getRadius() * Common.pixelPerMeter,
+				s.getRadius() * Common.pixelPerMeter, s.getStartAngle(), s.getLength()));
+		s.getArc().setFill(fillColor);
+		s.getArc().setStroke(strokeColor);
+		s.getArc().setStrokeWidth(s.getStrokeWidth());
+		s.getArc().setType(ArcType.ROUND);
+		s.getArc().setOpacity(s.getFillOpacity());
+		s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
+		s.setLabel(new Text(s.getLabelText()));
+		s.getLabel().setX(s.getLabelX());
+		s.getLabel().setY(s.getLabelY());
+		s.getLabel().setStyle(s.getLabelStyle());
+		s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
+		s.setFlowRate(s.getFlowRate());
+		s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
+
+		controller.addSprinklerShape(s);
+		canvasPane.irrigationLayer.getChildren().add(s.getCircle());
+		canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
+		canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
+	}
 }

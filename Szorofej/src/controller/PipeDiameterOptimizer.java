@@ -3,11 +3,8 @@ package controller;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
-import javafx.scene.paint.Color;
 import model.bean.SprinklerShape;
 
 public class PipeDiameterOptimizer {
@@ -18,7 +15,6 @@ public class PipeDiameterOptimizer {
 	public static ArrayList<String> optimalPipes(double beginningPressure, ArrayList<Double> pipeLengths,
 			ArrayList<SprinklerShape> sprinklers, double totalWaterFlow) throws PressureException {
 
-		
 		ArrayList<String> result = new ArrayList<String>();
 
 		if (sprinklers.isEmpty()) {
@@ -87,14 +83,13 @@ public class PipeDiameterOptimizer {
 		remainingPressure = beginningPressure;
 		for (double d : solution) {
 			remainingPressure -= d;
-			
+
 			if (minPressureOfSprinklers.get(solution.indexOf(d)) > remainingPressure) {
-				throw new PressureException("A víznyomás nem tudja kiszolgálni a szórófejeket! "
-						+ "(víznyomás: " + remainingPressure);
+				throw new PressureException(
+						"A víznyomás nem tudja kiszolgálni a szórófejeket! " + "(víznyomás: " + remainingPressure);
 			}
 			result.add(getDiameter(grossWaterFlow.get(solution.indexOf(d)), d));
 		}
-		
 
 		return result;
 
@@ -121,7 +116,8 @@ public class PipeDiameterOptimizer {
 			result.add(s.getSprinkler().getMinPressure());
 		}
 		if (sprinklers.size() < arraySize) {
-			result.add(0.0); //TODO ennek értelmes számnak kéne lennie, az egész optimalizáló meg kéne kapja argumentumban az elején
+			result.add(0.0); // TODO ennek értelmes számnak kéne lennie, az egész optimalizáló meg kéne kapja
+								// argumentumban az elején
 		}
 		return result;
 	}

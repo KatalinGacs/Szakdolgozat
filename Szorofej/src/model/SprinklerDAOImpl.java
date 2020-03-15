@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
 
 import application.common.Common;
 import javafx.collections.FXCollections;
@@ -552,6 +553,21 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		m.setMaterial(getMaterial(name));
 		m.setQuantity((int) Math.round(length));
 		materialSum.add(m);
+	}
+
+	@Override
+	public ObservableList<SprinklerShape> listSprinklerShapesNotInZones() {
+		ObservableList<SprinklerShape> result = FXCollections.observableArrayList();
+		ArrayList<SprinklerShape> inZone = new ArrayList<>();
+		for (Zone z : listZones()) {
+			inZone.addAll(z.getSprinklers());
+		}
+		for (SprinklerShape s : sprinklerShapes) {
+			if (!inZone.contains(s)) {
+				result.add(s);
+			}
+		}
+		return result;
 	}
 
 }

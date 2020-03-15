@@ -1,15 +1,19 @@
 package model.bean;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.xml.bind.annotation.XmlElement;
 import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import controller.SprinklerController;
+import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.bean.PipeGraph.Vertex;
 
 @XmlRootElement(name = "Zone")
 public class Zone {
@@ -20,7 +24,9 @@ public class Zone {
 	private double durationOfWatering;
 	private int numberOfHeads;
 
-	private ArrayList<String> sprinklerIDs = new ArrayList<String>();
+	private ArrayList<VertexElement> vertices = new ArrayList<>();
+	private String color;
+	private double beginningPressure = 0;
 
 	public Zone(String name, ObservableList<SprinklerShape> sprinklers, double durationOfWatering) {
 		// TODO kéne ellenõrizni hogy létezik-e már ilyen nevû zóna, de lehet hogy nem
@@ -83,21 +89,14 @@ public class Zone {
 		return name;
 	}
 
-	@XmlElement(name = "SprinklerIDs")
-	public ArrayList<String> getSprinklerIDs() {
-		if(sprinklers.isEmpty())
-		return sprinklerIDs;
-		else {
-			ArrayList<String> result = new ArrayList<String>();
-			for (SprinklerShape s : sprinklers) {
-				result.add(s.getID());
-			}
-			return result;
-		}
+	@XmlElementWrapper(name = "Vertices")
+	@XmlElement(name = "VertexElement")
+	public ArrayList<VertexElement> getVertices() {
+		return vertices;
 	}
 
-	public void setSprinklerIDs( ArrayList<String>  sprinklerIDs) {
-		this.sprinklerIDs = sprinklerIDs;
+	public void setVertices(ArrayList<VertexElement> vertices) {
+		this.vertices = vertices;
 	}
 
 	public void setSumOfFlowRate(double sumOfFlowRate) {
@@ -114,5 +113,62 @@ public class Zone {
 		numberOfHeads++;
 	}
 
+	@XmlElement(name = "Color")
+	public String getColor() {
+		if (color != null) {
+			return color;
+		} else {
+			SprinklerController controller = new SprinklerControllerImpl();
+			return controller.getPipeGraph(this).getColor().toString();
+		}
+	}
+
+	public void setColor(String color) {
+		this.color = color;
+	}
+
+	@XmlElement(name = "BeginningPressure")
+	public double getBeginningPressure() {
+		if (beginningPressure != 0) {
+			return beginningPressure;
+		} else {
+			SprinklerController controller = new SprinklerControllerImpl();
+			return controller.getPipeGraph(this).getBeginningPressure();
+		}
+	}
+
+	public void setBeginningPressure(double beginningPressure) {
+		this.beginningPressure = beginningPressure;
+	}
+
+	public void updateVertices() {
+		SprinklerController controller = new SprinklerControllerImpl();
+
+		ArrayList<VertexElement> result = new ArrayList<>();
+		for (Vertex v : controller.getPipeGraph(this).getVertices()) {
+			VertexElement vE = new VertexElement();
+			vE.setRoot(v.getParent() == null);
+			vE.setBreakpoint(v.isBreakPoint());
+			vE.setX(v.getX());
+			vE.setY(v.getY());
+			vE.setSprinklerShape(v.getSprinklerShape());
+			v.setVertexElement(vE);
+			result.add(vE);
+		}
+
+		for (Vertex v : controller.getPipeGraph(this).getVertices()) {
+			VertexElement vE = v.getVertexElement();
+			Set<String> childrenIDs = new HashSet<>();
+			for (Vertex child : v.getChildren()) {
+				childrenIDs.add(child.getVertexElement().getID());
+			}
+			vE.setChildrenID(childrenIDs);
+			if (!vE.isRoot()) {
+				vE.setParentID(v.getParent().getVertexElement().getID());
+			}
+		}
+
+		vertices = result;
+	}
 
 }
