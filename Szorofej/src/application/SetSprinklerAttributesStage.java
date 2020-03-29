@@ -17,16 +17,13 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
 
 public class SetSprinklerAttributesStage extends Stage {
-	
-	// TODO amíg ez meg van nyitva, ne lehessen a canvast szerkeszteni
-	
-	// TODO valahol írja ki fixen, milyen szórófej típus van épp kiválasztva
-	
+
 	private SprinklerController controller = new SprinklerControllerImpl();
 
 	private VBox sprinklerInfoRoot = new VBox();
@@ -46,11 +43,11 @@ public class SetSprinklerAttributesStage extends Stage {
 	private TextField radiusField = new TextField();
 	private Text meterText = new Text("méter");
 	private HBox radiusBox = new HBox();
-	
-	//TODO be kéne állítani, hogy egyszerre csak egy legyen belõle megnyitható
-	public SetSprinklerAttributesStage(CanvasPane canvasPane) {
 
+	public SetSprinklerAttributesStage(CanvasPane canvasPane) {
+		initModality(Modality.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
+		setTitle("Szórófej kiválasztása");
 		
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		
@@ -92,8 +89,9 @@ public class SetSprinklerAttributesStage extends Stage {
 		});
 		
 		tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			// TODO nullpointer check
-			radiusField.setText(String.valueOf(newSelection.getMaxRadius()));	
+			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
+				radiusField.setText(String.valueOf(newSelection.getMaxRadius()));	
+			}
 		});
 
 		ok.setOnAction(e -> {

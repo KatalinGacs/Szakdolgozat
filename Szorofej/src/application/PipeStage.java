@@ -4,10 +4,13 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
+import com.sun.glass.events.KeyEvent;
+
 import application.CanvasPane.Use;
 import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
+import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -15,6 +18,7 @@ import javafx.scene.control.ColorPicker;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
+import javafx.scene.input.KeyCode;
 import javafx.scene.layout.GridPane;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Text;
@@ -48,7 +52,8 @@ public class PipeStage extends Stage {
 
 		setScene(scene);
 		setAlwaysOnTop(true);
-
+		setTitle("Csövezés");
+		
 		root.add(zoneText, 0, 0);
 		root.add(zonePicker, 1, 0);
 		root.add(colorText, 0, 1);
@@ -57,10 +62,10 @@ public class PipeStage extends Stage {
 		root.add(beginningPressureText, 0, 3);
 		root.add(beginningPressureField, 1, 3);
 		root.add(okBtn, 0, 4);
+		
 		zonePicker.setItems(controller.listZones());
-
+		zonePicker.getSelectionModel().select(0);	
 		setColor();
-
 		zonePicker.setOnAction(e -> {
 			setColor();
 
@@ -77,47 +82,22 @@ public class PipeStage extends Stage {
 					canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
 					controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
 				}
-			}else {
+			} else {
 				startDrawingpipesBtn.setSelected(false);
 				canvasPane.stateOfCanvasUse = Use.NONE;
 			}
 		});
 
-		okBtn.setOnAction(e ->
-
-		{
-			if (zonePicker.getValue() == null) {
-				Common.showAlert("Nincs kiválasztott zóna");
-			} else if (canvasPane.pipeGraphUnderEditing == null) {
-				Common.showAlert("Nincs megadott csövezés");
-			} else if (beginningPressureField.getText() == null || beginningPressureField.getText().trim().isEmpty()) {
-				Common.showAlert("Add meg a kezdeti nyomást!");
-			} else
-				try {
-					canvasPane.pipeGraphUnderEditing
-							.setBeginningPressure(Double.parseDouble(beginningPressureField.getText()));
-				} catch (NumberFormatException ex) {
-					Common.showAlert("Számokban add meg a kezdeti nyomást!");
-				}
-			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
-					controller.getPipeGraph(zonePicker.getValue()).getRoot());
-			/*
-			 * for (Vertex v : controller.getPipeGraph(zonePicker.getValue()).getVertices())
-			 * { System.out.println("vertex: " + v); System.out.println("parent: " +
-			 * v.getParent()); for (Vertex child: v.getChildren()) {
-			 * System.out.println("child: " + child); } }
-			 */
-
-			/*
-			 * for (Edge edge :controller.getPipeGraph(zonePicker.getValue()).getEdges()) {
-			 * System.out.println("edge: " + edge + " st" + edge.getStartX() + " "+
-			 * edge.getStartY() + " end" + edge.getEndX() + " " + edge.getEndY());
-			 * System.out.println("parentv: " + edge.getvParent());
-			 * System.out.println("childv " + edge.getvChild()); }
-			 */
-
+		beginningPressureField.setOnKeyPressed(e -> {
+			if (e.getCode().equals(KeyCode.ENTER)) {
+				finalizePipeGraph(canvasPane);
+				e.consume();
+			}
 		});
-
+		
+		okBtn.setOnAction(e-> {
+			finalizePipeGraph(canvasPane);
+		});
 	}
 
 	private static int colorCounter = 0;
@@ -152,6 +132,30 @@ public class PipeStage extends Stage {
 				colorPicker.setValue(nextColor());
 			}
 		}
+	}
+
+	private void finalizePipeGraph(CanvasPane canvasPane) {
+		if (zonePicker.getValue() == null) {
+			Common.showAlert("Nincs kiválasztott zóna");
+		} else if (canvasPane.pipeGraphUnderEditing == null) {
+			Common.showAlert("Nincs megadott csövezés");
+		} else if (beginningPressureField.getText() == null || beginningPressureField.getText().trim().isEmpty()) {
+			Common.showAlert("Add meg a kezdeti nyomást!");
+		} else
+			try {
+				canvasPane.pipeGraphUnderEditing
+						.setBeginningPressure(Double.parseDouble(beginningPressureField.getText()));
+			} catch (NumberFormatException ex) {
+				Common.showAlert("Számokban add meg a kezdeti nyomást!");
+			}
+		try {
+		PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
+				controller.getPipeGraph(zonePicker.getValue()).getRoot());
+		close();
+		} catch (Exception e) {
+			Common.showAlert(e.getMessage());
+		}
+		
 	}
 
 }

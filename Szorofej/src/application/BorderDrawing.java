@@ -39,9 +39,6 @@ public class BorderDrawing {
 	}
 
 	// TODO ide is kell a rácshoz igazodás, mint a szórófej rajzolásnál
-	// TODO kell arra mód, hogy az elõzõ vonalhoz képest derékszögû vonalat tudjon
-	// rajzolni (nem feltétlen esik a rácsra), de nem tudom, milyen felhasználói
-	// inputra csinálja ezt
 	public static void drawBorderLine(MouseEvent e, Color color, int width, CanvasPane canvasPane) {
 		BorderDrawing.tempBorderLine.setVisible(false);
 		Line line = new Line();

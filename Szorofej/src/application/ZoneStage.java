@@ -2,6 +2,8 @@ package application;
 
 import application.CanvasPane.Use;
 import application.common.Common;
+import controller.SprinklerController;
+import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -13,8 +15,11 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.bean.Zone;
 
 public class ZoneStage extends Stage{
+
+	static SprinklerController controller = new SprinklerControllerImpl();
 	
 	private GridPane root = new GridPane();
 	private Scene scene = new Scene(root);
@@ -36,7 +41,7 @@ public class ZoneStage extends Stage{
 		root.setVgap(10);
 		root.setHgap(10);
 		root.setPadding(new Insets(10, 10, 10, 10));
-		
+		setTitle("Zóna megadása");
 		setScene(scene);
 		setAlwaysOnTop(true);
 		
@@ -60,13 +65,23 @@ public class ZoneStage extends Stage{
 		root.add(createZoneBtn, 0, 5);
 
 		createZoneBtn.setOnAction(e -> {
+			boolean zoneNameInUse = false;
 			double durationInHours = hourPicker.getValue() + ((double) minutePicker.getValue() / 60);
+			for (Zone z : controller.listZones()) {
+				if (z.getName().contentEquals(zoneNameTextField.getText().trim())) {
+					zoneNameInUse = true;
+					break;
+				}
+			}
+			
 			if (zoneNameTextField.getText() == null || zoneNameTextField.getText().trim().isEmpty()) {
-				Common.showAlert("Add meg a zóna nevét");
+				Common.showAlert("Add meg a zóna nevét!");
 			} else if (canvasPane.selectedSprinklerShapes.isEmpty()) {
-				Common.showAlert("Nincsenek kiválasztott szórófejek");
-			} else {
-				canvasPane.createZone(zoneNameTextField.getText(), durationInHours);
+				Common.showAlert("Nincsenek kiválasztott szórófejek!");
+			} else if (zoneNameInUse) {
+				Common.showAlert("Ilyen nevû zóna már létezik!");
+			}else {
+				canvasPane.createZone(zoneNameTextField.getText().trim(), durationInHours);
 				canvasPane.stateOfCanvasUse = Use.NONE;
 				close();
 			}

@@ -12,6 +12,7 @@ import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
 import application.common.Common;
+import controller.PressureException;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.scene.paint.Color;
@@ -57,35 +58,37 @@ public class FileHandler {
 	}
 
 	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
-
+		File file;
 		if (currentPath == "" || saveAs == true) {
 			FileChooser fileChooser = new FileChooser();
 			FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
 			fileChooser.getExtensionFilters().add(extFilter);
-			File file = fileChooser.showSaveDialog(stage);
-			if (file != null) {
-				currentPath = file.getAbsolutePath();
-				currentFileName = file.getName();
-				try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
-					updateZoneInfos();
-					Canvas canvas = new Canvas();
-					JAXBContext context = JAXBContext.newInstance(Canvas.class);
-					Marshaller m = context.createMarshaller();
-					m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
-					m.marshal(canvas, System.out);
-
-					m.marshal(canvas, fileOS);
-
-					canvasPane.setModifiedSinceLastSave(false);
-
-				} catch (IOException | JAXBException ex) {
-					ex.printStackTrace();
-				}
-
-			}
-			stage.setTitle(Common.programName + " - " + currentPath);
+			file = fileChooser.showSaveDialog(stage);
+		} else {
+			file = new File(currentPath);
 		}
+		if (file != null) {
+			currentPath = file.getAbsolutePath();
+			currentFileName = file.getName();
+			try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
+				updateZoneInfos();
+				Canvas canvas = new Canvas();
+				JAXBContext context = JAXBContext.newInstance(Canvas.class);
+				Marshaller m = context.createMarshaller();
+				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
+
+				m.marshal(canvas, System.out);
+
+				m.marshal(canvas, fileOS);
+
+				canvasPane.setModifiedSinceLastSave(false);
+
+			} catch (IOException | JAXBException ex) {
+				ex.printStackTrace();
+			}
+
+		}
+		stage.setTitle(Common.programName + " - " + currentPath);
 
 	}
 
@@ -112,7 +115,8 @@ public class FileHandler {
 			canvasPane.setModifiedSinceLastSave(false);
 
 		} catch (JAXBException | FileNotFoundException e) {
-
+			e.printStackTrace();
+		} catch (Exception e) {
 			e.printStackTrace();
 		}
 
@@ -182,7 +186,7 @@ public class FileHandler {
 		}
 	}
 
-	private static void loadZones(CanvasPane canvasPane, Canvas canvas) {
+	private static void loadZones(CanvasPane canvasPane, Canvas canvas) throws PressureException {
 		for (Zone zone : controller.listZones()) {
 			controller.removeZone(zone);
 		}

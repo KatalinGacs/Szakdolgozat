@@ -11,6 +11,7 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.control.cell.TextFieldTableCell;
 import javafx.scene.layout.VBox;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import model.bean.SprinklerType;
@@ -40,13 +41,12 @@ public class SprinklerDBView {
 
 		root.getChildren().addAll(tableView, delBtn);
 
-		// TODO ha be van állítva a resize policy, látszik az összes oszlop, de a
-		// tartalmukat levágja, ha nincs beállítva, akkor a tableview kilóg a stageből
-		// és görgetni kell, hogy a jobb szélső oszlopok látszanak
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
 				fixWaterConsumptionCol, waterConsumptionCol, minPressureCol, sprinklerGroupCol);
 		stage.setScene(scene);
+		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setTitle("Szórófej adatbázis");
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
 		minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
 		maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));

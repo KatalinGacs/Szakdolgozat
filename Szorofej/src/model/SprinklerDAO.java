@@ -62,13 +62,15 @@ public interface SprinklerDAO {
 	public PipeGraph getPipeGraph(Zone zone);
 	public void clearPipeGraphs();
 	
+	
+	public ObservableList<UsedMaterial> summarizeMaterials();
+	public void addPipeMaterial(String pipename, Double length);
+	
 	public ObservableList<Text> listTexts();
 	public void addText(Text t);
 	public void removeText(Text t);
 	public void clearTexts();	
+	public void clearMaterials();
 	
-	public ObservableList<UsedMaterial> summarizeMaterials();
-	public void addPipeMaterial(String pipename, Double length);
-
 	public void clearAll();
 }

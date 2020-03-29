@@ -116,6 +116,9 @@ public class SprinklerDrawing {
 
 				label = new Text(sprinkler.getSprinkler().getName());
 
+				sprinkler.setSprinkler(sprinklerType);
+				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
+
 			}
 			
 			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
@@ -280,7 +283,6 @@ public class SprinklerDrawing {
 	 */
 	public static void showTempLine(MouseEvent mouseEvent, CanvasPane canvasPane) {
 		if (canvasPane.sprinklerAttributesSet && canvasPane.stateOfCanvasUse == CanvasPane.Use.SPRINKLERDRAWING) {
-
 			tempFirstSprinklerLine.setStroke(CanvasPane.tempLineColor);
 			tempFirstSprinklerLine.setStrokeWidth(CanvasPane.strokeWidth);
 			tempSecondSprinklerLine.setStroke(CanvasPane.tempLineColor);

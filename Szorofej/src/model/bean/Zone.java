@@ -29,8 +29,6 @@ public class Zone {
 	private double beginningPressure = 0;
 
 	public Zone(String name, ObservableList<SprinklerShape> sprinklers, double durationOfWatering) {
-		// TODO kéne ellenõrizni hogy létezik-e már ilyen nevû zóna, de lehet hogy nem
-		// itt hanem a név megadásánál
 		this.name = name;
 		this.sprinklers = sprinklers;
 		for (SprinklerShape s : sprinklers) {
@@ -145,7 +143,7 @@ public class Zone {
 		SprinklerController controller = new SprinklerControllerImpl();
 
 		ArrayList<VertexElement> result = new ArrayList<>();
-		for (Vertex v : controller.getPipeGraph(this).getVertices()) {
+		for (Vertex v : controller.getPipeGraph(this).getVertices()) { // TODO null check
 			VertexElement vE = new VertexElement();
 			vE.setRoot(v.getParent() == null);
 			vE.setBreakpoint(v.isBreakPoint());

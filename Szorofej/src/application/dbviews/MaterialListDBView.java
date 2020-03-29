@@ -17,6 +17,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.bean.Material;
 
@@ -45,7 +46,8 @@ public class MaterialListDBView {
 	public MaterialListDBView() {
 		
 		stage.setTitle("Anyag adatbázis");
-
+		stage.initModality(Modality.APPLICATION_MODAL);
+		
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		tableView.getColumns().addAll(nameCol, unitCol);
 		stage.setScene(scene);

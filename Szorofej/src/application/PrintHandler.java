@@ -29,27 +29,6 @@ import javafx.stage.Window;
 
 public class PrintHandler {
 
-	// private static Rectangle printArea = new Rectangle();
-	// TODO rajzterület kijelölése nyomtatáshoz
-
-	public static void printSettings(CanvasPane canvasPane) {
-		/*
-		 * canvasPane.tempLineLayer.getChildren().add(printArea);
-		 * printArea.setStrokeDashOffset(5); printArea.setStroke(Color.RED);
-		 * printArea.setFill(Color.TRANSPARENT); printArea.setVisible(false);
-		 * 
-		 * settingsStage.setScene(scene); settingsStage.setAlwaysOnTop(true);
-		 * settingsStage.setTitle("Nyomtatás"); root.getChildren().addAll(gridCheckBox,
-		 * textsCheckBox, printBtn);
-		 * 
-		 * printBtn.setOnAction(e -> { foo(settingsStage, canvasPane,
-		 * gridCheckBox.isSelected(), textsCheckBox.isSelected());
-		 * settingsStage.close(); });
-		 * 
-		 * settingsStage.show();
-		 */
-	}
-
 	public static void print(Window owner, CanvasPane canvasPane) {
 		FileChooser fileChooser = new FileChooser();
 
@@ -78,43 +57,6 @@ public class PrintHandler {
 		}
 		canvasPane.setClip(oldClip);
 
-		// TODO would be nicer to be able to print/save as pdf but this solution needs more work
-		/*
-		 * PrinterJob job = PrinterJob.createPrinterJob(); Printer printer =
-		 * job.getPrinter(); PageLayout pageLayout = printer.createPageLayout(Paper.A3,
-		 * PageOrientation.LANDSCAPE, Printer.MarginType.HARDWARE_MINIMUM);
-		 * 
-		 * Rectangle nonEmptyArea = getNonEmptyArea(canvasPane);
-		 * 
-		 * 
-		 * double width = nonEmptyArea.getWidth(); double height =
-		 * nonEmptyArea.getHeight();
-		 * 
-		 * PrintResolution resolution = job.getJobSettings().getPrintResolution(); width
-		 * /= resolution.getFeedResolution(); height /=
-		 * resolution.getCrossFeedResolution(); double scaleX =
-		 * pageLayout.getPrintableWidth() / width / 600; double scaleY =
-		 * pageLayout.getPrintableHeight() / height / 600;
-		 * 
-		 * System.out.println("nonempty.." + nonEmptyArea);
-		 * System.out.println("bounds "+ nonEmptyArea.getBoundsInParent().toString());
-		 * System.out.println(scaleX + " " + scaleY);
-		 * 
-		 * if (scaleX > scaleY) scaleX = scaleY; else scaleY = scaleX; Scale scale = new
-		 * Scale(scaleX, scaleY);
-		 * 
-		 * canvasPane.getTransforms().add(scale);
-		 * 
-		 * Node oldClip = canvasPane.getClip();
-		 * 
-		 * canvasPane.setClip(nonEmptyArea);
-		 * 
-		 * if (job != null) { job.showPrintDialog(owner);
-		 * 
-		 * job.printPage(canvasPane); }
-		 * 
-		 * canvasPane.getTransforms().remove(scale); canvasPane.setClip(oldClip);
-		 */
 	}
 
 	private static Rectangle getNonEmptyArea(CanvasPane canvasPane) {

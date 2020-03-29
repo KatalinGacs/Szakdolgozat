@@ -38,7 +38,6 @@ public class Common {
 			return new Point2D(referenceX, mouseY);
 		else
 			return new Point2D(mouseX, referenceY);
-		//TODO kipróbálni
 	}
 
 	public static Rectangle drawRectangle(Color color, double firstX, double firstY, double secondX, double secondY) {

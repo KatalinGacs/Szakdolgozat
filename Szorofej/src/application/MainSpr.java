@@ -9,7 +9,9 @@ import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.application.Application;
 import javafx.application.Platform;
+import javafx.geometry.Side;
 import javafx.scene.Scene;
+import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
@@ -41,15 +43,20 @@ public class MainSpr extends Application {
 	private MenuItem saveAsMenuItem = new MenuItem("Mentés másként");
 	private MenuItem printMenuItem = new MenuItem("Mentés képként");
 	private MenuItem exitMenuItem = new MenuItem("Kilépés");
-	private Menu editMenu = new Menu("Szerkesztés");
-	private MenuItem undoMenuItem = new MenuItem("Visszavonás");
-	private MenuItem redoMenuItem = new MenuItem("Ismét");
+	/*
+	 * private Menu editMenu = new Menu("Szerkesztés"); private MenuItem
+	 * undoMenuItem = new MenuItem("Visszavonás"); private MenuItem redoMenuItem =
+	 * new MenuItem("Ismét");
+	 */
 	private Menu dbMenu = new Menu("Adatbázis");
 	private MenuItem sprinklerDbMenuItem = new MenuItem("Szórófej adatbázis");
 	private MenuItem newSprinklerMenuItem = new MenuItem("Szórófej hozzáadása");
 	private MenuItem sprinklerGroupDbMenuItem = new MenuItem("Szórófej csoportok");
 	private MenuItem materialDbMenuItem = new MenuItem("Szórófej-anyag összekapcsolás");
 	private MenuItem newMaterialMenuItem = new MenuItem("Anyag adatbázis");
+	
+	private ContextMenu rightClickMenu = new ContextMenu();
+	private MenuItem delMenuItem = new MenuItem("Törlés");
 
 	@Override
 	public void start(Stage primaryStage) {
@@ -61,10 +68,10 @@ public class MainSpr extends Application {
 			primaryStage.setScene(scene);
 			root.setCenter(drawingPanel);
 
-			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
+			menuBar.getMenus().addAll(fileMenu, dbMenu);
 			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, printMenuItem,
 					exitMenuItem);
-			editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
+			// editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
 			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem,
 					materialDbMenuItem, newMaterialMenuItem);
 
@@ -86,17 +93,11 @@ public class MainSpr extends Application {
 			});
 			exitMenuItem.setOnAction(e -> {
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(), primaryStage);
-				}
-				else {
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(),
+							primaryStage);
+				} else {
 					Platform.exit();
 				}
-			});
-			undoMenuItem.setOnAction(e -> {
-				// TODO
-			});
-			redoMenuItem.setOnAction(e -> {
-				// TODO
 			});
 			sprinklerDbMenuItem.setOnAction(e -> {
 				SprinklerDBView sprinklerDBView = new SprinklerDBView();
@@ -120,19 +121,28 @@ public class MainSpr extends Application {
 			primaryStage.setOnCloseRequest(e -> {
 				e.consume();
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(), primaryStage);
+					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(),
+							primaryStage);
 				} else {
 					Platform.exit();
 				}
 			});
 
-			// TODO innen jobbkattintásra legyenek zónák törölhetõk, különösen ha az
-			// undo/redo nem lesz meg
+			// TODO innen jobbkattintásra legyenek zónák törölhetõk
 			zoneTable.setOnMouseClicked(e -> {
-				if (e.getButton() == MouseButton.PRIMARY) {
-					selectedZone = zoneTable.getSelectionModel().getSelectedItem();
-					if (selectedZone != null)
+				selectedZone = zoneTable.getSelectionModel().getSelectedItem();
+				if (selectedZone != null) {
+					if (e.getButton() == MouseButton.PRIMARY) {
 						sprinklerListTable.setItems(controller.listSprinklerShapes(selectedZone));
+					} else if (e.getButton() == MouseButton.SECONDARY) {
+						rightClickMenu.show(zoneTable, Side.RIGHT, 5, 5);
+						rightClickMenu.show(primaryStage, e.getX(), e.getY());
+						delMenuItem.setOnAction(ev -> {
+							//controller.deleteZone(selectedZone);
+							// TODO controllerben megírni
+							ev.consume();
+						});
+					}
 				}
 			});
 			sprinklerListTable = new SprinklerListTable(selectedZone);

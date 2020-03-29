@@ -96,8 +96,6 @@ public class CanvasPane extends Pane {
 		setHeight(Common.primaryScreenBounds.getHeight() * 6);
 
 		// Grid
-		// TODO: javítani azt, hogy ha késõbb a meglévõ területen kívülre rajzolok, azon
-		// már nem lesz rajta ez a rács
 		for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
 			Line line = new Line(0, i, getHeight(), i);
 			line.setStroke(Color.SILVER);
@@ -263,10 +261,7 @@ public class CanvasPane extends Pane {
 		controller.addZone(zone);
 		for (SprinklerShape s : zone.getSprinklers()) {
 			s.getArc().setFill(Color.LAWNGREEN);
-			// TODO ha mgoldható, csak a fill opacityje változzon, a strokeé nem, nem biztos
-			// hogy lehet
-			// vagy nem opacityt állítgatni hanem hogy mennyire világos zöld? vagy
-			// zöld-sárga színek közt valami
+			// TODO ez a kitöltés legyen kikapcsolható
 			s.getArc().setOpacity((s.getFlowRate() * durationInHours) / 3);
 		}
 		deselectAll();
@@ -279,9 +274,12 @@ public class CanvasPane extends Pane {
 		}
 		selectedSprinklerShapes.clear();
 	}
-	
 
-	public String showInfos(MouseEvent e) {
+	public String showSprinklerInfos() {
+		return "Kiválasztott szórófej: " + SprinklerDrawing.sprinklerType + " " + SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter + " m";
+	}
+
+	public String showGeneralInfos(MouseEvent e) {
 
 		double sumOfWaterCoverageInMmPerHour = 0;
 		for (SprinklerShape s : controller.listSprinklerShapes()) {

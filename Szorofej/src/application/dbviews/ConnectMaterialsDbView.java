@@ -18,6 +18,7 @@ import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import model.bean.Material;
@@ -52,6 +53,7 @@ public class ConnectMaterialsDbView {
 
 		stage.setTitle("Szórófej-anyag összekapcsolás");
 		stage.setScene(scene);
+		stage.initModality(Modality.APPLICATION_MODAL);
 
 		// the first panel: a list of the sprinkler types to which materials can be
 		// connected
@@ -94,16 +96,18 @@ public class ConnectMaterialsDbView {
 		addConnectionPane.setAlignment(Pos.TOP_CENTER);
 
 		addButton.setOnAction(e -> {
-			// TODO nullpointer check
-			SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
-			Material m = materials.getSelectionModel().getSelectedItem();
-			int quantity = quantityPicker.getValue();
-			controller.addMaterialConnection(s, m, quantity);
-			refreshTables();
+			if (sprinklerTypes.getSelectionModel().getSelectedItem() != null) {
+				SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
+				Material m = materials.getSelectionModel().getSelectedItem();
+				int quantity = quantityPicker.getValue();
+				controller.addMaterialConnection(s, m, quantity);
+				refreshTables();
+			}
+
 		});
 
 		refreshTables();
-		
+
 		root.getChildren().addAll(sprinklerTypes, addedMaterialPane, addConnectionPane);
 		root.setPadding(new Insets(10));
 		root.setSpacing(10);

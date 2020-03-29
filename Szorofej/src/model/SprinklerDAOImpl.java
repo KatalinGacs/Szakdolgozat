@@ -45,7 +45,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
 	private static ObservableList<UsedMaterial> materialSum = FXCollections.observableArrayList();
-
+	private static ObservableList<UsedMaterial> pipeMaterialSum = FXCollections.observableArrayList();
+	
 	public SprinklerDAOImpl() {
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -362,6 +363,11 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
+	public void clearMaterials() {
+		materialSum.clear();
+	}
+
+	@Override
 	public void clearAll() {
 		clearBorderShapes();
 		clearObstacles();
@@ -369,6 +375,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		clearSprinklerShapes();
 		clearTexts();
 		clearZones();
+		clearMaterials();
 	}
 
 	@Override
@@ -490,7 +497,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public ObservableList<UsedMaterial> summarizeMaterials() {
-
+		materialSum.clear();
 		for (SprinklerShape s : sprinklerShapes) {
 			for (MaterialSprinklerConnection mConn : listMaterials(getSprinklerType(s.getSprinklerType()))) {
 				UsedMaterial m = new UsedMaterial();
@@ -499,10 +506,16 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				materialSum.add(m);
 			}
 		}
-		UsedMaterial solenoid = new UsedMaterial();
-		solenoid.setMaterial(getMaterial("Mágnesszelep"));
-		solenoid.setQuantity(listZones().size());
-		materialSum.add(solenoid);
+		for (UsedMaterial m : pipeMaterialSum) {
+			materialSum.add(m);
+		}
+		if (listZones().size() > 0) {
+			UsedMaterial solenoid = new UsedMaterial();
+			solenoid.setMaterial(getMaterial("Mágnesszelep"));
+			solenoid.setQuantity(listZones().size());
+			materialSum.add(solenoid);
+		}
+
 		return materialSum;
 	}
 
@@ -552,7 +565,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		}
 		m.setMaterial(getMaterial(name));
 		m.setQuantity((int) Math.round(length));
-		materialSum.add(m);
+		pipeMaterialSum.add(m);
 	}
 
 	@Override

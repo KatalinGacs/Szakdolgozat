@@ -110,7 +110,7 @@ public class PipeDrawing {
 
 	static boolean leaf = false;
 
-	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) {
+	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) throws PressureException {
 		canvasPane.setModifiedSinceLastSave(true);
 		PipeGraph pg = controller.getPipeGraph(zone);
 		int leafes = pg.getNumberOfLeaves();
@@ -130,8 +130,8 @@ public class PipeDrawing {
 
 	}
 
-	public static void calculatePipeDiameters(CanvasPane canvasPane, PipeGraph pg, Vertex startingVertex,
-			Vertex nextVertex, double beginningPressure) {
+	public static void calculatePipeDiameters  (CanvasPane canvasPane, PipeGraph pg, Vertex startingVertex,
+			Vertex nextVertex, double beginningPressure) throws PressureException {
 
 		try {
 			ArrayList<Double> pipeLengths = new ArrayList<>();
@@ -168,8 +168,6 @@ public class PipeDrawing {
 			ArrayList<String> diameters = PipeDiameterOptimizer.optimalPipes(beginningPressure, pipeLengths, sprinklers,
 					totalWaterFlow);
 
-			// TODO
-			// 4. el kell tárolni minden elágazásnál, hogy milyen T-idom kell
 			String currentDiameter = null;
 			double posStartX = startingVertex.getX();
 			double posStartY = startingVertex.getY();
@@ -224,8 +222,6 @@ public class PipeDrawing {
 			
 		} catch (GraphException ex) {
 			ex.printStackTrace();
-		} catch (PressureException ex) {
-			Common.showAlert(ex.getMessage());
 		}
 
 	}

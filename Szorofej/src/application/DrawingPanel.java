@@ -78,8 +78,11 @@ public class DrawingPanel extends VBox {
 	private ToggleButton showGrid = new ToggleButton("Rács");
 	private ToggleButton showArcs = new ToggleButton("Szóráskép");
 	private ToggleButton showTexts = new ToggleButton("Szövegek");
-	private HBox infoBox = new HBox();
-	private Text infoText = new Text("");
+	private HBox generalInfoBox = new HBox();
+	private Text generalInfoText = new Text("");
+	
+	private HBox sprinklerInfoBox = new HBox();
+	private Text sprinklerInfoText = new Text("");
 
 	private ToggleButton addHeads = new ToggleButton("Hozzáadás");
 	private ToggleButton removeHeads = new ToggleButton("Törlés");
@@ -96,6 +99,8 @@ public class DrawingPanel extends VBox {
 
 		tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
 			canvasPane.stateOfCanvasUse = Use.NONE;
+			canvasPane.sprinklerAttributesSet = false;
+			sprinklerInfoText.setText("");
 		});
 		borderLineWidth.setPrefWidth(60);
 
@@ -163,7 +168,8 @@ public class DrawingPanel extends VBox {
 		getChildren().add(scrollPane);
 
 		footer.setLeft(viewElements);
-		footer.setRight(infoBox);
+		footer.setRight(generalInfoBox);
+		footer.setCenter(sprinklerInfoBox);
 		footer.setPadding(new Insets(10));
 		viewElements.setMinHeight(Common.pixelPerMeter * 2);
 		viewElements.setAlignment(Pos.CENTER_LEFT);
@@ -172,8 +178,10 @@ public class DrawingPanel extends VBox {
 		showArcs.setSelected(true);
 		showTexts.setSelected(true);
 		viewElements.getChildren().addAll(showGrid, showArcs, showTexts);
-		infoBox.getChildren().addAll(infoText);
-		infoBox.setAlignment(Pos.CENTER_RIGHT);
+		sprinklerInfoBox.getChildren().addAll(sprinklerInfoText);
+		sprinklerInfoBox.setAlignment(Pos.CENTER);
+		generalInfoBox.getChildren().addAll(generalInfoText);
+		generalInfoBox.setAlignment(Pos.CENTER_RIGHT);
 		getChildren().add(footer);
 
 		borderTab.setOnSelectionChanged(e -> {
@@ -300,7 +308,12 @@ public class DrawingPanel extends VBox {
 		});
 
 		canvasPane.setOnMouseMoved(e -> {
-			infoText.setText(canvasPane.showInfos(e));
+			generalInfoText.setText(canvasPane.showGeneralInfos(e));
+			
+			if (canvasPane.sprinklerAttributesSet && tabPane.getSelectionModel().getSelectedItem() == sprinklerTab) {
+				sprinklerInfoText.setText(canvasPane.showSprinklerInfos());
+			}
+
 			canvasPane.showFocusCircle(e);
 			SprinklerDrawing.showTempLine(e, canvasPane);
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
@@ -365,8 +378,6 @@ public class DrawingPanel extends VBox {
 				}
 				if (!canvasPane.cursorNearSprinklerHead) {
 					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
-						// TODO ehelyett jobb lenne, ha ez azt tudná nézni, hogy a vonal közelében van,
-						// nem csak hogy felette
 						if (line.contains(e.getX(), e.getY())) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
 							PipeDrawing.lineBreakPointX = e.getX();

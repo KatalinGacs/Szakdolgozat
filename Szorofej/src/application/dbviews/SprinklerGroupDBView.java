@@ -12,6 +12,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.DbException;
 import model.bean.SprinklerGroup;
@@ -20,7 +21,7 @@ public class SprinklerGroupDBView {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
 
-	private Stage sprinklerGroupDbStage = new Stage();
+	private Stage stage = new Stage();
 	private VBox root = new VBox();
 	private Scene scene = new Scene(root);
 
@@ -33,7 +34,9 @@ public class SprinklerGroupDBView {
 	private Button addBtn = new Button("Hozzáad");
 	
 	public SprinklerGroupDBView() {
-		sprinklerGroupDbStage.setScene(scene);
+		stage.initModality(Modality.APPLICATION_MODAL);
+		stage.setScene(scene);
+		stage.setTitle("Anyag adatbázis");
 		root.getChildren().addAll(tableView, deleteBtn, addSprinklerGroupText, nameField, addBtn);
 		tableView.getColumns().add(nameCol);
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
@@ -57,7 +60,7 @@ public class SprinklerGroupDBView {
 			tableView.setItems(controller.listSprinklerGroups());
 		});
 		
-		sprinklerGroupDbStage.show();
+		stage.show();
 
 	}
 
