@@ -128,25 +128,26 @@ public class MainSpr extends Application {
 				}
 			});
 
-			// TODO innen jobbkattintásra legyenek zónák törölhetõk
+			rightClickMenu.getItems().add(delMenuItem);
 			zoneTable.setOnMouseClicked(e -> {
 				selectedZone = zoneTable.getSelectionModel().getSelectedItem();
 				if (selectedZone != null) {
 					if (e.getButton() == MouseButton.PRIMARY) {
 						sprinklerListTable.setItems(controller.listSprinklerShapes(selectedZone));
 					} else if (e.getButton() == MouseButton.SECONDARY) {
-						rightClickMenu.show(zoneTable, Side.RIGHT, 5, 5);
-						rightClickMenu.show(primaryStage, e.getX(), e.getY());
+						rightClickMenu.show(primaryStage, e.getSceneX()+5, e.getSceneY()+5);
+						
 						delMenuItem.setOnAction(ev -> {
-							//controller.deleteZone(selectedZone);
-							// TODO controllerben megírni
+							drawingPanel.getCanvasPane().deletePipes(selectedZone);
+							controller.removeZone(selectedZone);
+							drawingPanel.getCanvasPane().setModifiedSinceLastSave(true);
 							ev.consume();
 						});
 					}
 				}
 			});
+			
 			sprinklerListTable = new SprinklerListTable(selectedZone);
-
 			sprinklerListTable.setOnMouseClicked(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
 					sprinklerDetailTable = new SprinklerDetailTable(
@@ -166,7 +167,6 @@ public class MainSpr extends Application {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
 	}
 
 	public static void run() {

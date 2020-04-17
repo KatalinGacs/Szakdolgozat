@@ -25,6 +25,8 @@ public class SprinklerShape {
 	private SprinklerType sprinkler = new SprinklerType();
 	private Text label = new Text();
 
+	private boolean connectedToPipe = false;
+	
 	// needed for XML unmarshalling
 	private String fillColor = "";
 	private String strokeColor = "";
@@ -332,6 +334,14 @@ public class SprinklerShape {
 
 	public void setID(String iD) {
 		ID = iD;
+	}
+
+	public boolean isConnectedToPipe() {
+		return connectedToPipe;
+	}
+
+	public void setConnectedToPipe(boolean connectedToPipe) {
+		this.connectedToPipe = connectedToPipe;
 	}
 
 	public static String createID() {

@@ -19,20 +19,8 @@ FOREIGN KEY (sprinklergroup) REFERENCES Sprinklergroup (name)
 
 CREATE TABLE IF NOT EXISTS Material (
 name TEXT NOT NULL,
+unit TEXT,
 PRIMARY KEY (name)
-);
-
-CREATE TABLE IF NOT EXISTS Pipematerial (
-radius REAL NOT NULL,
-materialname TEXT NOT NULL,
-PRIMARY KEY (radius),
-FOREIGN KEY (materialname) REFERENCES Material (name)
-);
-
-CREATE TABLE IF NOT EXISTS Solenoidvalvematerial (
-materialname TEXT NOT NULL,
-PRIMARY KEY (materialname),
-FOREIGN KEY (materialname) REFERENCES Material (name)
 );
 
 CREATE TABLE IF NOT EXISTS Sprinklermaterial (
@@ -43,3 +31,5 @@ PRIMARY KEY (sprinklertype, materialname),
 FOREIGN KEY (sprinklertype) REFERENCES Sprinklertype (name),
 FOREIGN KEY (materialname) REFERENCES Material (name)
 );
+
+

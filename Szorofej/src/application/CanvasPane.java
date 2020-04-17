@@ -20,12 +20,14 @@ import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import javafx.scene.paint.Color;
+import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
+import model.bean.PipeGraph.Edge;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
@@ -81,6 +83,9 @@ public class CanvasPane extends Pane {
 	Set<SprinklerShape> selectedSprinklerShapes = new HashSet<>();
 	double flowRateOfSelected = 0;
 
+	private Shape selectedShape = null;
+	private Paint originalStrokeColorOfSelectedShape = null;
+	
 	PipeGraph pipeGraphUnderEditing;
 
 	private ContextMenu rightClickMenu = new ContextMenu();
@@ -92,18 +97,20 @@ public class CanvasPane extends Pane {
 	
 	public CanvasPane() {
 
-		setWidth(Common.primaryScreenBounds.getWidth() * 6);
-		setHeight(Common.primaryScreenBounds.getHeight() * 6);
+		setWidth(Common.canvasWidth);
+		setHeight(Common.canvasHeight);
 
-		// Grid
-		for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
-			Line line = new Line(0, i, getHeight(), i);
+		// Grid - horizontal lines
+		for (int i = 0; i < (int) getHeight(); i += Common.pixelPerMeter) {
+
+			Line line = new Line(0, i, getWidth(), i);
 			line.setStroke(Color.SILVER);
 			getChildren().add(line);
 			gridLayer.getChildren().add(line);
 		}
-		for (int i = 0; i < (int) getHeight(); i += Common.pixelPerMeter) {
-			Line line = new Line(i, 0, i, getWidth());
+		// Grid - vertical lines
+		for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
+			Line line = new Line(i, 0, i, getHeight());
 			line.setStroke(Color.SILVER);
 			getChildren().add(line);
 			gridLayer.getChildren().add(line);
@@ -141,13 +148,11 @@ public class CanvasPane extends Pane {
 
 	}
 
-	// TODO most ha több element van egymáson, nem tudja a felhasználó, melyiket
-	// fogja törölni
-	// delmenu sorolja fel õket? vagy a kijelölt elem színe változzon és akkor tudja
-	// mit jelölt ki?
 	public void selectElement(MouseEvent e) {
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			if (s.getCircle().contains(e.getX(), e.getY())) {
+				selectedShape = s.getCircle();
+			
 				rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
 				delMenuItem.setOnAction(ev -> {
 					controller.deleteSprinklerShape(s);
@@ -162,6 +167,7 @@ public class CanvasPane extends Pane {
 		for (Shape border : controller.listBorderShapes()) {
 			if (border.contains(e.getX(), e.getY())) {
 				rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
+				selectedShape = border;
 				delMenuItem.setOnAction(ev -> {
 					controller.removeBorderShape(border);
 					bordersLayer.getChildren().remove(border);
@@ -174,6 +180,9 @@ public class CanvasPane extends Pane {
 				});
 			}
 		}
+		originalStrokeColorOfSelectedShape = selectedShape.getStroke();
+		selectedShape.setStroke(selectionColor);
+		
 	}
 
 	public void endLineDrawing() {
@@ -258,12 +267,7 @@ public class CanvasPane extends Pane {
 		zone.setName(name);
 		zone.setSprinklers(FXCollections.observableArrayList(selectedSprinklerShapes));
 		zone.setDurationOfWatering(durationInHours);
-		controller.addZone(zone);
-		for (SprinklerShape s : zone.getSprinklers()) {
-			s.getArc().setFill(Color.LAWNGREEN);
-			// TODO ez a kitöltés legyen kikapcsolható
-			s.getArc().setOpacity((s.getFlowRate() * durationInHours) / 3);
-		}
+		controller.addZone(zone);		
 		deselectAll();
 		modifiedSinceLastSave = true;
 	}
@@ -362,4 +366,32 @@ public class CanvasPane extends Pane {
 			n.setVisible(false);
 		}
 	}
+
+	public void deletePipes(Zone zone) {
+		PipeGraph pg = controller.getPipeGraph(zone);
+		for (SprinklerShape s : zone.getSprinklers()) {
+			s.setConnectedToPipe(false);
+		}
+		for (Edge e : pg.getEdges()) {
+			pipeLineLayer.getChildren().remove(e);
+		}
+		pipeLineLayer.getChildren().remove(pg.getValve());
+		for (Text t : pg.getPipeTextes()) {
+			pipeTextLayer.getChildren().remove(t);
+		}
+	}
+
+	public Shape getSelectedShape() {
+		return selectedShape;
+	}
+
+	public void setSelectedShape(Shape selectedShape) {
+		this.selectedShape = selectedShape;
+	}
+
+	public Paint getOriginalStrokeColorOfSelectedShape() {
+		return originalStrokeColorOfSelectedShape;
+	}
+	
+	
 }

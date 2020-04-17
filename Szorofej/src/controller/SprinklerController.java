@@ -50,7 +50,8 @@ public interface SprinklerController {
 	public void deleteSprinklerShape(SprinklerShape s);
 	public void clearSprinklerShapes();
 	public ObservableList<SprinklerShape> listSprinklerShapesNotInZones();
-	
+	public ObservableList<SprinklerShape> listSprinklerShapesNotConnectedToPipes();
+
 	public ObservableList<Zone> listZones();
 	public void addZone(Zone z);
 	public void removeZone(Zone z);
@@ -68,7 +69,6 @@ public interface SprinklerController {
 	public void clearTexts();	
 	
 	public ObservableList<UsedMaterial> summarizeMaterials();
-
 	public void addPipeMaterial(String pipename, Double length);
 	
 	public void clearAll();

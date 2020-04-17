@@ -92,6 +92,7 @@ public class PipeDrawing {
 				} else {
 					endVertex = new Vertex(CanvasPane.sprinklerHeadX, CanvasPane.sprinklerHeadY, startVertex,
 							canvasPane.sprinklerShapeNearCursor);
+					canvasPane.sprinklerShapeNearCursor.setConnectedToPipe(true);
 				}
 			} else {
 				endVertex = new Vertex(e.getX(), e.getY());
@@ -180,6 +181,8 @@ public class PipeDrawing {
 				if (diameters.get(0) != currentDiameter) {
 					currentDiameter = diameters.get(0);
 					diameterText = new Text(currentDiameter);
+					pg.getPipeTextes().add(diameterText);		
+
 					diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 					diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
 					diameterText.setStyle(Common.textstyle);
@@ -198,6 +201,7 @@ public class PipeDrawing {
 
 						currentDiameter = diameters.get(i);
 						diameterText = new Text(currentDiameter);
+						pg.getPipeTextes().add(diameterText);		
 
 						diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 						diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
@@ -211,19 +215,15 @@ public class PipeDrawing {
 						}
 					}
 					position = new Point2D((posStartX + posEndX) / 2, (posStartY + posEndY) / 2);
-
 				}
 			}
 
 			for(Double length : pipeLengths) {
 				controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
 			}
-			
-			
 		} catch (GraphException ex) {
 			ex.printStackTrace();
 		}
-
 	}
 
 	private static Vertex breakPoint2 = null;
@@ -259,14 +259,11 @@ public class PipeDrawing {
 						break outerloop;
 					}
 				}
-
 				current = current.getChild();
 			}
-
 		} catch (GraphException e) {
 			e.printStackTrace();
 		}
-
 		return totalWaterFlow;
 	}
 

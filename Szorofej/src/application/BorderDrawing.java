@@ -38,8 +38,12 @@ public class BorderDrawing {
 		}
 	}
 
-	// TODO ide is kell a rácshoz igazodás, mint a szórófej rajzolásnál
 	public static void drawBorderLine(MouseEvent e, Color color, int width, CanvasPane canvasPane) {
+		
+		double clickX = e.getX() < 0 ? 0 : e.getX();
+		double clickY = e.getY() < 0 ? 0 : e.getY();
+		
+		
 		BorderDrawing.tempBorderLine.setVisible(false);
 		Line line = new Line();
 		line.setStartX(BorderDrawing.startX);
@@ -52,18 +56,18 @@ public class BorderDrawing {
 			endX = canvasPane.lineEndX;
 			endY = canvasPane.lineEndY;
 		} else {
-			endX = e.getX();
-			endY = e.getY();
+			endX = clickX;
+			endY = clickY;
 		}
 		if (!BorderDrawing.lengthInput.getText().trim().isEmpty() && BorderDrawing.lengthInput.getText() != null)
 			try {
 				double requiredLength = Double.parseDouble(BorderDrawing.lengthInput.getText()) * Common.pixelPerMeter;
-				double drawnLength = Math.sqrt((BorderDrawing.startX - e.getX()) * (BorderDrawing.startX - e.getX())
-						+ (BorderDrawing.startY - e.getY()) * (BorderDrawing.startY - e.getY()));
+				double drawnLength = Math.sqrt((BorderDrawing.startX - clickX) * (BorderDrawing.startX - clickX)
+						+ (BorderDrawing.startY - clickY) * (BorderDrawing.startY - clickY));
 				double ratio = requiredLength / drawnLength;
 
-				endX = BorderDrawing.startX + (e.getX() - BorderDrawing.startX) * ratio;
-				endY = BorderDrawing.startY + (e.getY() - BorderDrawing.startY) * ratio;
+				endX = BorderDrawing.startX + (clickX - BorderDrawing.startX) * ratio;
+				endY = BorderDrawing.startY + (clickY - BorderDrawing.startY) * ratio;
 				
 				BorderDrawing.lengthInput.setText("");
 				BorderDrawing.lengthInput.setVisible(false);
@@ -89,8 +93,11 @@ public class BorderDrawing {
 
 	public static void drawBorderRectanlge(MouseEvent e, Color strokeColor, Color fillColor, int width,
 			CanvasPane canvasPane) {
-		Rectangle rect = Common.drawRectangle(strokeColor, BorderDrawing.startX, BorderDrawing.startY, e.getX(),
-				e.getY());
+		
+		double clickX = Common.mouseEventWithinBounds(e).getX();
+		double clickY = Common.mouseEventWithinBounds(e).getY();
+
+		Rectangle rect = Common.drawRectangle(strokeColor, BorderDrawing.startX, BorderDrawing.startY, clickX, clickY);
 		rect.setFill(fillColor);
 		rect.setStrokeWidth(width);
 		canvasPane.bordersLayer.getChildren().add(rect);
@@ -114,17 +121,20 @@ public class BorderDrawing {
 
 
 	public static void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
-
+			
+	double clickX = Common.mouseEventWithinBounds(e).getX();
+	double clickY = Common.mouseEventWithinBounds(e).getY();
+		
 		if (e.getButton() == MouseButton.PRIMARY) {
-			double width = Math.abs(startX - e.getX());
-			double height = Math.abs(startY - e.getY());
+			double width = Math.abs(startX - clickX);
+			double height = Math.abs(startY - clickY);
 			double x = 0, y = 0;
-			if (startX > e.getX())
-				x = e.getX();
+			if (startX > clickX)
+				x = clickX;
 			else
 				x = startX;
-			if (startY > e.getY())
-				y = e.getY();
+			if (startY > clickY)
+				y = clickY;
 			else
 				y = startY;
 			BorderDrawing.tempRectangle.setX(x);

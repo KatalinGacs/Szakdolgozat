@@ -78,9 +78,9 @@ public class SprinklerDrawing {
 			if (validPoint) {
 				sprinkler = new SprinklerShape();
 
-				label = new Text(sprinkler.getSprinkler().getName());
 
 				sprinkler.setSprinkler(sprinklerType);
+				label = new Text(sprinkler.getSprinkler().getName());
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
 
 				centerX = mouseEvent.getX();
@@ -113,12 +113,9 @@ public class SprinklerDrawing {
 
 			if (canvasPane.drawingSeveralSprinklers) {
 				sprinkler = new SprinklerShape();
-
-				label = new Text(sprinkler.getSprinkler().getName());
-
 				sprinkler.setSprinkler(sprinklerType);
+				label = new Text(sprinkler.getSprinkler().getName());
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
-
 			}
 			
 			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
@@ -243,7 +240,6 @@ public class SprinklerDrawing {
 				label.setStyle(Common.textstyle);
 				sprinkler.setLabel(label);
 				canvasPane.sprinklerTextLayer.getChildren().add(sprinkler.getLabel());
-
 				controller.addSprinklerShape(sprinkler);
 				drawingState = SprinklerDrawingState.CENTER;
 				if (canvasPane.drawingSeveralSprinklers)
@@ -359,14 +355,12 @@ public class SprinklerDrawing {
 
 				canvasPane.tempSprinklerCirclesInALine.add(c);
 				canvasPane.tempSprinklerCentersInALine.add(center);
-	
 			}
 		} else
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
-	// TODO ha az elsõnél nyomok escapet, rosszul mûködik - mert az event filter targetje nem a canvaspane
-	// https://stackoverflow.com/questions/25740103/javafx-what-is-the-difference-between-eventhandler-and-eventfilter
+
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
 		canvasPane.lineSelected = false;
 		if (canvasPane.tempSprinklerCentersInALine.isEmpty()) {
@@ -385,6 +379,7 @@ public class SprinklerDrawing {
 			tempSprinklerCircle.setFill(sprinklerColor);
 			tempSprinklerCircle.setVisible(true);
 			drawingState = SprinklerDrawingState.FIRSTSIDE;
+			canvasPane.requestFocus();
 		}
 	}
 

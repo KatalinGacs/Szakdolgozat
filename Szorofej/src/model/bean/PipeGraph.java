@@ -14,6 +14,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 
 @XmlRootElement(name = "PipeGraph")
 public class PipeGraph {
@@ -27,6 +28,8 @@ public class PipeGraph {
 	private Set<Edge> edges= new HashSet<>();
 	private Set<Vertex> breakpoints = new HashSet<>();
 	private Vertex root;
+	
+	private Set<Text> pipeTexts = new HashSet<>();
 	
 	public PipeGraph(Zone zone, Color color) {
 		this.zone = zone;
@@ -300,6 +303,10 @@ public class PipeGraph {
 					+ ((getStartY() - getEndY()) * (getStartY() - getEndY())));
 		}
 
+	}
+
+	public Set<Text> getPipeTextes() {
+		return pipeTexts;
 	}
 
 

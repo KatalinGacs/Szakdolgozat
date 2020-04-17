@@ -253,4 +253,9 @@ public class SprinklerControllerImpl implements SprinklerController {
 		return dao.listSprinklerShapesNotInZones();
 	}
 
+	@Override
+	public ObservableList<SprinklerShape> listSprinklerShapesNotConnectedToPipes() {
+		return dao.listSprinklerShapesNotConnectedToPipes();
+	}
+
 }

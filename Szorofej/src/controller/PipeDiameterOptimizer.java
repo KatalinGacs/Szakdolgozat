@@ -116,8 +116,7 @@ public class PipeDiameterOptimizer {
 			result.add(s.getSprinkler().getMinPressure());
 		}
 		if (sprinklers.size() < arraySize) {
-			result.add(0.0); // TODO ennek értelmes számnak kéne lennie, az egész optimalizáló meg kéne kapja
-								// argumentumban az elején
+			result.add(0.0); 
 		}
 		return result;
 	}

@@ -7,24 +7,19 @@ import javafx.scene.transform.Scale;
 
 public class ZoomableScrollPane extends ScrollPane {
 
-	// TODO: kéne egy határ, hogy mennyire lehet kicsinyíteni, mert most
-	// elõfordulhat, hogy olyan kicsire kizoomol, hogy nem lehet visszaállítani
-	// vagy: egy gomb valahol, amivel vissza lehet állni a "gyári" beállításra (ez egyszerûbb)
-	Group zoomGroup;
 	Scale scale;
-	Node content;
-	double scaleValue = 0.5;
-	double zoomIntensity = 0.01;
+
+	double scaleValue = 1;
+	double zoomIntensity = 0.03;
 
 	public ZoomableScrollPane(Node content) {
 		super();
-		this.content = content;
-		zoomGroup = new Group(content);
-		setContent(zoomGroup);
+		setContent(content);
+		
 		scale = new Scale(scaleValue, scaleValue, 0, 0);
-		zoomGroup.getTransforms().add(scale);
+		content.getTransforms().add(scale);
 
-		zoomGroup.setOnScroll(e -> {
+		content.setOnScroll(e -> {
 			if (e.getDeltaY() < 0)
 				scaleValue -= zoomIntensity;
 			else
@@ -38,14 +33,6 @@ public class ZoomableScrollPane extends ScrollPane {
 		this.scaleValue = scaleValue;
 		scale.setX(scaleValue);
 		scale.setY(scaleValue);
-	}
-
-	public Group getZoomGroup() {
-		return zoomGroup;
-	}
-
-	public void setZoomGroup(Group zoomGroup) {
-		this.zoomGroup = zoomGroup;
 	}
 
 }

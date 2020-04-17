@@ -102,7 +102,7 @@ public class DrawingPanel extends VBox {
 			canvasPane.sprinklerAttributesSet = false;
 			sprinklerInfoText.setText("");
 		});
-		borderLineWidth.setPrefWidth(60);
+		borderLineWidth.setPrefWidth(70);
 
 		borderTab.setContent(borderTabElements);
 		borderButtons.getToggles().addAll(borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn);
@@ -161,12 +161,13 @@ public class DrawingPanel extends VBox {
 		miscTabElements.setAlignment(Pos.CENTER_LEFT);
 		miscTabElements.setSpacing(10);
 
-		scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
-		scrollPane.setFitToWidth(true);
-		scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
-		scrollPane.setMinHeight(USE_COMPUTED_SIZE);
+		//scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+//		scrollPane.setFitToWidth(true);
+		//scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
+		//scrollPane.setMinHeight(USE_COMPUTED_SIZE);
 		getChildren().add(scrollPane);
 
+		
 		footer.setLeft(viewElements);
 		footer.setRight(generalInfoBox);
 		footer.setCenter(sprinklerInfoBox);
@@ -208,6 +209,11 @@ public class DrawingPanel extends VBox {
 
 		canvasPane.setOnMouseClicked(e -> {
 			canvasPane.requestFocus();
+			if (canvasPane.getSelectedShape() != null) {
+				canvasPane.getSelectedShape().setStroke(canvasPane.getOriginalStrokeColorOfSelectedShape());
+				canvasPane.setSelectedShape(null);
+			}
+			
 			if (e.getButton() == MouseButton.PRIMARY) {
 				if (selectLine.isSelected()) {
 					SprinklerDrawing.selectLineForSprinklerDrawing(e, canvasPane);
@@ -256,6 +262,7 @@ public class DrawingPanel extends VBox {
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
+
 			if ((canvasPane.stateOfCanvasUse == Use.BORDERDRAWING
 					&& borderButtons.getSelectedToggle() == obstacleRectangleBtn)
 					|| (canvasPane.stateOfCanvasUse == Use.ZONEEDITING))
@@ -377,7 +384,7 @@ public class DrawingPanel extends VBox {
 					}
 				}
 				if (!canvasPane.cursorNearSprinklerHead) {
-					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
+					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) { 
 						if (line.contains(e.getX(), e.getY())) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
 							PipeDrawing.lineBreakPointX = e.getX();

@@ -4,13 +4,10 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Random;
 
-import com.sun.glass.events.KeyEvent;
-
 import application.CanvasPane.Use;
 import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
-import javafx.event.EventType;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;

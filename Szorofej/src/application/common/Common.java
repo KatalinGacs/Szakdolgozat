@@ -6,6 +6,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Alert.AlertType;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.Screen;
@@ -18,11 +19,39 @@ public class Common {
 	public static String programName = "Öntözéstervezezõ";
 	public static String version = "1.0";
 	
+	public static double canvasWidth = primaryScreenBounds.getWidth()*5;
+	public static double canvasHeight = primaryScreenBounds.getHeight()*5;
+	
 	public static void showAlert(String contentText) {
 		Alert alert = new Alert(AlertType.WARNING);
 		alert.setContentText(contentText);
 		alert.setTitle("Hiba");
 		alert.show();
+	}
+	
+	// Ensure that the user does not draw outside the drawing area
+	public static Point2D mouseEventWithinBounds(MouseEvent e) {
+
+		double x;
+		double y;
+		
+		if (e.getX() < 0) {
+			x = 0;
+		} else if (e.getX() > canvasWidth) {
+			x = canvasWidth;
+		} else {
+			x = e.getX();
+		}
+
+		if (e.getY() < 0) {
+			y = 0;
+		} else if (e.getY() > canvasHeight) {
+			y = canvasHeight;
+		} else {
+			y = e.getY();
+		}
+		
+		return new Point2D(x, y);
 	}
 
 	public static Point2D snapToGrid(double mouseX, double mouseY) {

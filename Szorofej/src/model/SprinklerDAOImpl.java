@@ -45,6 +45,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
 	private static ObservableList<UsedMaterial> materialSum = FXCollections.observableArrayList();
+	
 	private static ObservableList<UsedMaterial> pipeMaterialSum = FXCollections.observableArrayList();
 	
 	public SprinklerDAOImpl() {
@@ -577,6 +578,17 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		}
 		for (SprinklerShape s : sprinklerShapes) {
 			if (!inZone.contains(s)) {
+				result.add(s);
+			}
+		}
+		return result;
+	}
+
+	@Override
+	public ObservableList<SprinklerShape> listSprinklerShapesNotConnectedToPipes() {
+		ObservableList<SprinklerShape> result = FXCollections.observableArrayList();
+		for (SprinklerShape s : sprinklerShapes) {
+			if (!s.isConnectedToPipe()) {
 				result.add(s);
 			}
 		}

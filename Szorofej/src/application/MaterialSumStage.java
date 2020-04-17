@@ -50,16 +50,16 @@ public class MaterialSumStage extends Stage {
 		tableView.setItems(controller.summarizeMaterials());
 
 		saveBtn.setOnAction(e -> {
-			
-			if (!controller.listSprinklerShapesNotInZones().isEmpty()) {
+			Optional<ButtonType> result = null;
+			if (!controller.listSprinklerShapesNotInZones().isEmpty() || !controller.listSprinklerShapesNotConnectedToPipes().isEmpty()) {
 				Alert confirmContinue = new Alert(AlertType.CONFIRMATION);
 				confirmContinue.setTitle("Összegzés");
-				// TODO most még csak azt ellenõrzi, zónába nem soroltak vannak-e
-				confirmContinue.setHeaderText("Vannak zónába nem sorolt vagy csövezéssel be nem kötöt szórófejek.");
+				confirmContinue.setHeaderText("Vannak zónába nem sorolt vagy csövezéssel be nem kötött szórófejek.");
 				confirmContinue.setContentText("Folytatja?");
 
-				Optional<ButtonType> result = confirmContinue.showAndWait();
-				if (result.get() == ButtonType.OK){
+				result = confirmContinue.showAndWait();
+			}
+			else if (result == null || result.get() == ButtonType.OK){
 					
 					
 					Workbook workbook = new HSSFWorkbook();
@@ -95,7 +95,7 @@ public class MaterialSumStage extends Stage {
 					close();
 				} else {
 					close();
-				}
+				
 			}
 
 		});

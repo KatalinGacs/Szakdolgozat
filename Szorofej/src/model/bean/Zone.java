@@ -9,10 +9,12 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
+import application.CanvasPane;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
 
 @XmlRootElement(name = "Zone")
@@ -143,7 +145,7 @@ public class Zone {
 		SprinklerController controller = new SprinklerControllerImpl();
 
 		ArrayList<VertexElement> result = new ArrayList<>();
-		for (Vertex v : controller.getPipeGraph(this).getVertices()) { // TODO null check
+		for (Vertex v : controller.getPipeGraph(this).getVertices()) { 
 			VertexElement vE = new VertexElement();
 			vE.setRoot(v.getParent() == null);
 			vE.setBreakpoint(v.isBreakPoint());
@@ -168,5 +170,6 @@ public class Zone {
 
 		vertices = result;
 	}
+
 
 }

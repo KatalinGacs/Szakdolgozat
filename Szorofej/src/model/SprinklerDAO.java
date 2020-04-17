@@ -50,7 +50,8 @@ public interface SprinklerDAO {
 	public void deleteSprinklerShape(SprinklerShape s);
 	public void clearSprinklerShapes();
 	public ObservableList<SprinklerShape> listSprinklerShapesNotInZones();
-	
+	public ObservableList<SprinklerShape> listSprinklerShapesNotConnectedToPipes();
+ 	
 	public ObservableList<Zone> listZones();
 	public void addZone(Zone z);
 	public void removeZone(Zone z);
@@ -62,15 +63,14 @@ public interface SprinklerDAO {
 	public PipeGraph getPipeGraph(Zone zone);
 	public void clearPipeGraphs();
 	
-	
 	public ObservableList<UsedMaterial> summarizeMaterials();
 	public void addPipeMaterial(String pipename, Double length);
+	public void clearMaterials();
 	
 	public ObservableList<Text> listTexts();
 	public void addText(Text t);
 	public void removeText(Text t);
 	public void clearTexts();	
-	public void clearMaterials();
 	
 	public void clearAll();
 }

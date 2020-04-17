@@ -53,6 +53,8 @@ public class FileHandler {
 		} else {
 			canvasPane.clear();
 			canvasPane.hideTempLayer();
+			currentPath = "";
+			stage.setTitle(Common.programName + " - " + currentPath);
 		}
 		canvasPane.setModifiedSinceLastSave(false);
 	}
@@ -77,8 +79,6 @@ public class FileHandler {
 				Marshaller m = context.createMarshaller();
 				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-				m.marshal(canvas, System.out);
-
 				m.marshal(canvas, fileOS);
 
 				canvasPane.setModifiedSinceLastSave(false);
@@ -89,7 +89,6 @@ public class FileHandler {
 
 		}
 		stage.setTitle(Common.programName + " - " + currentPath);
-
 	}
 
 	public static void loadCanvas(CanvasPane canvasPane, Stage stage) {
@@ -98,28 +97,29 @@ public class FileHandler {
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
 		fileChooser.getExtensionFilters().add(extFilter);
 		File file = fileChooser.showOpenDialog(stage);
-		currentPath = file.getAbsolutePath();
-		stage.setTitle(Common.programName + " - " + currentPath);
+		if (file != null) {
+			currentPath = file.getAbsolutePath();
+			stage.setTitle(Common.programName + " - " + currentPath);
+			newCanvas(canvasPane, stage);
+			JAXBContext context;
+			try {
+				context = JAXBContext.newInstance(Canvas.class);
+				Unmarshaller um = context.createUnmarshaller();
+				Canvas canvas = (Canvas) um.unmarshal(new FileInputStream(file));
+				loadSprinklerShapes(canvasPane, canvas);
+				loadBorderLines(canvasPane, canvas);
+				loadCircleObstacles(canvasPane, canvas);
+				loadRectangleObstacles(canvasPane, canvas);
+				loadZones(canvasPane, canvas);
+				loadTexts(canvasPane, canvas);
+				canvasPane.setModifiedSinceLastSave(false);
 
-		JAXBContext context;
-		try {
-			context = JAXBContext.newInstance(Canvas.class);
-			Unmarshaller um = context.createUnmarshaller();
-			Canvas canvas = (Canvas) um.unmarshal(new FileInputStream(file));
-			loadSprinklerShapes(canvasPane, canvas);
-			loadBorderLines(canvasPane, canvas);
-			loadCircleObstacles(canvasPane, canvas);
-			loadRectangleObstacles(canvasPane, canvas);
-			loadZones(canvasPane, canvas);
-			loadTexts(canvasPane, canvas);
-			canvasPane.setModifiedSinceLastSave(false);
-
-		} catch (JAXBException | FileNotFoundException e) {
-			e.printStackTrace();
-		} catch (Exception e) {
-			e.printStackTrace();
+			} catch (JAXBException | FileNotFoundException e) {
+				e.printStackTrace();
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
 		}
-
 	}
 
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
@@ -187,9 +187,7 @@ public class FileHandler {
 	}
 
 	private static void loadZones(CanvasPane canvasPane, Canvas canvas) throws PressureException {
-		for (Zone zone : controller.listZones()) {
-			controller.removeZone(zone);
-		}
+		controller.clearZones();
 		for (Zone zone : canvas.zones) {
 			PipeGraph pg = new PipeGraph();
 			pg.setZone(zone);
