@@ -120,9 +120,9 @@ public class SetSprinklerAttributesStage extends Stage {
 						Common.showAlert("A sugár nagyobb, mint az ennél a típusnál megengedett legnagyobb sugár");
 					} else {
 						SprinklerDrawing.sprinklerRadius = radius * Common.pixelPerMeter;
-						canvasPane.sprinklerAttributesSet = true;
+						canvasPane.setSprinklerAttributesSet(true);
 						SprinklerDrawing.sprinklerType = type;
-						canvasPane.stateOfCanvasUse = Use.SPRINKLERDRAWING;
+						canvasPane.setStateOfCanvasUse(Use.SPRINKLERDRAWING);
 					}
 				}
 				requestFocus();

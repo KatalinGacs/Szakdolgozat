@@ -82,14 +82,14 @@ public class ZoneStage extends Stage{
 				Common.showAlert("Ilyen nevû zóna már létezik!");
 			}else {
 				canvasPane.createZone(zoneNameTextField.getText().trim(), durationInHours);
-				canvasPane.stateOfCanvasUse = Use.NONE;
+				canvasPane.setStateOfCanvasUse(Use.NONE);
 				close();
 			}
 		});
 		
 		setOnCloseRequest(e -> {
 			canvasPane.deselectAll();
-			canvasPane.stateOfCanvasUse = Use.NONE;
+			canvasPane.setStateOfCanvasUse(Use.NONE);
 		});
 	}
 	

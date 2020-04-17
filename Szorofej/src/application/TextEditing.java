@@ -30,7 +30,7 @@ public class TextEditing {
 	static Stage stage = new Stage();
 
 	public static void openTextFormatStage(CanvasPane canvasPane) {
-		canvasPane.stateOfCanvasUse = Use.PREPAREFORTEXTEDITING;
+		canvasPane.setStateOfCanvasUse(Use.PREPAREFORTEXTEDITING); 
 
 		GridPane root = new GridPane();
 		Scene scene = new Scene(root);
@@ -89,8 +89,8 @@ public class TextEditing {
 				text.setStyle(style);
 				text.setFill(fontColor);
 				canvasPane.controller.addText(text);
-				canvasPane.stateOfCanvasUse = Use.NONE;
-				canvasPane.textLayer.getChildren().add(text);
+				canvasPane.setStateOfCanvasUse(Use.NONE);
+				canvasPane.getTextLayer().getChildren().add(text);
 				textField.setVisible(false);
 				textField.setText("");
 				canvasPane.setCursor(Cursor.DEFAULT);

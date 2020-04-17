@@ -125,9 +125,9 @@ public class FileHandler {
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
 
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			canvasPane.irrigationLayer.getChildren().remove(s.getCircle());
-			canvasPane.sprinklerArcLayer.getChildren().remove(s.getArc());
-			canvasPane.sprinklerTextLayer.getChildren().remove(s.getLabel());
+			canvasPane.getIrrigationLayer().getChildren().remove(s.getCircle());
+			canvasPane.getSprinklerArcLayer().getChildren().remove(s.getArc());
+			canvasPane.getSprinklerTextLayer().getChildren().remove(s.getLabel());
 		}
 		controller.listSprinklerShapes().clear();
 
@@ -138,7 +138,7 @@ public class FileHandler {
 
 	private static void loadBorderLines(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listBorderShapes()) {
-			canvasPane.bordersLayer.getChildren().remove(s);
+			canvasPane.getBordersLayer().getChildren().remove(s);
 		}
 		controller.listBorderShapes().clear();
 
@@ -148,13 +148,13 @@ public class FileHandler {
 			line.setStrokeWidth(b.getWidth());
 			line.setStroke(strokeColor);
 			controller.addBorderShape(line);
-			canvasPane.bordersLayer.getChildren().add(line);
+			canvasPane.getBordersLayer().getChildren().add(line);
 		}
 	}
 
 	private static void loadCircleObstacles(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listObstacles()) {
-			canvasPane.bordersLayer.getChildren().remove(s);
+			canvasPane.getBordersLayer().getChildren().remove(s);
 		}
 		controller.listObstacles().clear();
 
@@ -167,7 +167,7 @@ public class FileHandler {
 
 			controller.addBorderShape(circle);
 			controller.addObstacle(circle);
-			canvasPane.bordersLayer.getChildren().add(circle);
+			canvasPane.getBordersLayer().getChildren().add(circle);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class FileHandler {
 
 			controller.addBorderShape(rectangle);
 			controller.addObstacle(rectangle);
-			canvasPane.bordersLayer.getChildren().add(rectangle);
+			canvasPane.getBordersLayer().getChildren().add(rectangle);
 		}
 	}
 
@@ -225,15 +225,15 @@ public class FileHandler {
 					edge.setEndX(child.getX());
 					edge.setEndY(child.getY());
 					edge.setvParent(vertex);
-					edge.setStrokeWidth(CanvasPane.strokeWidth * 2);
+					edge.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
 					edge.setStroke(Color.valueOf(zone.getColor()));
 					edge.setvChild(child);
 					pg.addEdge(edge);
-					canvasPane.pipeLineLayer.getChildren().add(edge);
+					canvasPane.getPipeLineLayer().getChildren().add(edge);
 				}
 			}
 			pg.setValve(ValveIcon.valveIcon(pg.getRoot().getX(), pg.getRoot().getY(), Color.valueOf(zone.getColor())));
-			canvasPane.pipeLineLayer.getChildren().add(pg.getValve());
+			canvasPane.getPipeLineLayer().getChildren().add(pg.getValve());
 			controller.addZone(zone);
 			controller.addPipeGraph(pg);
 			PipeDrawing.completePipeDrawing(canvasPane, zone, pg.getRoot());
@@ -242,7 +242,7 @@ public class FileHandler {
 
 	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
 		for (Text t : controller.listTexts()) {
-			canvasPane.textLayer.getChildren().remove(t);
+			canvasPane.getTextLayer().getChildren().remove(t);
 		}
 		for (Text t : controller.listTexts()) {
 			controller.removeText(t);
@@ -253,7 +253,7 @@ public class FileHandler {
 			text.setFont(Font.font(t.getFont(), FontWeight.SEMI_BOLD, t.getFontSize()));
 			text.setFill(Color.web(t.getFillColor()));
 			controller.addText(text);
-			canvasPane.textLayer.getChildren().add(text);
+			canvasPane.getTextLayer().getChildren().add(text);
 		}
 	}
 
@@ -291,8 +291,8 @@ public class FileHandler {
 		s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
 
 		controller.addSprinklerShape(s);
-		canvasPane.irrigationLayer.getChildren().add(s.getCircle());
-		canvasPane.sprinklerArcLayer.getChildren().add(s.getArc());
-		canvasPane.sprinklerTextLayer.getChildren().add(s.getLabel());
+		canvasPane.getIrrigationLayer().getChildren().add(s.getCircle());
+		canvasPane.getSprinklerArcLayer().getChildren().add(s.getArc());
+		canvasPane.getSprinklerTextLayer().getChildren().add(s.getLabel());
 	}
 }

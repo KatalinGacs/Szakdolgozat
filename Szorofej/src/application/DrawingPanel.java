@@ -80,7 +80,7 @@ public class DrawingPanel extends VBox {
 	private ToggleButton showTexts = new ToggleButton("Szövegek");
 	private HBox generalInfoBox = new HBox();
 	private Text generalInfoText = new Text("");
-	
+
 	private HBox sprinklerInfoBox = new HBox();
 	private Text sprinklerInfoText = new Text("");
 
@@ -98,8 +98,8 @@ public class DrawingPanel extends VBox {
 		tabPane.setMinHeight(Common.pixelPerMeter * 2);
 
 		tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
-			canvasPane.stateOfCanvasUse = Use.NONE;
-			canvasPane.sprinklerAttributesSet = false;
+			canvasPane.setStateOfCanvasUse(Use.NONE);
+			canvasPane.setSprinklerAttributesSet(false);
 			sprinklerInfoText.setText("");
 		});
 		borderLineWidth.setPrefWidth(70);
@@ -151,7 +151,7 @@ public class DrawingPanel extends VBox {
 		pipeBtn.setOnAction(e -> {
 			setPipes();
 		});
-		summarizeBtn.setOnAction(e->{
+		summarizeBtn.setOnAction(e -> {
 			MaterialSumStage materialSumStage = new MaterialSumStage();
 			materialSumStage.show();
 		});
@@ -161,13 +161,12 @@ public class DrawingPanel extends VBox {
 		miscTabElements.setAlignment(Pos.CENTER_LEFT);
 		miscTabElements.setSpacing(10);
 
-		//scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
+		// scrollPane.setMaxSize(Double.MAX_VALUE, Double.MAX_VALUE);
 //		scrollPane.setFitToWidth(true);
-		//scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
-		//scrollPane.setMinHeight(USE_COMPUTED_SIZE);
+		// scrollPane.setPrefHeight(Common.primaryScreenBounds.getHeight() / 4 * 3);
+		// scrollPane.setMinHeight(USE_COMPUTED_SIZE);
 		getChildren().add(scrollPane);
 
-		
 		footer.setLeft(viewElements);
 		footer.setRight(generalInfoBox);
 		footer.setCenter(sprinklerInfoBox);
@@ -195,15 +194,15 @@ public class DrawingPanel extends VBox {
 		});
 
 		drawSeveralSprinklers.setOnAction(e -> {
-			if (!canvasPane.sprinklerAttributesSet)
+			if (!canvasPane.isSprinklerAttributesSet())
 				Common.showAlert("A szórófej típusa nincs kiválasztva!");
 			else if (!canvasPane.lineSelected)
 				Common.showAlert("A vonal nincs kiválasztva!");
 			else
 				SprinklerDrawing.drawSeveralSprinklers(canvasPane);
 		});
-		
-		textButton.setOnAction(e-> {
+
+		textButton.setOnAction(e -> {
 			TextEditing.openTextFormatStage(canvasPane);
 		});
 
@@ -213,40 +212,41 @@ public class DrawingPanel extends VBox {
 				canvasPane.getSelectedShape().setStroke(canvasPane.getOriginalStrokeColorOfSelectedShape());
 				canvasPane.setSelectedShape(null);
 			}
-			
+
 			if (e.getButton() == MouseButton.PRIMARY) {
 				if (selectLine.isSelected()) {
 					SprinklerDrawing.selectLineForSprinklerDrawing(e, canvasPane);
 					if (canvasPane.lineSelected)
 						selectLine.setSelected(false);
-				} else if (canvasPane.stateOfCanvasUse == Use.SPRINKLERDRAWING ) {
+				} else if (canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
 					SprinklerDrawing.drawNewSprinkler(e, canvasPane);
 				} else if (borderButtons.getSelectedToggle() == borderLineBtn
-						&& canvasPane.stateOfCanvasUse != Use.BORDERDRAWING) {
-					canvasPane.stateOfCanvasUse = Use.BORDERDRAWING;
+						&& canvasPane.getStateOfCanvasUse() != Use.BORDERDRAWING) {
+					canvasPane.setStateOfCanvasUse(Use.BORDERDRAWING);
 					BorderDrawing.startDrawingBorder(e);
 				} else if (borderButtons.getSelectedToggle() == borderLineBtn
-						&& canvasPane.stateOfCanvasUse == Use.BORDERDRAWING) {
+						&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
 					BorderDrawing.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
-				} else if (canvasPane.stateOfCanvasUse == Use.ZONEEDITING) {
+				} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
 					if (addHeads.isSelected()) {
 						canvasPane.selectHeadsForZone(e, true, true);
 					} else if (removeHeads.isSelected()) {
 						canvasPane.selectHeadsForZone(e, false, true);
 					}
 					updateZoneInfos();
-				} else if (canvasPane.stateOfCanvasUse == Use.PREPAREFORPIPEDRAWING) {
+				} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
 					PipeDrawing.startDrawingPipeLine(e, canvasPane);
-				} else if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING) {
+				} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
 					PipeDrawing.drawPipeLine(e, canvasPane);
-				} else if (canvasPane.stateOfCanvasUse == Use.PREPAREFORTEXTEDITING) {
+				} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
 					TextEditing.startWritingText(e, canvasPane);
 				}
 			} else if (e.getButton() == MouseButton.SECONDARY) {
 				canvasPane.selectElement(e);
 			}
 			e.consume();
-			if (canvasPane.stateOfCanvasUse != Use.PREPAREFORTEXTEDITING) canvasPane.requestFocus();
+			if (canvasPane.getStateOfCanvasUse() != Use.PREPAREFORTEXTEDITING)
+				canvasPane.requestFocus();
 		});
 
 		canvasPane.setOnMousePressed(e -> {
@@ -254,21 +254,21 @@ public class DrawingPanel extends VBox {
 			if ((borderButtons.getSelectedToggle() == obstacleRectangleBtn
 					|| borderButtons.getSelectedToggle() == obstacleCircleBtn)
 					&& e.getButton() == MouseButton.PRIMARY) {
-				canvasPane.stateOfCanvasUse = Use.BORDERDRAWING;
+				canvasPane.setStateOfCanvasUse(Use.BORDERDRAWING);
 				BorderDrawing.startDrawingBorder(e);
-			} else if (canvasPane.stateOfCanvasUse == Use.ZONEEDITING) {
+			} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
 				BorderDrawing.startDrawingBorder(e);
 			}
 		});
 
 		canvasPane.setOnMouseDragged(e -> {
 
-			if ((canvasPane.stateOfCanvasUse == Use.BORDERDRAWING
+			if ((canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
 					&& borderButtons.getSelectedToggle() == obstacleRectangleBtn)
-					|| (canvasPane.stateOfCanvasUse == Use.ZONEEDITING))
+					|| (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING))
 				BorderDrawing.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
 						canvasPane);
-			else if (canvasPane.stateOfCanvasUse == Use.BORDERDRAWING
+			else if (canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
 					&& borderButtons.getSelectedToggle() == obstacleCircleBtn)
 				BorderDrawing.showTempBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
 						canvasPane);
@@ -279,12 +279,12 @@ public class DrawingPanel extends VBox {
 				if (borderButtons.getSelectedToggle() == obstacleRectangleBtn) {
 					BorderDrawing.drawBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
 							borderLineWidth.getValue(), canvasPane);
-					canvasPane.stateOfCanvasUse = Use.NONE;
+					canvasPane.setStateOfCanvasUse(Use.NONE);
 				} else if (borderButtons.getSelectedToggle() == obstacleCircleBtn) {
 					BorderDrawing.drawBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
 							borderLineWidth.getValue(), canvasPane);
-					canvasPane.stateOfCanvasUse = Use.NONE;
-				} else if (canvasPane.stateOfCanvasUse == Use.ZONEEDITING) {
+					canvasPane.setStateOfCanvasUse(Use.NONE);
+				} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
 					if (addHeads.isSelected()) {
 						canvasPane.selectHeadsForZone(e, true, false);
 						updateZoneInfos();
@@ -297,39 +297,40 @@ public class DrawingPanel extends VBox {
 		});
 
 		canvasPane.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
-			canvasPane.pressedKey = null;
+			canvasPane.setPressedKey(null);
 			canvasPane.setCursor(Cursor.DEFAULT);
 		});
 
 		canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-			canvasPane.pressedKey = e.getCode();
-			if (canvasPane.pressedKey.equals(KeyCode.ESCAPE)) {
+			canvasPane.setPressedKey(e.getCode());
+			if (canvasPane.getPressedKey().equals(KeyCode.ESCAPE)) {
 				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				canvasPane.endLineDrawing();
 				borderButtons.selectToggle(null);
-				if(canvasPane.cursorNearSprinklerHead) {
+				if (canvasPane.cursorNearSprinklerHead) {
 					canvasPane.cursorNearSprinklerHead = false;
 				}
-				
+
 			}
 		});
 
 		canvasPane.setOnMouseMoved(e -> {
-			generalInfoText.setText(canvasPane.showGeneralInfos(e));
-			
-			if (canvasPane.sprinklerAttributesSet && tabPane.getSelectionModel().getSelectedItem() == sprinklerTab) {
-				sprinklerInfoText.setText(canvasPane.showSprinklerInfos());
+			generalInfoText.setText(canvasPane.generalInfos(e));
+
+			if (canvasPane.isSprinklerAttributesSet()
+					&& tabPane.getSelectionModel().getSelectedItem() == sprinklerTab) {
+				sprinklerInfoText.setText(canvasPane.sprinklerInfos());
 			}
 
 			canvasPane.showFocusCircle(e);
 			SprinklerDrawing.showTempLine(e, canvasPane);
 			Point2D mousePoint = new Point2D(e.getX(), e.getY());
 
-			if (canvasPane.stateOfCanvasUse == Use.PREPAREFORTEXTEDITING) {
+			if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
 				canvasPane.setCursor(Cursor.TEXT);
 			}
-			
-			if (canvasPane.pressedKey == KeyCode.SHIFT) {
+
+			if (canvasPane.getPressedKey() == KeyCode.SHIFT) {
 				for (Shape border : controller.listBorderShapes()) {
 					if (border.contains(mousePoint)) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
@@ -340,22 +341,22 @@ public class DrawingPanel extends VBox {
 			}
 
 			if (borderButtons.getSelectedToggle() == borderLineBtn
-					&& canvasPane.stateOfCanvasUse == Use.BORDERDRAWING) {
+					&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
 				BorderDrawing.showTempBorderLine(e, borderColor.getValue(), canvasPane);
 				for (Shape border : controller.listBorderShapes()) {
 					if (border instanceof Line) {
 						if ((Math.abs(e.getX() - ((Line) border).getStartX()) < Common.pixelPerMeter / 2
 								&& Math.abs(e.getY() - ((Line) border).getStartY()) < Common.pixelPerMeter / 2)) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
-							canvasPane.lineEndX = ((Line) border).getStartX();
-							canvasPane.lineEndY = ((Line) border).getStartY();
+							BorderDrawing.lineEndX = ((Line) border).getStartX();
+							BorderDrawing.lineEndY = ((Line) border).getStartY();
 							canvasPane.cursorNearLineEnd = true;
 							break;
 						} else if (Math.abs(e.getX() - ((Line) border).getEndX()) < Common.pixelPerMeter / 2
 								&& Math.abs(e.getY() - ((Line) border).getEndY()) < Common.pixelPerMeter / 2) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
-							canvasPane.lineEndX = ((Line) border).getEndX();
-							canvasPane.lineEndY = ((Line) border).getEndY();
+							BorderDrawing.lineEndX = ((Line) border).getEndX();
+							BorderDrawing.lineEndY = ((Line) border).getEndY();
 							canvasPane.cursorNearLineEnd = true;
 							break;
 						} else {
@@ -364,10 +365,10 @@ public class DrawingPanel extends VBox {
 						}
 					}
 				}
-			} else if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING
-					|| canvasPane.stateOfCanvasUse == Use.PREPAREFORPIPEDRAWING) {
-				if (canvasPane.stateOfCanvasUse == Use.PIPEDRAWING) {
-					BorderDrawing.showTempBorderLine(e, CanvasPane.pipeLineColor, canvasPane);
+			} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING
+					|| canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
+				if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
+					BorderDrawing.showTempBorderLine(e, CanvasPane.getPipeLineColor(), canvasPane);
 					for (SprinklerShape s : controller.listSprinklerShapes()) {
 						if ((Math.abs(e.getX() - s.getCircle().getCenterX()) < Common.pixelPerMeter / 2
 								&& Math.abs(e.getY() - (s.getCircle().getCenterY())) < Common.pixelPerMeter / 2)) {
@@ -384,7 +385,7 @@ public class DrawingPanel extends VBox {
 					}
 				}
 				if (!canvasPane.cursorNearSprinklerHead) {
-					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) { 
+					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
 						if (line.contains(e.getX(), e.getY())) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
 							PipeDrawing.lineBreakPointX = e.getX();
@@ -403,7 +404,7 @@ public class DrawingPanel extends VBox {
 			}
 
 			if (selectLine.isSelected()) {
-				canvasPane.stateOfCanvasUse = Use.PREPAREFORDRAWINGSEVERALSPRINKLERS;
+				canvasPane.setStateOfCanvasUse(Use.PREPAREFORDRAWINGSEVERALSPRINKLERS);
 				for (Shape border : controller.listBorderShapes()) {
 					if (border instanceof Line && border.contains(e.getX(), e.getY())) {
 						canvasPane.setCursor(Cursor.CROSSHAIR);
@@ -415,7 +416,7 @@ public class DrawingPanel extends VBox {
 		});
 
 		showSprinklers.setOnAction(e -> {
-			if (canvasPane.sprinklerAttributesSet) {
+			if (canvasPane.isSprinklerAttributesSet()) {
 				SprinklerDrawing.showSprinklersInALine(numberOfSprinklers.getValue(), canvasPane);
 				selectLine.setSelected(false);
 			} else
@@ -424,29 +425,29 @@ public class DrawingPanel extends VBox {
 
 		showGrid.setOnAction(e -> {
 			if (showGrid.isSelected())
-				Common.showLayer(canvasPane.gridLayer);
+				Common.showLayer(canvasPane.getGridLayer());
 			else
-				Common.hideLayer(canvasPane.gridLayer);
+				Common.hideLayer(canvasPane.getGridLayer());
 		});
-		
+
 		showArcs.setOnAction(e -> {
 			if (showArcs.isSelected())
-				Common.showLayer(canvasPane.sprinklerArcLayer);
+				Common.showLayer(canvasPane.getSprinklerArcLayer());
 			else
-				Common.hideLayer(canvasPane.sprinklerArcLayer);
+				Common.hideLayer(canvasPane.getSprinklerArcLayer());
 		});
-		
+
 		showTexts.setOnAction(e -> {
 			if (showTexts.isSelected())
-				Common.showLayer(canvasPane.textLayer);
+				Common.showLayer(canvasPane.getTextLayer());
 			else
-				Common.hideLayer(canvasPane.textLayer);
+				Common.hideLayer(canvasPane.getTextLayer());
 		});
 	}
 
 	private void setZones() {
-		canvasPane.sprinklerAttributesSet = false;
-		canvasPane.stateOfCanvasUse = Use.ZONEEDITING;
+		canvasPane.setSprinklerAttributesSet(false);
+		canvasPane.setStateOfCanvasUse(Use.ZONEEDITING);
 		canvasPane.selectedSprinklerShapes.clear();
 		numberOfSelectedHeadsField.setText("0");
 		flowRateOfSelectedHeadsField.setText("0");
@@ -460,8 +461,8 @@ public class DrawingPanel extends VBox {
 	}
 
 	private void setPipes() {
-		canvasPane.sprinklerAttributesSet = false;
-		canvasPane.stateOfCanvasUse = Use.NONE;
+		canvasPane.setSprinklerAttributesSet(false);
+		canvasPane.setStateOfCanvasUse(Use.NONE);
 		Stage pipeStage = new PipeStage(canvasPane);
 		canvasPane.requestFocus();
 		pipeStage.show();

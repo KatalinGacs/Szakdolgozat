@@ -60,27 +60,27 @@ public class PrintHandler {
 	}
 
 	private static Rectangle getNonEmptyArea(CanvasPane canvasPane) {
-		Bounds borderBounds = canvasPane.bordersLayer.getBoundsInParent();
+		Bounds borderBounds = canvasPane.getBordersLayer().getBoundsInParent();
 		Rectangle borderBoundingRect = new Rectangle(borderBounds.getMinX(), borderBounds.getMinY(),
 				borderBounds.getWidth(), borderBounds.getHeight());
 
-		Bounds irrigationBounds = canvasPane.irrigationLayer.getBoundsInParent();
+		Bounds irrigationBounds = canvasPane.getIrrigationLayer().getBoundsInParent();
 		Rectangle irrigationBoundingRect = new Rectangle(irrigationBounds.getMinX(), irrigationBounds.getMinY(),
 				irrigationBounds.getWidth(), irrigationBounds.getHeight());
 
-		Bounds pipeLineBounds = canvasPane.pipeLineLayer.getBoundsInParent();
+		Bounds pipeLineBounds = canvasPane.getPipeLineLayer().getBoundsInParent();
 		Rectangle pipeLineBoundingRect = new Rectangle(pipeLineBounds.getMinX(), pipeLineBounds.getMinY(),
 				pipeLineBounds.getWidth(), pipeLineBounds.getHeight());
 
-		Bounds sprinklerArcBounds = canvasPane.sprinklerArcLayer.getBoundsInParent();
+		Bounds sprinklerArcBounds = canvasPane.getSprinklerArcLayer().getBoundsInParent();
 		Rectangle sprinklerArcBoundingRect = new Rectangle(sprinklerArcBounds.getMinX(), sprinklerArcBounds.getMinY(),
 				sprinklerArcBounds.getWidth(), sprinklerArcBounds.getHeight());
 
-		Bounds pipeTextBounds = canvasPane.pipeTextLayer.getBoundsInParent();
+		Bounds pipeTextBounds = canvasPane.getPipeTextLayer().getBoundsInParent();
 		Rectangle pipeTextRect = new Rectangle(pipeTextBounds.getMinX(), pipeTextBounds.getMinY(),
 				pipeTextBounds.getWidth(), pipeTextBounds.getHeight());
 
-		Bounds sprinklerTextBounds = canvasPane.sprinklerTextLayer.getBoundsInParent();
+		Bounds sprinklerTextBounds = canvasPane.getSprinklerTextLayer().getBoundsInParent();
 		Rectangle sprinklerTextBoundingRect = new Rectangle(sprinklerTextBounds.getMinX(),
 				sprinklerTextBounds.getMinY(), sprinklerTextBounds.getWidth(), sprinklerTextBounds.getHeight());
 

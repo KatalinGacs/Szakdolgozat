@@ -44,13 +44,13 @@ public class PipeDrawing {
 			startVertex = new Vertex(e.getX(), e.getY(), null);
 			if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
 				canvasPane.pipeGraphUnderEditing
-						.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.pipeLineColor));
-				canvasPane.pipeLineLayer.getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
+						.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.getPipeLineColor()));
+				canvasPane.getPipeLineLayer().getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
 			}
 			canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
 
 		}
-		canvasPane.stateOfCanvasUse = Use.PIPEDRAWING;
+		canvasPane.setStateOfCanvasUse(Use.PIPEDRAWING);
 
 	}
 
@@ -79,9 +79,9 @@ public class PipeDrawing {
 		Edge line = new Edge();
 		Vertex endVertex = null;
 		line.setvParent(startVertex);
-		line.setStrokeWidth(CanvasPane.strokeWidth*2);
-		line.setStroke(CanvasPane.pipeLineColor);
-		if (canvasPane.pressedKey == KeyCode.CONTROL) {
+		line.setStrokeWidth(CanvasPane.getStrokeWidth()*2);
+		line.setStroke(CanvasPane.getPipeLineColor());
+		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 			endVertex = new Vertex(
 					Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY()));
 		} else {
@@ -105,7 +105,7 @@ public class PipeDrawing {
 		startVertex = endVertex;
 		BorderDrawing.startX = endVertex.getX();
 		BorderDrawing.startY = endVertex.getY();
-		canvasPane.pipeLineLayer.getChildren().add(line);
+		canvasPane.getPipeLineLayer().getChildren().add(line);
 		canvasPane.pipeGraphUnderEditing.addEdge(line);
 	}
 
@@ -186,7 +186,7 @@ public class PipeDrawing {
 					diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 					diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
 					diameterText.setStyle(Common.textstyle);
-					canvasPane.pipeTextLayer.getChildren().add(diameterText);
+					canvasPane.getPipeTextLayer().getChildren().add(diameterText);
 				}
 			} else {
 				SprinklerShape s = null;
@@ -206,7 +206,7 @@ public class PipeDrawing {
 						diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 						diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
 						diameterText.setStyle(Common.textstyle);
-						canvasPane.pipeTextLayer.getChildren().add(diameterText);
+						canvasPane.getPipeTextLayer().getChildren().add(diameterText);
 						if (!sprinklerVertex.getChildren().isEmpty()) {
 							posStartX = sprinklerVertex.getX();
 							posStartY = sprinklerVertex.getY();

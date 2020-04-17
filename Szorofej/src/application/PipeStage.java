@@ -71,8 +71,8 @@ public class PipeStage extends Stage {
 
 		startDrawingpipesBtn.setOnAction(e -> {
 			if (startDrawingpipesBtn.isSelected()) {
-				CanvasPane.pipeLineColor = colorPicker.getValue();
-				canvasPane.stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
+				CanvasPane.setPipeLineColor(colorPicker.getValue());
+				canvasPane.setStateOfCanvasUse(Use.PREPAREFORPIPEDRAWING);
 				colorPicker.setDisable(false);
 				if (canvasPane.pipeGraphUnderEditing == null
 						|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
@@ -81,7 +81,7 @@ public class PipeStage extends Stage {
 				}
 			} else {
 				startDrawingpipesBtn.setSelected(false);
-				canvasPane.stateOfCanvasUse = Use.NONE;
+				canvasPane.setStateOfCanvasUse(Use.NONE); 
 			}
 		});
 

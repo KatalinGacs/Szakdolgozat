@@ -13,6 +13,9 @@ import javafx.scene.shape.Rectangle;
 
 /**
  * Helper class for drawing borders and obstacles on the CanvasPane
+ * 
+ * @author Gacs Katalin
+ *
  */
 public class BorderDrawing {
 
@@ -27,6 +30,16 @@ public class BorderDrawing {
 	 * middle of a circle.
 	 */
 	static double startY;
+	
+	/**
+	 * The X coordinate from where a line ends.
+	 */
+	static double lineEndX;
+
+	/**
+	 * The Y coordinate from where a line ends.
+	 */
+	static double lineEndY;
 
 	/**
 	 * Input field when the user sets an exact length for a line.
@@ -77,7 +90,7 @@ public class BorderDrawing {
 		tempBorderLine.setStroke(color);
 		tempBorderLine.setVisible(true);
 
-		if (canvasPane.pressedKey == KeyCode.CONTROL) {
+		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 			Point2D point = Common.snapToHorizontalOrVertival(startX, startY, mouseX, mouseY);
 			tempBorderLine.setEndX(point.getX());
 			tempBorderLine.setEndY(point.getY());
@@ -91,6 +104,7 @@ public class BorderDrawing {
 	 * Draws a borderline. Called after startDrawingBorder(). Drawing is done like a
 	 * polyline, the end of a line is set to the beginning of the next line. But
 	 * after drawing each part of the polyline can be only managed separately.
+	 * Also used in pipe drawing.
 	 * 
 	 * @param e          MouseEvent, mouse clicked, the position is the end of the
 	 *                   current line and the beginning of the next one
@@ -115,8 +129,8 @@ public class BorderDrawing {
 
 		// make line ends be connectable with each other
 		if (canvasPane.cursorNearLineEnd) {
-			endX = canvasPane.lineEndX;
-			endY = canvasPane.lineEndY;
+			endX = lineEndX;
+			endY = lineEndY;
 		} else {
 			endX = clickX;
 			endY = clickY;
@@ -141,7 +155,7 @@ public class BorderDrawing {
 			}
 
 		// when Control is held down, only horizontal or vertical lines can be drawn
-		if (canvasPane.pressedKey == KeyCode.CONTROL) {
+		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 			Point2D point = Common.snapToHorizontalOrVertival(startX, startY, endX, endY);
 			endX = point.getX();
 			endY = point.getY();
@@ -153,7 +167,7 @@ public class BorderDrawing {
 		startY = endY;
 
 		canvasPane.controller.addBorderShape(line);
-		canvasPane.bordersLayer.getChildren().add(line);
+		canvasPane.getBordersLayer().getChildren().add(line);
 		canvasPane.setModifiedSinceLastSave(true);
 	}
 
@@ -177,7 +191,7 @@ public class BorderDrawing {
 		Rectangle rect = Common.drawRectangle(strokeColor, startX, startY, clickX, clickY);
 		rect.setFill(fillColor);
 		rect.setStrokeWidth(width);
-		canvasPane.bordersLayer.getChildren().add(rect);
+		canvasPane.getBordersLayer().getChildren().add(rect);
 		canvasPane.controller.addBorderShape(rect);
 		canvasPane.controller.addObstacle(rect);
 		canvasPane.setModifiedSinceLastSave(true);
@@ -249,8 +263,8 @@ public class BorderDrawing {
 			// this method is also used in zone editing, when selecting sprinkler heads for
 			// the zone
 			// the selection is a rectangle
-			if (canvasPane.stateOfCanvasUse == CanvasPane.Use.ZONEEDITING) {
-				tempRectangle.setStroke(canvasPane.selectionColor);
+			if (canvasPane.getStateOfCanvasUse() == CanvasPane.Use.ZONEEDITING) {
+				tempRectangle.setStroke(canvasPane.getSelectionColor());
 				tempRectangle.setFill(null);
 			} else {
 				tempRectangle.setStroke(stroke);
@@ -294,9 +308,11 @@ public class BorderDrawing {
 		circle.setStroke(strokeColor);
 		circle.setFill(fillColor);
 		circle.setStrokeWidth(width);
-		canvasPane.bordersLayer.getChildren().add(circle);
+		canvasPane.getBordersLayer().getChildren().add(circle);
 		canvasPane.controller.addBorderShape(circle);
 		canvasPane.controller.addObstacle(circle);
 		canvasPane.setModifiedSinceLastSave(true);
 	}
+
+
 }
