@@ -3,7 +3,7 @@ import org.junit.BeforeClass;
 import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
-import application.MainSpr;
+import application.Main;
 import applicationTest.CanvasPaneTest;
 import applicationTest.TextEditingTest;
 import modelTest.SprinklerDAOTest;
@@ -18,11 +18,11 @@ public class JunitTestSuite {
 	@BeforeClass
 	public static void setUp() {
 
-		MainSpr.run();
+		Main.run();
 	}
 	@AfterClass
 	public static void tearDown() {
 
-		MainSpr.exit();
+		Main.exit();
 	}
 }

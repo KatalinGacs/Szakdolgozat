@@ -21,7 +21,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.bean.Zone;
 
-public class MainSpr extends Application {
+public class Main extends Application {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
 
