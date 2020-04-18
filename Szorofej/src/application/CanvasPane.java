@@ -38,14 +38,6 @@ import model.bean.Zone;
  * @author Gacs Katalin
  *
  */
-/**
- * @author Gacs Katalin
- *
- */
-/**
- * @author Gacs Katalin
- *
- */
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();

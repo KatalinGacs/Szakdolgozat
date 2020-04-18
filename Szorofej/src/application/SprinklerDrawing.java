@@ -18,41 +18,138 @@ import javafx.scene.text.Text;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 
+/**
+ * Helper class for sprinkler drawing
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class SprinklerDrawing {
 
+	/**
+	 * Controller to access infos from the database
+	 */
 	static SprinklerController controller = new SprinklerControllerImpl();
 
+	/**
+	 * Input field where the user can set the angle of the currently drawn
+	 * sprinklershape
+	 */
 	static TextField angleInput = new TextField();
 
+	/**
+	 * Angle of the arc of the sprinklershape in degrees
+	 */
 	static double arcExtent;
 
+	/**
+	 * The X coordinate of the center of the sprinklerhead
+	 */
 	static double centerX = 0;
+
+	/**
+	 * The Y coordinate of the center of the sprinklerhead
+	 */
 	static double centerY = 0;
+
+	/**
+	 * The X coordinate of the first end of the arc of the sprinklershape (the
+	 * second end is counterclockwise from it)
+	 */
 	static double firstX = 0;
+
+	/**
+	 * The Y coordinate of the first end of the arc of the sprinklershape (the
+	 * second end is counterclockwise from it)
+	 */
 	static double firstY = 0;
+
+	/**
+	 * The X coordinate of the second end of the arc of the sprinklershape
+	 */
 	static double secondX = 0;
+	/**
+	 * The Y coordinate of the second end of the arc of the sprinklershape
+	 */
 	static double secondY = 0;
 
+	/**
+	 * The stroke color of the sprinkler arc and the stroke and fill color of the
+	 * sprinklerhead circle
+	 */
 	static Color sprinklerColor = Color.BLUE;
+
+	/**
+	 * Radius of the sprinkler arc in pixels
+	 */
 	protected static double sprinklerRadius;
+
+	/**
+	 * The sprinkler type set to be drawn
+	 */
 	protected static SprinklerType sprinklerType;
+
+	/**
+	 * Start angle of the arc of the sprinklershape
+	 */
 	static double startAngle;
 
+	/**
+	 * Helper line showing where the first side of the arc will be (the second is
+	 * counterclockwise from it)
+	 */
 	static Line tempFirstSprinklerLine = new Line();
+
+	/**
+	 * Helper line showing where the second side of the arc will be
+	 */
 	static Line tempSecondSprinklerLine = new Line();
 	static Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 4);
 
+	/**
+	 * Possible states of drawing a sprinklershape
+	 * 
+	 * @author Gacs Katalin
+	 *
+	 */
 	enum SprinklerDrawingState {
 		CENTER, FIRSTSIDE, SECONDSIDE
 	}
 
+	/**
+	 * Which side of a sprinklershape is being drawn
+	 */
 	static SprinklerDrawingState drawingState = SprinklerDrawingState.CENTER;
 
+	/**
+	 * The sprinklershape that is being drawn
+	 */
 	private static SprinklerShape sprinkler;
+
+	/**
+	 * The circle representing the spriknlerhead
+	 */
 	private static Circle circle;
+
+	/**
+	 * The arc representing the water coverage of the sprinkler head
+	 */
 	private static Arc arc;
+
+	/**
+	 * A label near the sprinklerhead showing its type
+	 */
 	private static Text label;
 
+	/**
+	 * Drawing a sprinklershape
+	 * 
+	 * @param mouseEvent mouse clicked on the canvas, if the center is drawn, it is
+	 *                   center of the circle, if the first or the second side is
+	 *                   being drawn, it is the line on which the first or the
+	 *                   second side is located,
+	 * @param canvasPane CanvasPane on which the sprinklershape is being drawn
+	 */
 	static void drawNewSprinkler(MouseEvent mouseEvent, CanvasPane canvasPane) {
 
 		canvasPane.setStateOfCanvasUse(Use.SPRINKLERDRAWING);
@@ -63,8 +160,10 @@ public class SprinklerDrawing {
 		arc.setStrokeWidth(CanvasPane.getStrokeWidth());
 		arc.setFill(Color.TRANSPARENT);
 
-		if (SprinklerDrawing.drawingState == SprinklerDrawingState.CENTER && !canvasPane.isDrawingSeveralSprinklers()) {
+		// draw the center of the sprinklershape
+		if (drawingState == SprinklerDrawingState.CENTER && !canvasPane.isDrawingSeveralSprinklers()) {
 
+			// check that the user is not trying to draw on top of an obstacle
 			boolean validPoint = true;
 			for (Shape s : controller.listObstacles()) {
 				if (s.contains(mouseEvent.getX(), mouseEvent.getY())) {
@@ -73,6 +172,9 @@ public class SprinklerDrawing {
 					break;
 				}
 			}
+
+			// if the user is not trying to draw on top of an obstacle, create the circle
+			// for the sprinkler head
 			if (validPoint) {
 				sprinkler = new SprinklerShape();
 
@@ -82,7 +184,7 @@ public class SprinklerDrawing {
 
 				centerX = mouseEvent.getX();
 				centerY = mouseEvent.getY();
-
+				// if Control is pressed down, snap the center of the circle to the grid
 				if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 					if (canvasPane.showingFocusCircle) {
 						Point2D center = Common.snapToGrid(centerX, centerY);
@@ -98,16 +200,21 @@ public class SprinklerDrawing {
 				tempSprinklerCircle.setVisible(true);
 				drawingState = SprinklerDrawingState.FIRSTSIDE;
 			}
-		} else if (SprinklerDrawing.drawingState == SprinklerDrawingState.FIRSTSIDE) {
+
+			// draw the first side of the sprinkler
+		} else if (drawingState == SprinklerDrawingState.FIRSTSIDE) {
 			firstX = mouseEvent.getX();
 			firstY = mouseEvent.getY();
 
+			// if Control is held down, the side can be only a vertical or horizontal line
 			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 				Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, centerY, firstX, firstY);
 				firstX = firstPoint.getX();
 				firstY = firstPoint.getY();
 			}
 
+			// if the user is drawing several sprinklers in a line, their centers are
+			// already set but the instantiation of the sprinklershape has to be done here
 			if (canvasPane.isDrawingSeveralSprinklers()) {
 				sprinkler = new SprinklerShape();
 				sprinkler.setSprinkler(sprinklerType);
@@ -115,13 +222,17 @@ public class SprinklerDrawing {
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
 			}
 
+			// calculate the start angle of the arc from the positions of the center and the
+			// first
+			// side
 			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
 			if (centerX <= firstX)
 				startAngle -= 180;
 			if (startAngle < 0)
 				startAngle += 360;
-			angleInput.setVisible(true);
 
+			// the user can set in an input field the arc extent
+			angleInput.setVisible(true);
 			angleInput.setLayoutX(mouseEvent.getX());
 			angleInput.setLayoutY(mouseEvent.getY());
 			angleInput.relocate(centerX, centerY);
@@ -136,7 +247,10 @@ public class SprinklerDrawing {
 								Common.showAlert("A megadott szög (" + angleInput.getText()
 										+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 										+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
-							} else {
+							}
+							// if the user sets the arc extent in the input field then finish drawing the
+							// sprinkler shape using this angle
+							else {
 								arcExtent = -Double.parseDouble(angleInput.getText());
 								arc.setCenterX(centerX);
 								arc.setCenterY(centerY);
@@ -160,19 +274,23 @@ public class SprinklerDrawing {
 								canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
 								controller.addSprinklerShape(sprinkler);
 
+								canvasPane.setModifiedSinceLastSave(true);
+
 								angleInput.setText("");
 								angleInput.setVisible(false);
+
 								drawingState = SprinklerDrawingState.CENTER;
 							}
 						} catch (NumberFormatException ex) {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
-
 						}
 				}
 			});
-
 			drawingState = SprinklerDrawingState.SECONDSIDE;
+
+			// draw the second side of the sprinkler shape and finish drawing it
 		} else if (drawingState == SprinklerDrawingState.SECONDSIDE) {
+
 			canvasPane.setModifiedSinceLastSave(true);
 
 			angleInput.setVisible(false);
@@ -180,11 +298,15 @@ public class SprinklerDrawing {
 			secondX = mouseEvent.getX();
 			secondY = mouseEvent.getY();
 
+			// if Control is held down, the side can be only a vertical or horizontal line
 			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 				Point2D firstPoint = Common.snapToHorizontalOrVertival(centerX, centerY, secondX, secondY);
 				secondX = firstPoint.getX();
 				secondY = firstPoint.getY();
 			}
+
+			// calculate the end angle of the arc from the positions of the center and the
+			// second side and from this and the startangle calculate the arcextent
 			double endAngle = -Math.toDegrees(Math.atan((secondY - centerY) / (secondX - centerX))) - 180;
 			if (centerX <= secondX)
 				endAngle -= 180;
@@ -197,12 +319,17 @@ public class SprinklerDrawing {
 				arcExtent += 360;
 			else if (arcExtent > 360)
 				arcExtent -= 360;
+
+			// check if the set arc extent is within the allowed range for this sprinkler
+			// type
 			if (arcExtent > sprinklerType.getMaxAngle() || arcExtent < sprinklerType.getMinAngle()) {
 				Common.showAlert("A megadott szög (" + angleInput.getText()
 						+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 						+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
-			} else {
-
+			}
+			// finish the sprinkler drawing if the set arc extent is within the allowed
+			// range for this sprinkler type
+			else {
 				arc.setCenterY(centerY);
 				arc.setCenterX(centerX);
 				arc.setCenterY(centerY);
@@ -236,9 +363,16 @@ public class SprinklerDrawing {
 		}
 	}
 
+	/**
+	 * When sprinkler drawing is disrupted, finish it, delete half-drawn sprinkler
+	 * shapes and hide helper lines and controls
+	 * 
+	 * @param canvasPane CanvasPane on which the sprinklershape is being drawn
+	 */
 	public static void endSprinklerDrawing(CanvasPane canvasPane) {
 		drawingState = SprinklerDrawingState.CENTER;
 		tempFirstSprinklerLine.setVisible(false);
+		tempSecondSprinklerLine.setVisible(false);
 		tempSprinklerCircle.setVisible(false);
 		angleInput.setVisible(false);
 		angleInput.setText("");
@@ -246,6 +380,13 @@ public class SprinklerDrawing {
 		clearTempSprinklersInALine(canvasPane);
 	}
 
+	/**
+	 * Select a line from the plan by clicking on it on which several sprinklers are
+	 * to be drawn
+	 * 
+	 * @param e          Mouseevent, click on the canvasPane
+	 * @param canvasPane CanvasPane on which the line can be found
+	 */
 	public static void selectLineForSprinklerDrawing(MouseEvent e, CanvasPane canvasPane) {
 		for (Shape border : controller.listBorderShapes()) {
 			if (border instanceof Line) {
@@ -253,17 +394,17 @@ public class SprinklerDrawing {
 					canvasPane.lineSelected = true;
 					canvasPane.selectedLine = (Line) border;
 					canvasPane.setStateOfCanvasUse(Use.SPRINKLERDRAWING);
-
 				}
 			}
 		}
 	}
 
 	/**
-	 * Shows a temporary line while drawing the sprinkler arc, between the center of
-	 * the arc and the two endpoints
+	 * Show a temporary line while drawing the sprinkler arc, between the center of
+	 * the arc and the one of the two endpoints
 	 * 
-	 * @param mouseEvent
+	 * @param mouseEvent mouse moved where the endpoint could be
+	 * @param canvasPane CanvasPane on which the sprinklershape is being drawn
 	 */
 	public static void showTempLine(MouseEvent mouseEvent, CanvasPane canvasPane) {
 		if (canvasPane.isSprinklerAttributesSet() && canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
@@ -308,17 +449,26 @@ public class SprinklerDrawing {
 					tempFirstSprinklerLine.setEndX(mouseEvent.getX());
 					tempFirstSprinklerLine.setEndY(mouseEvent.getY());
 				}
-
 				tempFirstSprinklerLine.setVisible(true);
 			}
 
 		}
 	}
 
+	/**
+	 * Show helper circles that show sprinkler positions and arcs when the user
+	 * chooses to draw several sprinklers in a line with equal distance from each
+	 * other
+	 * 
+	 * @param numberOfSprinklersInALine how many sprinkler shapes are on the line
+	 *                                  with equal distance from each other
+	 * @param canvasPane                CanvasPane on which the sprinklershapes are
+	 *                                  to be being drawn
+	 */
 	public static void showSprinklersInALine(int numberOfSprinklersInALine, CanvasPane canvasPane) {
 		clearTempSprinklersInALine(canvasPane);
 		if (canvasPane.lineSelected) {
-			double startX =  canvasPane.selectedLine.getStartX();
+			double startX = canvasPane.selectedLine.getStartX();
 			double endX = canvasPane.selectedLine.getEndX();
 			double diffX = startX - endX;
 			double startY = canvasPane.selectedLine.getStartY();
@@ -348,6 +498,11 @@ public class SprinklerDrawing {
 			Common.showAlert("A vonal nincs kiválasztva!");
 	}
 
+	/**
+	 * Draw sprinklershapes on a line with equal distance from each other
+	 * 
+	 * @param canvasPane CanvasPane on which the sprinklershape is being drawn
+	 */
 	public static void drawSeveralSprinklers(CanvasPane canvasPane) {
 		canvasPane.lineSelected = false;
 		if (canvasPane.tempSprinklerCentersInALine.isEmpty()) {
@@ -370,6 +525,13 @@ public class SprinklerDrawing {
 		}
 	}
 
+	/**
+	 * Remove the helper circles from the canvasPane when there were several
+	 * sprinklers drawn on a line with equal distance from each other and this
+	 * drawing process was disrupted
+	 * 
+	 * @param canvasPane CanvasPane on which the sprinklershape were being drawn
+	 */
 	private static void clearTempSprinklersInALine(CanvasPane canvasPane) {
 		if (!canvasPane.tempSprinklerCentersInALine.isEmpty())
 			for (Circle c : canvasPane.tempSprinklerCentersInALine) {

@@ -43,10 +43,26 @@ public class FileHandler {
 
 	private static SprinklerController controller = new SprinklerControllerImpl();
 
+	/**
+	 * Path of the XML file if the plan is saved.
+	 */
 	static String currentPath = "";
 
+	/**
+	 * Name of the XML file if the plan is saved.
+	 */
 	static String currentFileName = "";
 
+	/**
+	 * Clear everything off from the CanvasPane and start a new plan. If called
+	 * while there are unsaved modifications on the opened plan then asks for
+	 * confirmation and the user can save the modifications before starting a new
+	 * plan.
+	 * 
+	 * @param canvasPane the CanvasPane to be cleared
+	 * @param stage      if the previous plan is changed and the user chooses to
+	 *                   save it first, this is the owner window of the Save dialog
+	 */
 	public static void newCanvas(CanvasPane canvasPane, Stage stage) {
 		if (canvasPane.isModifiedSinceLastSave()) {
 			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane, stage);
@@ -59,6 +75,14 @@ public class FileHandler {
 		canvasPane.setModifiedSinceLastSave(false);
 	}
 
+	/**
+	 * Save the current file in XML. If it is a previously saved plan and saveAs is
+	 * false, overwrite it. Otherwise asks for the save location and filename.
+	 * 
+	 * @param stage      the owner window of the Save dialog
+	 * @param canvasPane the CanvasPane to be saved
+	 * @param saveAs     true if the user chose "Save as" instead of "Save"
+	 */
 	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
 		File file;
 		if (currentPath == "" || saveAs == true) {
@@ -73,7 +97,9 @@ public class FileHandler {
 			currentPath = file.getAbsolutePath();
 			currentFileName = file.getName();
 			try (FileOutputStream fileOS = new FileOutputStream(currentPath, false)) {
-				updateZoneInfos();
+				for (Zone z : controller.listZones()) {
+					z.updateVertices();
+				}
 				Canvas canvas = new Canvas();
 				JAXBContext context = JAXBContext.newInstance(Canvas.class);
 				Marshaller m = context.createMarshaller();
@@ -91,8 +117,17 @@ public class FileHandler {
 		stage.setTitle(Common.programName + " - " + currentPath);
 	}
 
+	/**
+	 * Open a previously saved plan from XML. Load the XML, unmarshall it and put
+	 * the shapes on a cleared CanvasPane. If called while there are unsaved
+	 * modifications on the opened plan then asks for confirmation and the user can
+	 * save the modifications before starting a new plan.
+	 * 
+	 * @param canvasPane the CanvasPane to be cleared and loaded with the saved plan
+	 * @param stage      if the previous plan is changed and the user chooses to
+	 *                   save it first, this is the owner window of the Save dialog
+	 */
 	public static void loadCanvas(CanvasPane canvasPane, Stage stage) {
-
 		FileChooser fileChooser = new FileChooser();
 		FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
 		fileChooser.getExtensionFilters().add(extFilter);
@@ -113,7 +148,6 @@ public class FileHandler {
 				loadZones(canvasPane, canvas);
 				loadTexts(canvasPane, canvas);
 				canvasPane.setModifiedSinceLastSave(false);
-
 			} catch (JAXBException | FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (Exception e) {
@@ -122,6 +156,13 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Add the Sprinklershapes from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param canvasPane the CanvasPane where the sprinklers will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of
+	 *                   sprinklershapes
+	 */
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
 
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
@@ -136,6 +177,44 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Add the Sprinklershape from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param s          the SprinklerShape to be added to the CanvasPane
+	 * @param canvasPane the CanvasPane where the sprinklerShape will be loaded
+	 */
+	private static void loadSprinkler(SprinklerShape s, CanvasPane canvasPane) {
+		Color strokeColor = Color.web(s.getStrokeColor());
+		Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
+		s.setArc(new Arc(s.getCenterX(), s.getCenterY(), s.getRadius() * Common.pixelPerMeter,
+				s.getRadius() * Common.pixelPerMeter, s.getStartAngle(), s.getLength()));
+		s.getArc().setFill(fillColor);
+		s.getArc().setStroke(strokeColor);
+		s.getArc().setStrokeWidth(s.getStrokeWidth());
+		s.getArc().setType(ArcType.ROUND);
+		s.getArc().setOpacity(s.getFillOpacity());
+		s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
+		s.setLabel(new Text(s.getLabelText()));
+		s.getLabel().setX(s.getLabelX());
+		s.getLabel().setY(s.getLabelY());
+		s.getLabel().setStyle(s.getLabelStyle());
+		s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
+		s.setFlowRate(s.getFlowRate());
+		s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
+
+		controller.addSprinklerShape(s);
+		canvasPane.getIrrigationLayer().getChildren().add(s.getCircle());
+		canvasPane.getSprinklerArcLayer().getChildren().add(s.getArc());
+		canvasPane.getSprinklerTextLayer().getChildren().add(s.getLabel());
+	}
+
+	/**
+	 * Add the borderLines from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param canvasPane the CanvasPane where the borderLines will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of
+	 *                   borderLines
+	 */
 	private static void loadBorderLines(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listBorderShapes()) {
 			canvasPane.getBordersLayer().getChildren().remove(s);
@@ -152,6 +231,13 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Add the circleObstacles from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param canvasPane the CanvasPane where the circleObstacles will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of
+	 *                   circleObstacles
+	 */
 	private static void loadCircleObstacles(CanvasPane canvasPane, Canvas canvas) {
 		for (Shape s : controller.listObstacles()) {
 			canvasPane.getBordersLayer().getChildren().remove(s);
@@ -171,6 +257,13 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Add the rectangleObstacles from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param canvasPane the CanvasPane where the rectangleObstacles will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of
+	 *                   rectangleObstacles
+	 */
 	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {
 		for (RectangleObstacle r : canvas.rectangleObstacles) {
 			Color strokeColor = Color.web(r.getStrokeColor());
@@ -186,6 +279,17 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Load the zones from the XML unmarshalling to the CanvasPane. Recreate their
+	 * piping, recalculate the pipe diameters.
+	 * 
+	 * @param canvasPane the CanvasPane where the zones and pipes will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of zones
+	 *                   with informations of their pipes
+	 * @throws PressureException when calculating the pipe diameters this exception
+	 *                           shows if the beginning pressure of the pipeline can
+	 *                           not be enough for the zone
+	 */
 	private static void loadZones(CanvasPane canvasPane, Canvas canvas) throws PressureException {
 		controller.clearZones();
 		for (Zone zone : canvas.zones) {
@@ -240,6 +344,12 @@ public class FileHandler {
 		}
 	}
 
+	/**
+	 * Add texts from the XML unmarshalling to the CanvasPane
+	 * 
+	 * @param canvasPane the CanvasPane where the texts will be loaded
+	 * @param canvas     the result of XML unmarshalling containing a list of texts
+	 */
 	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
 		for (Text t : controller.listTexts()) {
 			canvasPane.getTextLayer().getChildren().remove(t);
@@ -263,36 +373,5 @@ public class FileHandler {
 
 	public static String getCurrentFileName() {
 		return currentFileName;
-	}
-
-	private static void updateZoneInfos() {
-		for (Zone z : controller.listZones()) {
-			z.updateVertices();
-		}
-	}
-
-	private static void loadSprinkler(SprinklerShape s, CanvasPane canvasPane) {
-		Color strokeColor = Color.web(s.getStrokeColor());
-		Color fillColor = s.getFillColor().equals("0x000000ff") ? Color.TRANSPARENT : Color.web(s.getFillColor());
-		s.setArc(new Arc(s.getCenterX(), s.getCenterY(), s.getRadius() * Common.pixelPerMeter,
-				s.getRadius() * Common.pixelPerMeter, s.getStartAngle(), s.getLength()));
-		s.getArc().setFill(fillColor);
-		s.getArc().setStroke(strokeColor);
-		s.getArc().setStrokeWidth(s.getStrokeWidth());
-		s.getArc().setType(ArcType.ROUND);
-		s.getArc().setOpacity(s.getFillOpacity());
-		s.setCircle(new Circle(s.getCenterX(), s.getCenterY(), s.getCircleRadius(), strokeColor));
-		s.setLabel(new Text(s.getLabelText()));
-		s.getLabel().setX(s.getLabelX());
-		s.getLabel().setY(s.getLabelY());
-		s.getLabel().setStyle(s.getLabelStyle());
-		s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
-		s.setFlowRate(s.getFlowRate());
-		s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
-
-		controller.addSprinklerShape(s);
-		canvasPane.getIrrigationLayer().getChildren().add(s.getCircle());
-		canvasPane.getSprinklerArcLayer().getChildren().add(s.getArc());
-		canvasPane.getSprinklerTextLayer().getChildren().add(s.getLabel());
 	}
 }

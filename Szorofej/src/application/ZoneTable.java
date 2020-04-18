@@ -8,16 +8,21 @@ import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.Zone;
 
+/**
+ * A table which lists informations about the zones on the play
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class ZoneTable extends TableView<Zone> {
-	
+
 	SprinklerController controller = new SprinklerControllerImpl();
-	
+
 	TableColumn<Zone, String> nameCol = new TableColumn<>("Név");
 	TableColumn<Zone, Integer> numberOfHeadsCol = new TableColumn<>("Fejek száma");
 	TableColumn<Zone, Double> durationCol = new TableColumn<>("Idõtartam");
-	TableColumn<Zone, Double> flowRateCol  = new TableColumn<>("Vízfogyasztás (l/min)");
-	
-	
+	TableColumn<Zone, Double> flowRateCol = new TableColumn<>("Vízfogyasztás (l/min)");
+
 	public ZoneTable(CanvasPane canvasPane) {
 
 		nameCol.setCellValueFactory(new PropertyValueFactory<Zone, String>("name"));
@@ -28,7 +33,7 @@ public class ZoneTable extends TableView<Zone> {
 		flowRateCol.setCellFactory(new DecimalCellFactory<Zone, Double>());
 
 		getColumns().addAll(nameCol, numberOfHeadsCol, durationCol, flowRateCol);
-		
+
 		setItems(controller.listZones());
 
 	}

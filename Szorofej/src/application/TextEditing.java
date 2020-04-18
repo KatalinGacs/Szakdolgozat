@@ -22,15 +22,27 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
+/**
+ * Helper class for adding custom texts to the plan on the canvasPane
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class TextEditing {
 
-	static int fontSize = 26;
+	static Integer fontSize = 24;
 	static Color fontColor = Color.BLACK;
 	static TextField textField = new TextField();
 	static Stage stage = new Stage();
 
+	/**
+	 * Show a stage where the user can set the format of the text to be written on
+	 * the canvasPane
+	 * 
+	 * @param canvasPane CanvasPane on which the text will be written
+	 */
 	public static void openTextFormatStage(CanvasPane canvasPane) {
-		canvasPane.setStateOfCanvasUse(Use.PREPAREFORTEXTEDITING); 
+		canvasPane.setStateOfCanvasUse(Use.PREPAREFORTEXTEDITING);
 
 		GridPane root = new GridPane();
 		Scene scene = new Scene(root);
@@ -48,6 +60,8 @@ public class TextEditing {
 		List<Integer> fontSizes = Arrays.asList(8, 10, 12, 14, 16, 20, 24, 28, 32, 36, 48, 72);
 		fontSizeList.setItems(new ObservableListWrapper<Integer>(fontSizes));
 		fontSizeList.setPrefHeight(100);
+		fontSizeList.getSelectionModel().select(fontSize);
+		fontSizeList.scrollTo(fontSize);
 
 		root.add(fontSizeText, 0, 0);
 		root.add(fontSizeList, 0, 1);
@@ -65,9 +79,14 @@ public class TextEditing {
 		stage.setAlwaysOnTop(true);
 		canvasPane.requestFocus();
 		stage.show();
-
 	}
 
+	/**
+	 * Add the text the user types to the canvasPane. The user can type until Enter is pressed.
+	 * 
+	 * @param e MouseEvent mouse clicked on the canvasPane, here starts the text
+	 * @param canvasPane CanvasPane on which the text is written
+	 */
 	public static void startWritingText(MouseEvent e, CanvasPane canvasPane) {
 		canvasPane.setModifiedSinceLastSave(true);
 		stage.close();
@@ -96,7 +115,5 @@ public class TextEditing {
 				canvasPane.setCursor(Cursor.DEFAULT);
 			}
 		});
-
 	}
-
 }

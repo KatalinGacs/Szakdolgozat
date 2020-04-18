@@ -6,6 +6,7 @@ import java.util.Random;
 
 import application.CanvasPane.Use;
 import application.common.Common;
+import controller.PressureException;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
@@ -23,23 +24,77 @@ import javafx.stage.Stage;
 import model.bean.PipeGraph;
 import model.bean.Zone;
 
+/**
+ * Stage for setting infos of pipes and draw pipes
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class PipeStage extends Stage {
 
-	SprinklerController controller = new SprinklerControllerImpl();
+	/**
+	 * Controller to access data from the database
+	 */
+	private SprinklerController controller = new SprinklerControllerImpl();
 
+	/**
+	 * Root container in the stage
+	 */
 	private GridPane root = new GridPane();
+
+	/**
+	 * Scene of the stage
+	 */
 	private Scene scene = new Scene(root);
-	private Text zoneText = new Text("Zóna");
+
+	/**
+	 * ComboBox to choose the zone for which pipes are drawn
+	 */
 	private ComboBox<Zone> zonePicker = new ComboBox<>();
-	private Text colorText = new Text("Szín");
+
+	/**
+	 * Text for zonePicker
+	 */
+	private Text zoneText = new Text("Zóna");
+
+	/**
+	 * Control for setting the color of the currently drawn pipe. Once set for a
+	 * zone, cannot be changed.
+	 */
 	private ColorPicker colorPicker = new ColorPicker(nextColor());
+
+	/**
+	 * Text for colorPicker
+	 */
+	private Text colorText = new Text("Szín");
+
+	/**
+	 * When this ToggleButton is selected, the user can draw the pipes on the
+	 * canvaspane
+	 */
 	private ToggleButton startDrawingpipesBtn = new ToggleButton("Csövek behúzása");
 
-	private Text beginningPressureText = new Text("Kezdeti nyomás");
+	/**
+	 * TextField for setting the beginning pressure in the zone
+	 */
 	private TextField beginningPressureField = new TextField();
 
+	/**
+	 * Text for beginningPressureField
+	 */
+	private Text beginningPressureText = new Text("Kezdeti nyomás");
+
+	/**
+	 * By clicking this button the user finishes the pipe drawing and the
+	 * application calculates the pipe diameters
+	 */
 	private Button okBtn = new Button("OK");
 
+	/**
+	 * Create the stage, set its controls and add event handling to the controls
+	 * 
+	 * @param canvasPane the CanvasPane on which the pipes are to be drawn
+	 */
 	public PipeStage(CanvasPane canvasPane) {
 		setX(Common.primaryScreenBounds.getWidth() - 500);
 		setY(100);
@@ -50,7 +105,7 @@ public class PipeStage extends Stage {
 		setScene(scene);
 		setAlwaysOnTop(true);
 		setTitle("Csövezés");
-		
+
 		root.add(zoneText, 0, 0);
 		root.add(zonePicker, 1, 0);
 		root.add(colorText, 0, 1);
@@ -59,9 +114,9 @@ public class PipeStage extends Stage {
 		root.add(beginningPressureText, 0, 3);
 		root.add(beginningPressureField, 1, 3);
 		root.add(okBtn, 0, 4);
-		
+
 		zonePicker.setItems(controller.listZones());
-		zonePicker.getSelectionModel().select(0);	
+		zonePicker.getSelectionModel().select(0);
 		setColor();
 		zonePicker.setOnAction(e -> {
 			setColor();
@@ -81,7 +136,7 @@ public class PipeStage extends Stage {
 				}
 			} else {
 				startDrawingpipesBtn.setSelected(false);
-				canvasPane.setStateOfCanvasUse(Use.NONE); 
+				canvasPane.setStateOfCanvasUse(Use.NONE);
 			}
 		});
 
@@ -91,18 +146,32 @@ public class PipeStage extends Stage {
 				e.consume();
 			}
 		});
-		
-		okBtn.setOnAction(e-> {
+
+		okBtn.setOnAction(e -> {
 			finalizePipeGraph(canvasPane);
 		});
 	}
 
-	private static int colorCounter = 0;
+	/**
+	 * A list of colors for pipes. The user can set it manually but does not have to
+	 * because for a new zone a new color is given from this list. It is not
+	 * expected that there are more zones in a plan than colors in this list.
+	 */
 	private static ArrayList<Color> colors = new ArrayList<>(Arrays.asList(Color.BLUEVIOLET, Color.BROWN, Color.CORAL,
 			Color.GOLD, Color.CRIMSON, Color.DEEPPINK, Color.CHOCOLATE, Color.DARKCYAN, Color.DARKGOLDENROD,
 			Color.DARKGREEN, Color.DARKMAGENTA, Color.DARKORANGE, Color.DARKORCHID, Color.FORESTGREEN, Color.FUCHSIA,
 			Color.GOLDENROD, Color.LIGHTCORAL));
 
+	/**
+	 * Count which color was already used in the list colors
+	 */
+	private static int colorCounter = 0;
+
+	/**
+	 * Get the next not used color from the list colors
+	 * 
+	 * @return a color which was not used before
+	 */
 	private Color nextColor() {
 		Color color;
 		if (colorCounter < colors.size()) {
@@ -118,6 +187,11 @@ public class PipeStage extends Stage {
 		return color;
 	}
 
+	/**
+	 * Set the color of the colorpicker to a color which was not used before. If a
+	 * zone is selected that already has pipes drawn with one color, then setting a
+	 * new color is disabled.
+	 */
 	private void setColor() {
 		for (PipeGraph pipeGraph : controller.listPipeGraphs()) {
 			if (pipeGraph.getZone() == zonePicker.getValue()) {
@@ -131,6 +205,11 @@ public class PipeStage extends Stage {
 		}
 	}
 
+	/**
+	 * End drawing pipes, calculate their diameters.
+	 * 
+	 * @param canvasPane CanvasPane on which the pipes were drawn
+	 */
 	private void finalizePipeGraph(CanvasPane canvasPane) {
 		if (zonePicker.getValue() == null) {
 			Common.showAlert("Nincs kiválasztott zóna");
@@ -146,13 +225,15 @@ public class PipeStage extends Stage {
 				Common.showAlert("Számokban add meg a kezdeti nyomást!");
 			}
 		try {
-		PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
-				controller.getPipeGraph(zonePicker.getValue()).getRoot());
-		close();
-		} catch (Exception e) {
+			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
+					controller.getPipeGraph(zonePicker.getValue()).getRoot());
+			close();
+		} catch (PressureException e) {
 			Common.showAlert(e.getMessage());
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		
+
 	}
 
 }

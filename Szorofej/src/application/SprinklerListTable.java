@@ -10,11 +10,16 @@ import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 import model.bean.Zone;
 
+/**
+ * A table which lists informations about sprinklershapes in a selected zone
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class SprinklerListTable extends TableView<SprinklerShape> {
 
 	SprinklerController controller = new SprinklerControllerImpl();
 	
-
 	TableColumn<SprinklerShape, SprinklerType> nameCol = new TableColumn<>("Szórófej");
 	TableColumn<SprinklerShape, String> groupCol = new TableColumn<>("Csoport");
 	TableColumn<SprinklerShape, Double> flowRateCol = new TableColumn<>("Vízfogyasztás (l/min)");
@@ -33,9 +38,5 @@ public class SprinklerListTable extends TableView<SprinklerShape> {
 		getColumns().addAll(nameCol, groupCol, flowRateCol, waterCol);
 		
 		setItems(controller.listSprinklerShapes(zone));
-		
-		
-
 	}
-	
 }

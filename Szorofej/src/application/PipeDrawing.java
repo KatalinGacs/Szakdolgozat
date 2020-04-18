@@ -19,17 +19,56 @@ import model.bean.PipeGraph.Vertex;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
+/**
+ * Helper class for drawing pipes on the CanvasPane
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class PipeDrawing {
 
-	static SprinklerController controller = new SprinklerControllerImpl();
+	/**
+	 * Controller to access data from the database
+	 */
+	private static SprinklerController controller = new SprinklerControllerImpl();
 
+	/**
+	 * The point where the current pipe polyline is started
+	 */
 	static Vertex startVertex;
+
+	/**
+	 * The point from where another branch of the pipeline is starting
+	 */
 	static Vertex breakPointVertex;
 
+	/**
+	 * The X coordinate of the breakpoint
+	 */
 	static double lineBreakPointX;
+
+	/**
+	 * The Y coordinate of the breakpoint
+	 */
 	static double lineBreakPointY;
+
+	/**
+	 * The line from which another branch of the pipeline is starting
+	 */
 	static Edge pipeLineToSplit;
 
+	/**
+	 * True if calculating pipe diameters arrived to a leaf in the pipegraph
+	 */
+	static boolean leaf = false;
+
+	/**
+	 * Begin drawing the pipe polyline, or begin drawing a new branch on is
+	 * 
+	 * @param e          Mousevent, mouse clicked on the canvasPane, from where the
+	 *                   pipeline is starting
+	 * @param canvasPane CanvasPane on which the line is drawn
+	 */
 	public static void startDrawingPipeLine(MouseEvent e, CanvasPane canvasPane) {
 
 		if (!canvasPane.pipeGraphUnderEditing.getVertices().isEmpty() && !canvasPane.cursorOnPipeLine) {
@@ -48,12 +87,16 @@ public class PipeDrawing {
 				canvasPane.getPipeLineLayer().getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
 			}
 			canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
-
 		}
 		canvasPane.setStateOfCanvasUse(Use.PIPEDRAWING);
-
 	}
 
+	/**
+	 * When a new branch of the pipeline is added, the pipeGraph has to be modified,
+	 * a new vertex added and its parent and child vertices set
+	 * 
+	 * @param canvasPane CanvasPane on which the line is drawn
+	 */
 	public static void breakLine(CanvasPane canvasPane) {
 		Vertex breakPointVertex = new Vertex(lineBreakPointX, lineBreakPointY);
 		breakPointVertex.setBreakPoint(true);
@@ -70,16 +113,22 @@ public class PipeDrawing {
 		BorderDrawing.startX = breakPointVertex.getX();
 		BorderDrawing.startY = breakPointVertex.getY();
 		canvasPane.setModifiedSinceLastSave(true);
-
 	}
 
+	/**
+	 * Draw the pipe polyline. Connect sprinklershapes to it.
+	 * 
+	 * @param e          MouseEvent mouse clicked, the end point of the current line
+	 *                   and the start point of the next line
+	 * @param canvasPane CanvasPane on which the line is drawn
+	 */
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
 		canvasPane.setModifiedSinceLastSave(true);
 		BorderDrawing.tempBorderLine.setVisible(false);
 		Edge line = new Edge();
 		Vertex endVertex = null;
 		line.setvParent(startVertex);
-		line.setStrokeWidth(CanvasPane.getStrokeWidth()*2);
+		line.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
 		line.setStroke(CanvasPane.getPipeLineColor());
 		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
 			endVertex = new Vertex(
@@ -109,8 +158,14 @@ public class PipeDrawing {
 		canvasPane.pipeGraphUnderEditing.addEdge(line);
 	}
 
-	static boolean leaf = false;
-
+	/**
+	 * Finish the pipe drawing and calculate the pipe diameters for the pipes
+	 * 
+	 * @param canvasPane CanvasPane on which the line is drawn
+	 * @param zone       Zone for which the pipes are drawn
+	 * @param root       root Vertex of the pipeGraph for this zone
+	 * @throws PressureException
+	 */
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) throws PressureException {
 		canvasPane.setModifiedSinceLastSave(true);
 		PipeGraph pg = controller.getPipeGraph(zone);
@@ -131,13 +186,23 @@ public class PipeDrawing {
 
 	}
 
-	public static void calculatePipeDiameters  (CanvasPane canvasPane, PipeGraph pg, Vertex startingVertex,
+	/**
+	 * Calculate the pipe diameters for a part of the pipeGraph where there are not
+	 * branches. Put the calculated diameters in text on the canvas and save them
+	 * for material summarizing.
+	 * 
+	 * @param canvasPane        CanvasPane on which the pipe graph is drawn
+	 * @param pg                PipeGraph whose pipe diameters are being calculated
+	 * @param startingVertex    starting Vertex of the subgraph
+	 * @param nextVertex        child Vertex of the subgraph
+	 * @param beginningPressure the water pressure at the starting Vertex
+	 * @throws PressureException
+	 */
+	public static void calculatePipeDiameters(CanvasPane canvasPane, PipeGraph pg, Vertex startingVertex,
 			Vertex nextVertex, double beginningPressure) throws PressureException {
-
 		try {
 			ArrayList<Double> pipeLengths = new ArrayList<>();
 			ArrayList<SprinklerShape> sprinklers = new ArrayList<>();
-			
 
 			double totalWaterFlow = calculateSubGraphWaterFlow(pg, startingVertex, nextVertex);
 
@@ -181,7 +246,7 @@ public class PipeDrawing {
 				if (diameters.get(0) != currentDiameter) {
 					currentDiameter = diameters.get(0);
 					diameterText = new Text(currentDiameter);
-					pg.getPipeTextes().add(diameterText);		
+					pg.getPipeTextes().add(diameterText);
 
 					diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 					diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
@@ -201,7 +266,7 @@ public class PipeDrawing {
 
 						currentDiameter = diameters.get(i);
 						diameterText = new Text(currentDiameter);
-						pg.getPipeTextes().add(diameterText);		
+						pg.getPipeTextes().add(diameterText);
 
 						diameterText.setX(position.getX() + (Common.pixelPerMeter / 2));
 						diameterText.setY(position.getY() + (Common.pixelPerMeter / 2));
@@ -217,8 +282,7 @@ public class PipeDrawing {
 					position = new Point2D((posStartX + posEndX) / 2, (posStartY + posEndY) / 2);
 				}
 			}
-
-			for(Double length : pipeLengths) {
+			for (Double length : pipeLengths) {
 				controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
 			}
 		} catch (GraphException ex) {
@@ -226,8 +290,20 @@ public class PipeDrawing {
 		}
 	}
 
+	/**
+	 * The Vertex from which pipe diameters are calculated on separate subgraphs
+	 */
 	private static Vertex breakPoint2 = null;
 
+	/**
+	 * Calculate the total waterflow for a part of the pipeGraph where there are not
+	 * branches.
+	 * 
+	 * @param pg             PipeGraph whose pipe diameters are being calculated
+	 * @param startingVertex starting Vertex of the subgraph
+	 * @param nextVertex     child Vertex of the subgraph
+	 * @return the total waterflow on this subgraph in l/min
+	 */
 	private static double calculateSubGraphWaterFlow(PipeGraph pg, Vertex startingVertex, Vertex nextVertex) {
 		Vertex current = startingVertex;
 		double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);
@@ -239,6 +315,15 @@ public class PipeDrawing {
 		return totalWaterFlow;
 	}
 
+	/**
+	 * Calculate the total waterflow for a part of the pipeGraph where there are not
+	 * branches.
+	 * 
+	 * @param pg             PipeGraph whose pipe diameters are being calculated
+	 * @param startingVertex starting Vertex of the subgraph
+	 * @param child          child Vertex of the subgraph
+	 * @return the total waterflow on this subgraph
+	 */
 	private static double waterFlowUntilBreakpoint(PipeGraph pg, Vertex startingVertex, Vertex child) {
 		double totalWaterFlow = 0;
 		try {
@@ -266,5 +351,4 @@ public class PipeDrawing {
 		}
 		return totalWaterFlow;
 	}
-
 }

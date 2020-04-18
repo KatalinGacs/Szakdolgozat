@@ -4,14 +4,12 @@ import org.junit.runner.RunWith;
 import org.junit.runners.Suite;
 
 import application.Main;
-import applicationTest.CanvasPaneTest;
-import applicationTest.TextEditingTest;
 import modelTest.SprinklerDAOTest;
 
 @RunWith(Suite.class)
 
 @Suite.SuiteClasses({ 
-   CanvasPaneTest.class ,TextEditingTest.class, SprinklerDAOTest.class
+   SprinklerDAOTest.class
 })
 
 public class JunitTestSuite {

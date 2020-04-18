@@ -9,7 +9,6 @@ import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.application.Application;
 import javafx.application.Platform;
-import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
@@ -21,60 +20,154 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
 import model.bean.Zone;
 
+/**
+ * Main class to set the application up and run it.
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class Main extends Application {
 
+	/**
+	 * Controller for database actions
+	 */
 	private SprinklerController controller = new SprinklerControllerImpl();
 
-	private String filePath = FileHandler.currentPath.equals("") ? "[nem mentett]" : FileHandler.currentPath;
+	/**
+	 * Path of the currently saved file
+	 */
+	private String filePath = FileHandler.currentPath.equals("") ? "" : FileHandler.currentPath;
 
+	/**
+	 * Container with the drawing area and its controls
+	 */
 	private DrawingPanel drawingPanel = new DrawingPanel();
 
+	/**
+	 * Container for the layouts and controls left from the drawing panel
+	 */
 	private VBox left = new VBox();
-	private SprinklerListTable sprinklerListTable;
+	
+	/**
+	 * Table listing the zones on the current plan and their infos
+	 */
 	private ZoneTable zoneTable = new ZoneTable(drawingPanel.getCanvasPane());
+	
+	/**
+	 * Selected zone in zoneTable
+	 */
 	private Zone selectedZone;
+	
+	/**
+	 * Table listing the sprinklers and their informations in selectedZone
+	 */
+	private SprinklerListTable sprinklerListTable;
+	
+	/**
+	 * Table listing the details of a srpinkler selected in sprinklerListTable
+	 */
 	private SprinklerDetailTable sprinklerDetailTable;
 
+	/**
+	 * Main menu bar
+	 */
 	private MenuBar menuBar = new MenuBar();
+	
+	/**
+	 * File menu under main menu bar
+	 */
 	private Menu fileMenu = new Menu("Fájl");
+	
+	/**
+	 * Menu item for starting a new plan
+	 */
 	private MenuItem newMenuItem = new MenuItem("Új");
+	
+	/**
+	 * Menu item for opening a saved plan
+	 */
 	private MenuItem openMenuItem = new MenuItem("Megnyitás");
+	
+	/**
+	 * Menu item for saving the current plan
+	 */
 	private MenuItem saveMenuItem = new MenuItem("Mentés");
+	
+	/**
+	 * Menu item for saving the current plan as a new file
+	 */
 	private MenuItem saveAsMenuItem = new MenuItem("Mentés másként");
-	private MenuItem printMenuItem = new MenuItem("Mentés képként");
+	
+	/**
+	 * Menu item for exporting the current plan to png
+	 */
+	private MenuItem exportMenuItem = new MenuItem("Mentés képként");
+
+	/**
+	 * Menu item for closing the application
+	 */
 	private MenuItem exitMenuItem = new MenuItem("Kilépés");
-	/*
-	 * private Menu editMenu = new Menu("Szerkesztés"); private MenuItem
-	 * undoMenuItem = new MenuItem("Visszavonás"); private MenuItem redoMenuItem =
-	 * new MenuItem("Ismét");
+
+	/**
+	 * Menu for actions related to the database
 	 */
 	private Menu dbMenu = new Menu("Adatbázis");
+	
+	/**
+	 * Menu item for listing the sprinkler types in the database and editing them
+	 */
 	private MenuItem sprinklerDbMenuItem = new MenuItem("Szórófej adatbázis");
+	
+	/**
+	 * Menu item for adding a sprinkler types to the database
+	 */
 	private MenuItem newSprinklerMenuItem = new MenuItem("Szórófej hozzáadása");
+	
+	/**
+	 * Menu item for listing the sprinkler groups in the database and editing them
+	 */
 	private MenuItem sprinklerGroupDbMenuItem = new MenuItem("Szórófej csoportok");
+	
+	/**
+	 *  Menu item for connecting the materials and the sprinkler types in the database
+	 */
 	private MenuItem materialDbMenuItem = new MenuItem("Szórófej-anyag összekapcsolás");
+	
+	/**
+	 *  Menu item for listing the materials in the database and editing them
+	 */
 	private MenuItem newMaterialMenuItem = new MenuItem("Anyag adatbázis");
 	
+	/**
+	 * Context menu for the zoneTable
+	 */
 	private ContextMenu rightClickMenu = new ContextMenu();
+	
+	/**
+	 * Menu item for the rightClickMenu for deleting the selected zone
+	 */
 	private MenuItem delMenuItem = new MenuItem("Törlés");
 
+	/**
+	 * Run the application. 
+	 */
 	@Override
 	public void start(Stage primaryStage) {
 		try {
 			primaryStage.setTitle("Öntözõ programka - " + filePath);
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root, 800, 600);
-			// scene.getStylesheets().add(getClass().getResource("application.css").toExternalForm());
 			primaryStage.setScene(scene);
 			root.setCenter(drawingPanel);
 
 			menuBar.getMenus().addAll(fileMenu, dbMenu);
-			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, printMenuItem,
+			
+			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem,
 					exitMenuItem);
-			// editMenu.getItems().addAll(undoMenuItem, redoMenuItem);
+			
 			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem,
 					materialDbMenuItem, newMaterialMenuItem);
-
+			
 			newMenuItem.setOnAction(e -> {
 				FileHandler.newCanvas(drawingPanel.getCanvasPane(), primaryStage);
 			});
@@ -88,7 +181,7 @@ public class Main extends Application {
 			saveAsMenuItem.setOnAction(e -> {
 				FileHandler.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), true);
 			});
-			printMenuItem.setOnAction(e -> {
+			exportMenuItem.setOnAction(e -> {
 				PrintHandler.print(primaryStage, drawingPanel.getCanvasPane());
 			});
 			exitMenuItem.setOnAction(e -> {

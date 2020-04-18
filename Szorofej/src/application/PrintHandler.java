@@ -8,34 +8,31 @@ import javax.imageio.ImageIO;
 
 import javafx.embed.swing.SwingFXUtils;
 import javafx.geometry.Bounds;
-import javafx.print.PageLayout;
-import javafx.print.PageOrientation;
-import javafx.print.Paper;
-import javafx.print.PrintResolution;
-import javafx.print.Printer;
-import javafx.print.PrinterJob;
 import javafx.scene.Node;
-import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
 import javafx.scene.image.WritableImage;
-import javafx.scene.layout.VBox;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
-import javafx.scene.transform.Scale;
 import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import javafx.stage.Window;
 
+/**
+ * Helper class for exporting the plan to an image
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class PrintHandler {
 
+	/**
+	 * Export the parts of the plan which contain drawn shapes to PNG.
+	 * 
+	 * @param owner      owner window of the file chooser
+	 * @param canvasPane CanvasPane on which the plan is drawn
+	 */
 	public static void print(Window owner, CanvasPane canvasPane) {
+
 		FileChooser fileChooser = new FileChooser();
-
-		// Set extension filter
 		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("png files (*.png)", "*.png"));
-
-		// Prompt user to select a file
 		File file = fileChooser.showSaveDialog(null);
 
 		Rectangle nonEmptyArea = getNonEmptyArea(canvasPane);
@@ -59,6 +56,12 @@ public class PrintHandler {
 
 	}
 
+	/**
+	 * Calculate the area on the CanvasPane which has shapes drawn on
+	 * 
+	 * @param canvasPane CanvasPane on which the plan was drawn
+	 * @return Rectangle that covers exactly that area on which there was drawn
+	 */
 	private static Rectangle getNonEmptyArea(CanvasPane canvasPane) {
 		Bounds borderBounds = canvasPane.getBordersLayer().getBoundsInParent();
 		Rectangle borderBoundingRect = new Rectangle(borderBounds.getMinX(), borderBounds.getMinY(),

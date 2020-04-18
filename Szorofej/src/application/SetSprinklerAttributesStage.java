@@ -22,8 +22,18 @@ import javafx.stage.Stage;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
 
+/**
+ * Stage for selecting a sprinkler type for sprinkler drawing and setting its
+ * attributes
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class SetSprinklerAttributesStage extends Stage {
 
+	/**
+	 * Controller to access sprinkler types from the database
+	 */
 	private SprinklerController controller = new SprinklerControllerImpl();
 
 	private VBox sprinklerInfoRoot = new VBox();
@@ -44,13 +54,19 @@ public class SetSprinklerAttributesStage extends Stage {
 	private Text meterText = new Text("méter");
 	private HBox radiusBox = new HBox();
 
+	/**
+	 * Create a stage where the user can choose a sprinkler type and set its
+	 * attributes for sprinkler drawing
+	 * 
+	 * @param canvasPane
+	 */
 	public SetSprinklerAttributesStage(CanvasPane canvasPane) {
 		initModality(Modality.APPLICATION_MODAL);
 		setAlwaysOnTop(true);
 		setTitle("Szórófej kiválasztása");
-		
+
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		
+
 		radiusBox.getChildren().addAll(radiusText, radiusField, meterText);
 		radiusBox.setAlignment(Pos.CENTER_LEFT);
 		radiusBox.setPadding(new Insets(5));
@@ -64,7 +80,7 @@ public class SetSprinklerAttributesStage extends Stage {
 		sprinklerInfoRoot.setPadding(new Insets(10));
 
 		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
-				 waterConsumptionCol);
+				waterConsumptionCol);
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
 		minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
 		minRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
@@ -87,24 +103,30 @@ public class SetSprinklerAttributesStage extends Stage {
 						.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 			}
 		});
-		
+
 		tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
 			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
-				radiusField.setText(String.valueOf(newSelection.getMaxRadius()));	
+				radiusField.setText(String.valueOf(newSelection.getMaxRadius()));
 			}
 		});
 
 		ok.setOnAction(e -> {
 			setAttributes(canvasPane);
 		});
-		
+
 		tableView.setOnMousePressed(e -> {
-			if ( e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+			if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
 				setAttributes(canvasPane);
 			}
 		});
 	}
-	
+
+	/**
+	 * Save the attributes that where set in this stage to be accessible for
+	 * sprinkler drawing
+	 * 
+	 * @param canvasPane CanvasPane on which the sprinkler are being drawn
+	 */
 	private void setAttributes(CanvasPane canvasPane) {
 		if (radiusField.getText() == null || radiusField.getText().trim().isEmpty()) {
 			Common.showAlert("Add meg a szórófej sugarát!");

@@ -313,6 +313,5 @@ public class BorderDrawing {
 		canvasPane.controller.addObstacle(circle);
 		canvasPane.setModifiedSinceLastSave(true);
 	}
-
-
+	
 }

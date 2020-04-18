@@ -17,10 +17,16 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.bean.Zone;
 
-public class ZoneStage extends Stage{
+/**
+ * A stage for creating zones
+ * 
+ * @author Gacs Katalin
+ *
+ */
+public class ZoneStage extends Stage {
 
 	static SprinklerController controller = new SprinklerControllerImpl();
-	
+
 	private GridPane root = new GridPane();
 	private Scene scene = new Scene(root);
 	private Text zoneNameText = new Text("Zóna elnevezése");
@@ -34,7 +40,8 @@ public class ZoneStage extends Stage{
 	private Spinner<Integer> minutePicker = new Spinner<Integer>(0, 59, 0);
 	private Button createZoneBtn = new Button("Zóna létrehozása");
 
-	public ZoneStage (CanvasPane canvasPane, ToggleButton addHeads, ToggleButton removeHeads, Text numberOfSelectedHeadsField, Text flowRateOfSelectedHeadsField) {
+	public ZoneStage(CanvasPane canvasPane, ToggleButton addHeads, ToggleButton removeHeads,
+			Text numberOfSelectedHeadsField, Text flowRateOfSelectedHeadsField) {
 
 		setX(Common.primaryScreenBounds.getWidth() - 500);
 		setY(100);
@@ -44,7 +51,7 @@ public class ZoneStage extends Stage{
 		setTitle("Zóna megadása");
 		setScene(scene);
 		setAlwaysOnTop(true);
-		
+
 		hourPicker.setPrefWidth(60);
 		minutePicker.setPrefWidth(60);
 		timePicker.getChildren().addAll(hourPicker, colon, minutePicker);
@@ -73,24 +80,23 @@ public class ZoneStage extends Stage{
 					break;
 				}
 			}
-			
+
 			if (zoneNameTextField.getText() == null || zoneNameTextField.getText().trim().isEmpty()) {
 				Common.showAlert("Add meg a zóna nevét!");
 			} else if (canvasPane.selectedSprinklerShapes.isEmpty()) {
 				Common.showAlert("Nincsenek kiválasztott szórófejek!");
 			} else if (zoneNameInUse) {
 				Common.showAlert("Ilyen nevû zóna már létezik!");
-			}else {
+			} else {
 				canvasPane.createZone(zoneNameTextField.getText().trim(), durationInHours);
 				canvasPane.setStateOfCanvasUse(Use.NONE);
 				close();
 			}
 		});
-		
+
 		setOnCloseRequest(e -> {
 			canvasPane.deselectAll();
 			canvasPane.setStateOfCanvasUse(Use.NONE);
 		});
 	}
-	
 }

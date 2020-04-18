@@ -8,6 +8,12 @@ import javafx.scene.text.Text;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
+/**
+ * A Layout which lists informations about a selected sprinklershape
+ * 
+ * @author Gacs Katalin
+ *
+ */
 public class SprinklerDetailTable extends GridPane {
 
 	private SprinklerController controller = new SprinklerControllerImpl();
