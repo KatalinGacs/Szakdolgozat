@@ -1,5 +1,6 @@
 package model;
 
+import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -24,7 +25,7 @@ import model.bean.Zone;
 
 public class SprinklerDAOImpl implements SprinklerDAO {
 
-	private static final String DBFILE = "db/sprinkler.db";
+	private static final String DBFILE = "/sprinkler.db";
 
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 
@@ -77,7 +78,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addSprinklerType(SprinklerType s) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklertype (name, minradius, "
 						+ "maxradius, minangle, maxangle, fixwaterconsumption, waterconsumption, "
 						+ "minpressure, sprinklergroup) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)");) {
@@ -100,7 +101,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<SprinklerType> listSprinklerTypes() throws DbException {
 		sprinklertypes.clear();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM Sprinklertype");) {
 			while (rs.next()) {
@@ -125,7 +126,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void deleteSprinklerType(SprinklerType s) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklertype WHERE name = ?");) {
 			pst.setString(1, s.getName());
 			pst.execute();
@@ -138,7 +139,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<SprinklerGroup> listSprinklerGroups() throws DbException {
 		sprinklergroups.clear();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM Sprinklergroup");) {
 			while (rs.next()) {
@@ -155,7 +156,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addSprinklerGroup(SprinklerGroup s) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklergroup (name) " + "VALUES (?)");) {
 			pst.setString(1, s.getName());
 			pst.execute();
@@ -167,7 +168,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void deleteSprinklerGroup(SprinklerGroup s) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklergroup WHERE name = ?");) {
 			pst.setString(1, s.getName());
 			pst.execute();
@@ -180,7 +181,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup sg) throws DbException {
 		ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn
 						.prepareStatement("SELECT * FROM Sprinklertype " + "WHERE Sprinklergroup = ?");) {
 			pst.setString(1, sg.getName());
@@ -304,7 +305,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void updateSprinklerData(String column, double newValue, String name) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn
 						.prepareStatement("UPDATE Sprinklertype SET " + column + " = ? WHERE name = ?");) {
 			pst.setDouble(1, newValue);
@@ -389,7 +390,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addMaterial(Material m) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn
 						.prepareStatement("INSERT INTO Material (name, unit) " + "VALUES (?, ?)");) {
 			pst.setString(1, m.getName());
@@ -403,7 +404,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void deleteMaterial(Material m) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Material WHERE name = ?");) {
 			pst.setString(1, m.getName());
 			pst.execute();
@@ -416,7 +417,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<Material> listMaterials() throws DbException {
 		materials.clear();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				Statement st = conn.createStatement();
 				ResultSet rs = st.executeQuery("SELECT * FROM Material");) {
 			while (rs.next()) {
@@ -435,7 +436,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	@Override
 	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) throws DbException {
 		ObservableList<MaterialSprinklerConnection> materials = FXCollections.observableArrayList();
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn
 						.prepareStatement("SELECT * FROM Sprinklermaterial WHERE Sprinklertype = ?");) {
 			pst.setString(1, selectedItem.getName());
@@ -459,7 +460,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void addMaterialConnection(SprinklerType s, Material m, int quantity) {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn
 						.prepareStatement("INSERT INTO Sprinklermaterial (sprinklertype, materialname, quantity) "
 								+ "VALUES (?, ?, ?)");) {
@@ -474,7 +475,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	@Override
 	public void deleteMaterialConnection(SprinklerType s, Material m) throws DbException {
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement(
 						"DELETE FROM Sprinklermaterial WHERE sprinklertype = ? AND materialname = ?");) {
 			pst.setString(1, s.getName());
@@ -490,7 +491,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) throws DbException {
 		ObservableList<Material> materials = FXCollections.observableArrayList();
 
-		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
+		try (Connection conn = DriverManager.getConnection("jdbc:sqlite::resource:" + getClass().getResource(DBFILE));
 				PreparedStatement pst = conn.prepareStatement("SELECT * FROM Material WHERE name NOT IN "
 						+ "(SELECT Materialname FROM Sprinklermaterial WHERE Sprinklertype = ?)");) {
 			pst.setString(1, selectedItem.getName());
