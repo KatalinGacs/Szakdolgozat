@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.DbException;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
 
@@ -71,7 +72,7 @@ public class SetSprinklerAttributesStage extends Stage {
 		radiusBox.setAlignment(Pos.CENTER_LEFT);
 		radiusBox.setPadding(new Insets(5));
 		radiusBox.setSpacing(5);
-		sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
+		
 		sprinklerGroupChoiceBox.getSelectionModel().selectFirst();
 		sprinklerGroupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
 		sprinklerGroupPane.setAlignment(Pos.CENTER_LEFT);
@@ -92,15 +93,24 @@ public class SetSprinklerAttributesStage extends Stage {
 		maxAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
 		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
 		waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-
-		tableView.setItems(
-				controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+		
+		try {
+			sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
+			tableView.setItems(
+					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 
 		sprinklerGroupChoiceBox.setOnAction(e -> {
 			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
 				tableView.getItems().clear();
-				tableView.setItems(controller
-						.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+				try {
+					tableView.setItems(controller
+							.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
 			}
 		});
 

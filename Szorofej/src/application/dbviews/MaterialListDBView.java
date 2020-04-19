@@ -1,8 +1,8 @@
 package application.dbviews;
 
+import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
-import javafx.beans.property.SimpleStringProperty;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.HPos;
@@ -19,6 +19,7 @@ import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.DbException;
 import model.bean.Material;
 
 public class MaterialListDBView {
@@ -76,17 +77,29 @@ public class MaterialListDBView {
 			m.setName(nameField.getText().trim());
 			m.setUnit(unitBox.getSelectionModel().getSelectedItem());
 			
-			controller.addMaterial(m);
-			tableView.setItems(controller.listMaterials());
+			try {
+				controller.addMaterial(m);
+				tableView.setItems(controller.listMaterials());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 			nameField.setText("");
 		});
 		
 		delBtn.setOnAction(e -> {
-			controller.deleteMaterial(tableView.getSelectionModel().getSelectedItem());
-			tableView.setItems(controller.listMaterials());
+			try {
+				controller.deleteMaterial(tableView.getSelectionModel().getSelectedItem());
+				tableView.setItems(controller.listMaterials());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		
-		tableView.setItems(controller.listMaterials());
+		try {
+			tableView.setItems(controller.listMaterials());
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 
 		tableView.setEditable(true);
 		stage.show();

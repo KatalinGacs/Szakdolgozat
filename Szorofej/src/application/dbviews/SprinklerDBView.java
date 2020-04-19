@@ -1,5 +1,6 @@
 package application.dbviews;
 
+import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.ObservableList;
@@ -14,6 +15,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
+import model.DbException;
 import model.bean.SprinklerType;
 
 public class SprinklerDBView {
@@ -57,14 +59,22 @@ public class SprinklerDBView {
 		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
 		minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
 		sprinklerGroupCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("sprinklerGroup"));
-		tableView.setItems(controller.listSprinklerTypes());
+		try {
+			tableView.setItems(controller.listSprinklerTypes());
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 
 		delBtn.setOnAction(e -> {
 			ObservableList<SprinklerType> selected = tableView.getSelectionModel().getSelectedItems();
-			for (SprinklerType s : selected) {
-				controller.deleteSprinklerType(s);
+			try {
+				for (SprinklerType s : selected) {
+					controller.deleteSprinklerType(s);
+				}
+				tableView.setItems(controller.listSprinklerTypes());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
 			}
-			tableView.setItems(controller.listSprinklerTypes());
 		});
 		
 		tableView.setEditable(true);
@@ -72,37 +82,61 @@ public class SprinklerDBView {
 		minRadiusCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("minRadius", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("minRadius", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		maxRadiusCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 		maxRadiusCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("maxRadius", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("maxRadius", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		minAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 		minAngleCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("minAngle", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("minAngle", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		maxAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 		maxAngleCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("maxAngle", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("maxAngle", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		waterConsumptionCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 		waterConsumptionCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("waterConsumption", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("waterConsumption", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 		minPressureCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
 		minPressureCol.setOnEditCommit(event -> {
 		    SprinklerType s = event.getRowValue();
 		    s.setWaterCounsumption(event.getNewValue());
-		    controller.updateSprinklerData("minPressure", event.getNewValue(), s.getName());
+		    try {
+				controller.updateSprinklerData("minPressure", event.getNewValue(), s.getName());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 	
 		fixWaterConsumptionCol.setCellFactory(col -> new TableCell<SprinklerType, Boolean>() {

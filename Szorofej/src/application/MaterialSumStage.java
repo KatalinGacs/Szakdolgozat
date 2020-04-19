@@ -9,6 +9,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 
+import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.scene.Scene;
@@ -23,6 +24,7 @@ import javafx.scene.layout.VBox;
 import javafx.stage.FileChooser;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
+import model.DbException;
 import model.bean.UsedMaterial;
 
 /**
@@ -80,7 +82,11 @@ public class MaterialSumStage extends Stage {
 		nameCol.setCellValueFactory(new PropertyValueFactory<UsedMaterial, String>("material"));
 		quantityCol.setCellValueFactory(new PropertyValueFactory<UsedMaterial, Integer>("quantity"));
 
-		tableView.setItems(controller.summarizeMaterials());
+		try {
+			tableView.setItems(controller.summarizeMaterials());
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 
 		saveBtn.setOnAction(e -> {
 			exportToExcel();

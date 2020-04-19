@@ -20,7 +20,7 @@ import javafx.scene.text.Text;
  * contains the elements drawn on the CanvasPane
  */
 @XmlRootElement
-public class Canvas {
+public class Plan {
 	@XmlTransient
 	private SprinklerController controller = new SprinklerControllerImpl();
 

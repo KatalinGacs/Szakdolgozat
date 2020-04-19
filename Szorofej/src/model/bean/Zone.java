@@ -9,12 +9,10 @@ import javax.xml.bind.annotation.XmlElementWrapper;
 import javax.xml.bind.annotation.XmlRootElement;
 import javax.xml.bind.annotation.XmlTransient;
 
-import application.CanvasPane;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
 
 @XmlRootElement(name = "Zone")

@@ -20,10 +20,10 @@ public class SprinklerControllerImpl implements SprinklerController {
 	private SprinklerDAO dao = new SprinklerDAOImpl();
 	
 	@Override
-	public void addSprinklerShape(SprinklerShape s) {
+	public void addSprinklerShape(SprinklerShape s){
 		dao.addSprinklerShapes(s);
 	}
-
+ 
 	@Override
 	public ObservableList<SprinklerShape> listSprinklerShapes() {
 		return dao.listSprinklerShapes();
@@ -35,23 +35,23 @@ public class SprinklerControllerImpl implements SprinklerController {
 	}
 
 	@Override
-	public void addSprinklerType(SprinklerType s) {
+	public void addSprinklerType(SprinklerType s)  throws DbException{
 		dao.addSprinklerType(s);
 		
 	}
 
 	@Override
-	public ObservableList<SprinklerType> listSprinklerTypes() {
+	public ObservableList<SprinklerType> listSprinklerTypes()  throws DbException{
 		return dao.listSprinklerTypes();
 	}
 
 	@Override
-	public void deleteSprinklerType(SprinklerType s) {
+	public void deleteSprinklerType(SprinklerType s)  throws DbException{
 		dao.deleteSprinklerType(s);
 	}
 
 	@Override
-	public ObservableList<SprinklerGroup> listSprinklerGroups() {
+	public ObservableList<SprinklerGroup> listSprinklerGroups()  throws DbException{
 		return dao.listSprinklerGroups();
 	}
 
@@ -62,13 +62,13 @@ public class SprinklerControllerImpl implements SprinklerController {
 	}
 
 	@Override
-	public void deleteSprinklerGroup(SprinklerGroup s) {
+	public void deleteSprinklerGroup(SprinklerGroup s)  throws DbException{
 		dao.deleteSprinklerGroup(s);
 		
 	}
 
 	@Override
-	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s) {
+	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup s) throws DbException {
 		return dao.listSprinklerTypeByGroup(s);
 	}
 
@@ -143,7 +143,7 @@ public class SprinklerControllerImpl implements SprinklerController {
 	}
 
 	@Override
-	public void updateSprinklerData(String column, double newValue, String name) {
+	public void updateSprinklerData(String column, double newValue, String name) throws DbException {
 		dao.updateSprinklerData(column, newValue, name);
 	}
 
@@ -163,7 +163,7 @@ public class SprinklerControllerImpl implements SprinklerController {
 	}
 
 	@Override
-	public SprinklerType getSprinklerType(String sprinklerType) {
+	public SprinklerType getSprinklerType(String sprinklerType)  throws DbException{
 		return dao.getSprinklerType(sprinklerType);
 	}
 
@@ -203,48 +203,48 @@ public class SprinklerControllerImpl implements SprinklerController {
 	}
 
 	@Override
-	public void addMaterial(Material material) {
+	public void addMaterial(Material material)  throws DbException{
 		dao.addMaterial(material);
 		
 	}
 
 	@Override
-	public void deleteMaterial(Material material) {
+	public void deleteMaterial(Material material) throws DbException {
 		dao.deleteMaterial(material);
 	}
 
 	@Override
-	public ObservableList<Material> listMaterials() {
+	public ObservableList<Material> listMaterials() throws DbException {
 		return dao.listMaterials();
 	}
 
 	@Override
-	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) {
+	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem)  throws DbException{
 		return dao.listMaterials(selectedItem);
 	}
 
 	@Override
-	public void addMaterialConnection(SprinklerType s, Material m, int quantity) {
+	public void addMaterialConnection(SprinklerType s, Material m, int quantity) throws DbException {
 		dao.addMaterialConnection(s, m, quantity);
 	}
 
 	@Override
-	public void deleteMaterialConnection(SprinklerType s, Material m) {
+	public void deleteMaterialConnection(SprinklerType s, Material m)  throws DbException{
 		dao.deleteMaterialConnection(s, m);
 	}
 
 	@Override
-	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) {
+	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem)  throws DbException{
 		return dao.listNotAddedMaterials(selectedItem);
 	}
 
 	@Override
-	public void addPipeMaterial(String pipename, Double length) {
+	public void addPipeMaterial(String pipename, Double length)  throws DbException{
 		dao.addPipeMaterial(pipename, length);
 	}
 
 	@Override
-	public ObservableList<UsedMaterial> summarizeMaterials() {
+	public ObservableList<UsedMaterial> summarizeMaterials()  throws DbException{
 		return dao.summarizeMaterials();
 	}
 

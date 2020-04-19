@@ -27,8 +27,9 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
+import model.DbException;
 import model.bean.BorderLine;
-import model.bean.Canvas;
+import model.bean.Plan;
 import model.bean.CircleObstacle;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
@@ -100,12 +101,12 @@ public class FileHandler {
 				for (Zone z : controller.listZones()) {
 					z.updateVertices();
 				}
-				Canvas canvas = new Canvas();
-				JAXBContext context = JAXBContext.newInstance(Canvas.class);
+				Plan plan = new Plan();
+				JAXBContext context = JAXBContext.newInstance(Plan.class);
 				Marshaller m = context.createMarshaller();
 				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 
-				m.marshal(canvas, fileOS);
+				m.marshal(plan, fileOS);
 
 				canvasPane.setModifiedSinceLastSave(false);
 
@@ -138,15 +139,15 @@ public class FileHandler {
 			newCanvas(canvasPane, stage);
 			JAXBContext context;
 			try {
-				context = JAXBContext.newInstance(Canvas.class);
+				context = JAXBContext.newInstance(Plan.class);
 				Unmarshaller um = context.createUnmarshaller();
-				Canvas canvas = (Canvas) um.unmarshal(new FileInputStream(file));
-				loadSprinklerShapes(canvasPane, canvas);
-				loadBorderLines(canvasPane, canvas);
-				loadCircleObstacles(canvasPane, canvas);
-				loadRectangleObstacles(canvasPane, canvas);
-				loadZones(canvasPane, canvas);
-				loadTexts(canvasPane, canvas);
+				Plan plan = (Plan) um.unmarshal(new FileInputStream(file));
+				loadSprinklerShapes(canvasPane, plan);
+				loadBorderLines(canvasPane, plan);
+				loadCircleObstacles(canvasPane, plan);
+				loadRectangleObstacles(canvasPane, plan);
+				loadZones(canvasPane, plan);
+				loadTexts(canvasPane, plan);
 				canvasPane.setModifiedSinceLastSave(false);
 			} catch (JAXBException | FileNotFoundException e) {
 				e.printStackTrace();
@@ -160,10 +161,10 @@ public class FileHandler {
 	 * Add the Sprinklershapes from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the sprinklers will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of
+	 * @param plan     the result of XML unmarshalling containing a list of
 	 *                   sprinklershapes
 	 */
-	private static void loadSprinklerShapes(CanvasPane canvasPane, Canvas canvas) {
+	private static void loadSprinklerShapes(CanvasPane canvasPane, Plan plan) {
 
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			canvasPane.getIrrigationLayer().getChildren().remove(s.getCircle());
@@ -172,7 +173,7 @@ public class FileHandler {
 		}
 		controller.listSprinklerShapes().clear();
 
-		for (SprinklerShape s : canvas.sprinklerShapesNotInZone) {
+		for (SprinklerShape s : plan.sprinklerShapesNotInZone) {
 			loadSprinkler(s, canvasPane);
 		}
 	}
@@ -198,7 +199,11 @@ public class FileHandler {
 		s.getLabel().setX(s.getLabelX());
 		s.getLabel().setY(s.getLabelY());
 		s.getLabel().setStyle(s.getLabelStyle());
-		s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
+		try {
+			s.setSprinkler(controller.getSprinklerType(s.getSprinklerType()));
+		} catch (DbException e) {
+			Common.showAlert(e.getMessage());
+		}
 		s.setFlowRate(s.getFlowRate());
 		s.setWaterCoverageInMmPerHour(s.getWaterCoverageInMmPerHour());
 
@@ -212,16 +217,16 @@ public class FileHandler {
 	 * Add the borderLines from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the borderLines will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of
+	 * @param plan     the result of XML unmarshalling containing a list of
 	 *                   borderLines
 	 */
-	private static void loadBorderLines(CanvasPane canvasPane, Canvas canvas) {
+	private static void loadBorderLines(CanvasPane canvasPane, Plan plan) {
 		for (Shape s : controller.listBorderShapes()) {
 			canvasPane.getBordersLayer().getChildren().remove(s);
 		}
 		controller.listBorderShapes().clear();
 
-		for (BorderLine b : canvas.borderLines) {
+		for (BorderLine b : plan.borderLines) {
 			Color strokeColor = Color.web(b.getColor());
 			Line line = new Line(b.getStartX(), b.getStartY(), b.getEndX(), b.getEndY());
 			line.setStrokeWidth(b.getWidth());
@@ -235,16 +240,16 @@ public class FileHandler {
 	 * Add the circleObstacles from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the circleObstacles will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of
+	 * @param plan     the result of XML unmarshalling containing a list of
 	 *                   circleObstacles
 	 */
-	private static void loadCircleObstacles(CanvasPane canvasPane, Canvas canvas) {
+	private static void loadCircleObstacles(CanvasPane canvasPane, Plan plan) {
 		for (Shape s : controller.listObstacles()) {
 			canvasPane.getBordersLayer().getChildren().remove(s);
 		}
 		controller.listObstacles().clear();
 
-		for (CircleObstacle c : canvas.circleObstacles) {
+		for (CircleObstacle c : plan.circleObstacles) {
 			Color strokeColor = Color.web(c.getStrokeColor());
 			Color fillColor = Color.web(c.getFillColor());
 			Circle circle = new Circle(c.getCenterX(), c.getCenterY(), c.getRadius(), fillColor);
@@ -261,11 +266,11 @@ public class FileHandler {
 	 * Add the rectangleObstacles from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the rectangleObstacles will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of
+	 * @param plan     the result of XML unmarshalling containing a list of
 	 *                   rectangleObstacles
 	 */
-	private static void loadRectangleObstacles(CanvasPane canvasPane, Canvas canvas) {
-		for (RectangleObstacle r : canvas.rectangleObstacles) {
+	private static void loadRectangleObstacles(CanvasPane canvasPane, Plan plan) {
+		for (RectangleObstacle r : plan.rectangleObstacles) {
 			Color strokeColor = Color.web(r.getStrokeColor());
 			Color fillColor = Color.web(r.getFillColor());
 			Rectangle rectangle = new Rectangle(r.getX(), r.getY(), r.getWidth(), r.getHeight());
@@ -284,15 +289,15 @@ public class FileHandler {
 	 * piping, recalculate the pipe diameters.
 	 * 
 	 * @param canvasPane the CanvasPane where the zones and pipes will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of zones
+	 * @param plan     the result of XML unmarshalling containing a list of zones
 	 *                   with informations of their pipes
 	 * @throws PressureException when calculating the pipe diameters this exception
 	 *                           shows if the beginning pressure of the pipeline can
 	 *                           not be enough for the zone
 	 */
-	private static void loadZones(CanvasPane canvasPane, Canvas canvas) throws PressureException {
+	private static void loadZones(CanvasPane canvasPane, Plan plan) throws PressureException {
 		controller.clearZones();
-		for (Zone zone : canvas.zones) {
+		for (Zone zone : plan.zones) {
 			PipeGraph pg = new PipeGraph();
 			pg.setZone(zone);
 			pg.setBeginningPressure(zone.getBeginningPressure());
@@ -348,16 +353,16 @@ public class FileHandler {
 	 * Add texts from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the texts will be loaded
-	 * @param canvas     the result of XML unmarshalling containing a list of texts
+	 * @param plan     the result of XML unmarshalling containing a list of texts
 	 */
-	private static void loadTexts(CanvasPane canvasPane, Canvas canvas) {
+	private static void loadTexts(CanvasPane canvasPane, Plan plan) {
 		for (Text t : controller.listTexts()) {
 			canvasPane.getTextLayer().getChildren().remove(t);
 		}
 		for (Text t : controller.listTexts()) {
 			controller.removeText(t);
 		}
-		for (TextElement t : canvas.texts) {
+		for (TextElement t : plan.texts) {
 			Text text = new Text(t.getX(), t.getY(), t.getText());
 			text.setStyle(t.getStyle());
 			text.setFont(Font.font(t.getFont(), FontWeight.SEMI_BOLD, t.getFontSize()));

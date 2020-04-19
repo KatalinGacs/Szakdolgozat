@@ -48,6 +48,10 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	
 	private static ObservableList<UsedMaterial> pipeMaterialSum = FXCollections.observableArrayList();
 	
+	private String addErrorText = "Hiba történt az adatbázisba mentés során";
+	private String deleteErrorText = "Hiba történt a törlés során";
+	private String listErrorText = "Hiba történt az adatbázis elérése során";
+	
 	public SprinklerDAOImpl() {
 		try {
 			Class.forName("org.sqlite.JDBC");
@@ -72,7 +76,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public void addSprinklerType(SprinklerType s) {
+	public void addSprinklerType(SprinklerType s) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn.prepareStatement("INSERT INTO Sprinklertype (name, minradius, "
 						+ "maxradius, minangle, maxangle, fixwaterconsumption, waterconsumption, "
@@ -89,11 +93,12 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(addErrorText);
 		}
 	}
 
 	@Override
-	public ObservableList<SprinklerType> listSprinklerTypes() {
+	public ObservableList<SprinklerType> listSprinklerTypes() throws DbException {
 		sprinklertypes.clear();
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				Statement st = conn.createStatement();
@@ -111,27 +116,27 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				s.setSprinklerGroup(new SprinklerGroup(rs.getString("sprinklergroup")));
 				sprinklertypes.add(s);
 			}
-
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 		return sprinklertypes;
 	}
 
 	@Override
-	public void deleteSprinklerType(SprinklerType s) {
+	public void deleteSprinklerType(SprinklerType s) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklertype WHERE name = ?");) {
 			pst.setString(1, s.getName());
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(deleteErrorText);
 		}
-
 	}
 
 	@Override
-	public ObservableList<SprinklerGroup> listSprinklerGroups() {
+	public ObservableList<SprinklerGroup> listSprinklerGroups() throws DbException {
 		sprinklergroups.clear();
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				Statement st = conn.createStatement();
@@ -141,9 +146,9 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				s.setName(rs.getString("Name"));
 				sprinklergroups.add(s);
 			}
-
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 		return sprinklergroups;
 	}
@@ -156,23 +161,24 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException("Nem sikerült a hozzáadás");
+			throw new DbException(addErrorText);
 		}
 	}
 
 	@Override
-	public void deleteSprinklerGroup(SprinklerGroup s) {
+	public void deleteSprinklerGroup(SprinklerGroup s) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Sprinklergroup WHERE name = ?");) {
 			pst.setString(1, s.getName());
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(deleteErrorText);
 		}
 	}
 
 	@Override
-	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup sg) {
+	public ObservableList<SprinklerType> listSprinklerTypeByGroup(SprinklerGroup sg) throws DbException {
 		ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn
@@ -194,6 +200,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 		return sprinklertypes;
 	}
@@ -296,7 +303,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public void updateSprinklerData(String column, double newValue, String name) {
+	public void updateSprinklerData(String column, double newValue, String name) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn
 						.prepareStatement("UPDATE Sprinklertype SET " + column + " = ? WHERE name = ?");) {
@@ -304,7 +311,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.setString(2, name);
 			pst.execute();
 		} catch (SQLException e) {
-			e.printStackTrace();
+			e.printStackTrace();			
+			throw new DbException(listErrorText);
 		}
 	}
 
@@ -324,7 +332,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public SprinklerType getSprinklerType(String sprinklerType) {
+	public SprinklerType getSprinklerType(String sprinklerType) throws DbException {
 		for (SprinklerType s : listSprinklerTypes()) {
 			if (s.getName().equals(sprinklerType)) {
 				return s;
@@ -380,7 +388,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public void addMaterial(Material m) {
+	public void addMaterial(Material m) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn
 						.prepareStatement("INSERT INTO Material (name, unit) " + "VALUES (?, ?)");) {
@@ -389,22 +397,24 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(addErrorText);
 		}
 	}
 
 	@Override
-	public void deleteMaterial(Material m) {
+	public void deleteMaterial(Material m) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn.prepareStatement("DELETE FROM Material WHERE name = ?");) {
 			pst.setString(1, m.getName());
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(deleteErrorText);
 		}
 	}
 
 	@Override
-	public ObservableList<Material> listMaterials() {
+	public ObservableList<Material> listMaterials() throws DbException {
 		materials.clear();
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				Statement st = conn.createStatement();
@@ -415,15 +425,15 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 				m.setUnit(rs.getString("Unit"));
 				materials.add(m);
 			}
-
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 		return materials;
 	}
 
 	@Override
-	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) {
+	public ObservableList<MaterialSprinklerConnection> listMaterials(SprinklerType selectedItem) throws DbException {
 		ObservableList<MaterialSprinklerConnection> materials = FXCollections.observableArrayList();
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn
@@ -441,6 +451,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 
 		return materials;
@@ -462,7 +473,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public void deleteMaterialConnection(SprinklerType s, Material m) {
+	public void deleteMaterialConnection(SprinklerType s, Material m) throws DbException {
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
 				PreparedStatement pst = conn.prepareStatement(
 						"DELETE FROM Sprinklermaterial WHERE sprinklertype = ? AND materialname = ?");) {
@@ -471,11 +482,12 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(deleteErrorText);
 		}
 	}
 
 	@Override
-	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) {
+	public ObservableList<Material> listNotAddedMaterials(SprinklerType selectedItem) throws DbException {
 		ObservableList<Material> materials = FXCollections.observableArrayList();
 
 		try (Connection conn = DriverManager.getConnection("jdbc:sqlite:" + DBFILE);
@@ -492,12 +504,13 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			throw new DbException(listErrorText);
 		}
 		return materials;
 	}
 
 	@Override
-	public ObservableList<UsedMaterial> summarizeMaterials() {
+	public ObservableList<UsedMaterial> summarizeMaterials() throws DbException {
 		materialSum.clear();
 		for (SprinklerShape s : sprinklerShapes) {
 			for (MaterialSprinklerConnection mConn : listMaterials(getSprinklerType(s.getSprinklerType()))) {
@@ -521,7 +534,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public Material getMaterial(String name) {
+	public Material getMaterial(String name) throws DbException {
 		for (Material m : listMaterials()) {
 			if (m.getName().equals(name)) {
 				return m;
@@ -531,7 +544,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	}
 
 	@Override
-	public void addPipeMaterial(String pipename, Double length) {
+	public void addPipeMaterial(String pipename, Double length) throws DbException {
 
 		UsedMaterial m = new UsedMaterial();
 		String name = null;

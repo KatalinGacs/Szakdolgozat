@@ -13,6 +13,7 @@ import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
+import model.DbException;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
@@ -287,6 +288,8 @@ public class PipeDrawing {
 			}
 		} catch (GraphException ex) {
 			ex.printStackTrace();
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
 		}
 	}
 

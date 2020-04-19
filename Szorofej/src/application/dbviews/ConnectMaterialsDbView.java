@@ -1,5 +1,6 @@
 package application.dbviews;
 
+import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
@@ -11,16 +12,13 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.control.cell.TextFieldTableCell;
-import javafx.scene.layout.Border;
-import javafx.scene.layout.BorderStroke;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
 import javafx.scene.text.Text;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
-import javafx.util.converter.DoubleStringConverter;
+import model.DbException;
 import model.bean.Material;
 import model.bean.MaterialSprinklerConnection;
 import model.bean.SprinklerType;
@@ -59,7 +57,11 @@ public class ConnectMaterialsDbView {
 		// connected
 		sprinklerTypes.getColumns().add(nameCol);
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
-		sprinklerTypes.setItems(controller.listSprinklerTypes());
+		try {
+			sprinklerTypes.setItems(controller.listSprinklerTypes());
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 		sprinklerTypes.getSelectionModel().selectFirst();
 
 		// the second panel: a list of the materials already set to the sprinkler type
@@ -81,7 +83,11 @@ public class ConnectMaterialsDbView {
 			MaterialSprinklerConnection mConn = alreadyAddedMaterials.getSelectionModel().getSelectedItem();
 			Material m = mConn.getMaterial();
 			SprinklerType s = mConn.getSprinklerType();
-			controller.deleteMaterialConnection(s, m);
+			try {
+				controller.deleteMaterialConnection(s, m);
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 		});
 
 		// the third panel: adding further materials to the sprinkler type selected in
@@ -100,7 +106,11 @@ public class ConnectMaterialsDbView {
 				SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
 				Material m = materials.getSelectionModel().getSelectedItem();
 				int quantity = quantityPicker.getValue();
-				controller.addMaterialConnection(s, m, quantity);
+				try {
+					controller.addMaterialConnection(s, m, quantity);
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
 				refreshTables();
 			}
 
@@ -116,7 +126,11 @@ public class ConnectMaterialsDbView {
 	}
 
 	private void refreshTables() {
-		alreadyAddedMaterials.setItems(controller.listMaterials(sprinklerTypes.getSelectionModel().getSelectedItem()));
-		materials.setItems(controller.listNotAddedMaterials(sprinklerTypes.getSelectionModel().getSelectedItem()));
+		try {
+			alreadyAddedMaterials.setItems(controller.listMaterials(sprinklerTypes.getSelectionModel().getSelectedItem()));
+			materials.setItems(controller.listNotAddedMaterials(sprinklerTypes.getSelectionModel().getSelectedItem()));
+		} catch (DbException e) {
+			Common.showAlert(e.getMessage());
+		}
 	}
 }

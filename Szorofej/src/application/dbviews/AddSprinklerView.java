@@ -16,6 +16,7 @@ import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.DbException;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
 
@@ -27,7 +28,7 @@ public class AddSprinklerView {
 	private GridPane root = new GridPane();
 	private Scene scene = new Scene(root);
 
-	private ObservableList<SprinklerGroup> sprinklerGroups = controller.listSprinklerGroups();
+	private ObservableList<SprinklerGroup> sprinklerGroups;
 
 	private Text nameText = new Text("Név");
 	private TextField nameField = new TextField();
@@ -51,6 +52,11 @@ public class AddSprinklerView {
 	private Button addBtn = new Button("Hozzáad");
 
 	public AddSprinklerView() {
+		try {
+			sprinklerGroups = controller.listSprinklerGroups();
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 		addSprinklerDbStage.setScene(scene);
 		addSprinklerDbStage.setTitle("Szórófej hozzáadása");
 		root.addColumn(0, nameText, minRadiusText, maxRadiusText, minAngleText, maxAngleText, fixWaterConsumptionText,
@@ -98,6 +104,8 @@ public class AddSprinklerView {
 					}
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg az értékeket!");
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
 				}
 			}
 

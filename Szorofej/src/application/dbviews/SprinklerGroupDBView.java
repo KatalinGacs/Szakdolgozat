@@ -27,12 +27,12 @@ public class SprinklerGroupDBView {
 
 	private TableView<SprinklerGroup> tableView = new TableView<>();
 	private TableColumn<SprinklerGroup, String> nameCol = new TableColumn<>("Csoport név");
-	
+
 	private Button deleteBtn = new Button("Kijelöltek törlése");
 	private Text addSprinklerGroupText = new Text("Új csoport név:");
 	private TextField nameField = new TextField();
 	private Button addBtn = new Button("Hozzáad");
-	
+
 	public SprinklerGroupDBView() {
 		stage.initModality(Modality.APPLICATION_MODAL);
 		stage.setScene(scene);
@@ -41,25 +41,33 @@ public class SprinklerGroupDBView {
 		tableView.getColumns().add(nameCol);
 		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerGroup, String>("name"));
-		tableView.setItems(controller.listSprinklerGroups());
+		try {
+			tableView.setItems(controller.listSprinklerGroups());
+		} catch (DbException ex) {
+			Common.showAlert(ex.getMessage());
+		}
 		addBtn.setOnAction(e -> {
 			SprinklerGroup s = new SprinklerGroup(nameField.getText());
 			try {
-			controller.addSprinklerGroup(s);
+				controller.addSprinklerGroup(s);
+				tableView.setItems(controller.listSprinklerGroups());
 			} catch (DbException ex) {
 				Common.showAlert(ex.getMessage());
 			}
-			tableView.setItems(controller.listSprinklerGroups());
 			nameField.setText("");
 		});
 		deleteBtn.setOnAction(e -> {
 			ObservableList<SprinklerGroup> selectedGroups = tableView.getSelectionModel().getSelectedItems();
-			for (SprinklerGroup s : selectedGroups) {
-				controller.deleteSprinklerGroup(s);
+			try {
+				for (SprinklerGroup s : selectedGroups) {
+					controller.deleteSprinklerGroup(s);
+				}
+				tableView.setItems(controller.listSprinklerGroups());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
 			}
-			tableView.setItems(controller.listSprinklerGroups());
 		});
-		
+
 		stage.show();
 
 	}
