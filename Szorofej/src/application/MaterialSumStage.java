@@ -115,9 +115,8 @@ public class MaterialSumStage extends Stage {
 
 			Workbook workbook = new HSSFWorkbook();
 			Sheet spreadsheet = workbook.createSheet("sample");
-
 			Row row = spreadsheet.createRow(0);
-
+			
 			for (int j = 0; j < tableView.getColumns().size(); j++) {
 				row.createCell(j).setCellValue(tableView.getColumns().get(j).getText());
 			}

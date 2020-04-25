@@ -15,7 +15,7 @@ import javafx.stage.Stage;
  * @author Gacs Katalin
  *
  */
-public class SaveModificationsStage extends Alert {
+public class SaveModificationsAlert extends Alert {
 
 	/**
 	 * Title of the alert window
@@ -41,7 +41,7 @@ public class SaveModificationsStage extends Alert {
 	 *                   to save
 	 * @param stage      owner window of the filechooser for saving
 	 */
-	public SaveModificationsStage(boolean exit, CanvasPane canvasPane, Stage stage) {
+	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane, Stage stage) {
 		super(AlertType.CONFIRMATION);
 
 		setTitle(windowTitle);

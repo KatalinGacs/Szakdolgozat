@@ -222,9 +222,7 @@ public class SprinklerDrawing {
 				sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
 			}
 
-			// calculate the start angle of the arc from the positions of the center and the
-			// first
-			// side
+			// calculate the start angle of the arc from the positions of the center and the first side
 			startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
 			if (centerX <= firstX)
 				startAngle -= 180;

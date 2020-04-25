@@ -186,7 +186,7 @@ public class Main extends Application {
 			});
 			exitMenuItem.setOnAction(e -> {
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(),
+					SaveModificationsAlert s = new SaveModificationsAlert(true, drawingPanel.getCanvasPane(),
 							primaryStage);
 				} else {
 					Platform.exit();
@@ -214,7 +214,7 @@ public class Main extends Application {
 			primaryStage.setOnCloseRequest(e -> {
 				e.consume();
 				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
-					SaveModificationsStage s = new SaveModificationsStage(true, drawingPanel.getCanvasPane(),
+					SaveModificationsAlert s = new SaveModificationsAlert(true, drawingPanel.getCanvasPane(),
 							primaryStage);
 				} else {
 					Platform.exit();

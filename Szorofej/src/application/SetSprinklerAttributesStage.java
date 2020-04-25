@@ -96,6 +96,7 @@ public class SetSprinklerAttributesStage extends Stage {
 		
 		try {
 			sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
+			sprinklerGroupChoiceBox.getSelectionModel().select(0);
 			tableView.setItems(
 					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 		} catch (DbException ex) {

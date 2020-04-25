@@ -1,6 +1,5 @@
 package model;
 
-import java.net.URL;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
@@ -51,13 +50,13 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	
 	private String addErrorText = "Hiba történt az adatbázisba mentés során";
 	private String deleteErrorText = "Hiba történt a törlés során";
-	private String listErrorText = "Hiba történt az adatbázis elérése során";
+	private String dbErrorText = "Hiba történt az adatbázis elérése során";
 	
 	public SprinklerDAOImpl() {
 		try {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
-			System.out.println("Failed to load SQLite JDBC driver.");
+			e.printStackTrace();
 		}
 	}
 
@@ -119,7 +118,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 		return sprinklertypes;
 	}
@@ -149,7 +148,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 		return sprinklergroups;
 	}
@@ -201,7 +200,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 		return sprinklertypes;
 	}
@@ -313,7 +312,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();			
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 	}
 
@@ -428,7 +427,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 		return materials;
 	}
@@ -452,7 +451,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 
 		return materials;
@@ -505,7 +504,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
-			throw new DbException(listErrorText);
+			throw new DbException(dbErrorText);
 		}
 		return materials;
 	}

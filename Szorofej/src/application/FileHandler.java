@@ -66,7 +66,7 @@ public class FileHandler {
 	 */
 	public static void newCanvas(CanvasPane canvasPane, Stage stage) {
 		if (canvasPane.isModifiedSinceLastSave()) {
-			SaveModificationsStage s = new SaveModificationsStage(false, canvasPane, stage);
+			SaveModificationsAlert s = new SaveModificationsAlert(false, canvasPane, stage);
 		} else {
 			canvasPane.clear();
 			canvasPane.hideTempLayer();
@@ -105,15 +105,11 @@ public class FileHandler {
 				JAXBContext context = JAXBContext.newInstance(Plan.class);
 				Marshaller m = context.createMarshaller();
 				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
-
 				m.marshal(plan, fileOS);
-
 				canvasPane.setModifiedSinceLastSave(false);
-
 			} catch (IOException | JAXBException ex) {
 				ex.printStackTrace();
 			}
-
 		}
 		stage.setTitle(Common.programName + " - " + currentPath);
 	}
