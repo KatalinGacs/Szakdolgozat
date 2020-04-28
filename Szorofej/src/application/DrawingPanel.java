@@ -665,10 +665,14 @@ public class DrawingPanel extends VBox {
 
 		// show or hide texts
 		showTexts.setOnAction(e -> {
-			if (showTexts.isSelected())
+			if (showTexts.isSelected()) {
 				Common.showLayer(canvasPane.getTextLayer());
-			else
+				Common.showLayer(canvasPane.getPipeTextLayer());
+			}
+			else {
 				Common.hideLayer(canvasPane.getTextLayer());
+				Common.hideLayer(canvasPane.getPipeTextLayer());
+			}
 		});
 	}
 	

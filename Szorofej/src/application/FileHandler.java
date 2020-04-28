@@ -86,6 +86,12 @@ public class FileHandler {
 	 */
 	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
 		File file;
+		/////
+		for (Zone z : controller.listZones()) {
+			System.out.println(z.getColor());
+			System.out.println(controller.getPipeGraph(z));
+		}
+		
 		if (currentPath == "" || saveAs == true) {
 			FileChooser fileChooser = new FileChooser();
 			FileChooser.ExtensionFilter extFilter = new FileChooser.ExtensionFilter("XML files (*.xml)", "*.xml");
@@ -130,9 +136,9 @@ public class FileHandler {
 		fileChooser.getExtensionFilters().add(extFilter);
 		File file = fileChooser.showOpenDialog(stage);
 		if (file != null) {
+			newCanvas(canvasPane, stage);
 			currentPath = file.getAbsolutePath();
 			stage.setTitle(Common.programName + " - " + currentPath);
-			newCanvas(canvasPane, stage);
 			JAXBContext context;
 			try {
 				context = JAXBContext.newInstance(Plan.class);
@@ -157,7 +163,7 @@ public class FileHandler {
 	 * Add the Sprinklershapes from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the sprinklers will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of
+	 * @param plan       the result of XML unmarshalling containing a list of
 	 *                   sprinklershapes
 	 */
 	private static void loadSprinklerShapes(CanvasPane canvasPane, Plan plan) {
@@ -213,7 +219,7 @@ public class FileHandler {
 	 * Add the borderLines from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the borderLines will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of
+	 * @param plan       the result of XML unmarshalling containing a list of
 	 *                   borderLines
 	 */
 	private static void loadBorderLines(CanvasPane canvasPane, Plan plan) {
@@ -236,7 +242,7 @@ public class FileHandler {
 	 * Add the circleObstacles from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the circleObstacles will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of
+	 * @param plan       the result of XML unmarshalling containing a list of
 	 *                   circleObstacles
 	 */
 	private static void loadCircleObstacles(CanvasPane canvasPane, Plan plan) {
@@ -262,7 +268,7 @@ public class FileHandler {
 	 * Add the rectangleObstacles from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the rectangleObstacles will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of
+	 * @param plan       the result of XML unmarshalling containing a list of
 	 *                   rectangleObstacles
 	 */
 	private static void loadRectangleObstacles(CanvasPane canvasPane, Plan plan) {
@@ -285,7 +291,7 @@ public class FileHandler {
 	 * piping, recalculate the pipe diameters.
 	 * 
 	 * @param canvasPane the CanvasPane where the zones and pipes will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of zones
+	 * @param plan       the result of XML unmarshalling containing a list of zones
 	 *                   with informations of their pipes
 	 * @throws PressureException when calculating the pipe diameters this exception
 	 *                           shows if the beginning pressure of the pipeline can
@@ -294,54 +300,70 @@ public class FileHandler {
 	private static void loadZones(CanvasPane canvasPane, Plan plan) throws PressureException {
 		controller.clearZones();
 		for (Zone zone : plan.zones) {
-			PipeGraph pg = new PipeGraph();
-			pg.setZone(zone);
-			pg.setBeginningPressure(zone.getBeginningPressure());
-			for (VertexElement vE : zone.getVertices()) {
-				Vertex vertex = new Vertex(vE.getX(), vE.getY());
-				if (vE.getSprinklerShape() != null) {
-					loadSprinkler(vE.getSprinklerShape(), canvasPane);
-					vertex.setSprinklerShape(vE.getSprinklerShape());
-					zone.addSprinkler(vE.getSprinklerShape());
-				}
+			int numberOfHeads = 0;
+			double sumOfFlowRate = 0;
+			for (SprinklerShape s : zone.getNotConnectedSprinklers()) {
+				loadSprinkler(s, canvasPane);
+				zone.addSprinkler(s);
+				numberOfHeads++;
+				sumOfFlowRate += s.getFlowRate();
+			}
+			if (!zone.getVertices().isEmpty()) {
+				PipeGraph pg = new PipeGraph();
+				pg.setZone(zone);
+				pg.setBeginningPressure(zone.getBeginningPressure());
+				for (VertexElement vE : zone.getVertices()) {
+					Vertex vertex = new Vertex(vE.getX(), vE.getY());
+					if (vE.getSprinklerShape() != null) {
+						loadSprinkler(vE.getSprinklerShape(), canvasPane);
+						vertex.setSprinklerShape(vE.getSprinklerShape());
+						zone.addSprinkler(vE.getSprinklerShape());
+						numberOfHeads++;
+						sumOfFlowRate += vE.getSprinklerShape().getFlowRate();
+					}
 
-				vertex.setBreakPoint(vE.isBreakpoint());
-				if (vE.isRoot()) {
-					pg.setRoot(vertex);
-				}
-				vertex.setVertexElement(vE);
-				pg.addVertex(vertex);
-			}
-			for (Vertex vertex : pg.getVertices()) {
-				for (Vertex other : pg.getVertices()) {
-					if (vertex.getVertexElement().getParentID() == other.getVertexElement().getID()) {
-						vertex.setParent(other);
+					vertex.setBreakPoint(vE.isBreakpoint());
+					if (vE.isRoot()) {
+						pg.setRoot(vertex);
 					}
-					if (vertex.getVertexElement().getChildrenID().contains(other.getVertexElement().getID())) {
-						vertex.addChild(other);
+					vertex.setVertexElement(vE);
+					pg.addVertex(vertex);
+				}
+				for (Vertex vertex : pg.getVertices()) {
+					for (Vertex other : pg.getVertices()) {
+						if (vertex.getVertexElement().getParentID() == other.getVertexElement().getID()) {
+							vertex.setParent(other);
+						}
+						if (vertex.getVertexElement().getChildrenID().contains(other.getVertexElement().getID())) {
+							vertex.addChild(other);
+						}
 					}
 				}
-			}
-			for (Vertex vertex : pg.getVertices()) {
-				for (Vertex child : vertex.getChildren()) {
-					Edge edge = new Edge();
-					edge.setStartX(vertex.getX());
-					edge.setStartY(vertex.getY());
-					edge.setEndX(child.getX());
-					edge.setEndY(child.getY());
-					edge.setvParent(vertex);
-					edge.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
-					edge.setStroke(Color.valueOf(zone.getColor()));
-					edge.setvChild(child);
-					pg.addEdge(edge);
-					canvasPane.getPipeLineLayer().getChildren().add(edge);
+				for (Vertex vertex : pg.getVertices()) {
+					for (Vertex child : vertex.getChildren()) {
+						Edge edge = new Edge();
+						edge.setStartX(vertex.getX());
+						edge.setStartY(vertex.getY());
+						edge.setEndX(child.getX());
+						edge.setEndY(child.getY());
+						edge.setvParent(vertex);
+						edge.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
+						edge.setStroke(Color.valueOf(zone.getColor()));
+						edge.setvChild(child);
+						pg.addEdge(edge);
+						canvasPane.getPipeLineLayer().getChildren().add(edge);
+					}
 				}
+				pg.setValve(
+						ValveIcon.valveIcon(pg.getRoot().getX(), pg.getRoot().getY(), Color.valueOf(zone.getColor())));
+				canvasPane.getPipeLineLayer().getChildren().add(pg.getValve());
+				
+				controller.addPipeGraph(pg);
+				PipeDrawing.completePipeDrawing(canvasPane, zone, pg.getRoot());
 			}
-			pg.setValve(ValveIcon.valveIcon(pg.getRoot().getX(), pg.getRoot().getY(), Color.valueOf(zone.getColor())));
-			canvasPane.getPipeLineLayer().getChildren().add(pg.getValve());
 			controller.addZone(zone);
-			controller.addPipeGraph(pg);
-			PipeDrawing.completePipeDrawing(canvasPane, zone, pg.getRoot());
+			zone.setNumberOfHeads(numberOfHeads);
+			zone.setSumOfFlowRate(sumOfFlowRate);
 		}
 	}
 
@@ -349,7 +371,7 @@ public class FileHandler {
 	 * Add texts from the XML unmarshalling to the CanvasPane
 	 * 
 	 * @param canvasPane the CanvasPane where the texts will be loaded
-	 * @param plan     the result of XML unmarshalling containing a list of texts
+	 * @param plan       the result of XML unmarshalling containing a list of texts
 	 */
 	private static void loadTexts(CanvasPane canvasPane, Plan plan) {
 		for (Text t : controller.listTexts()) {

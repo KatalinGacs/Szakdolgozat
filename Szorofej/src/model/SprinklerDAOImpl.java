@@ -384,7 +384,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		clearSprinklerShapes();
 		clearTexts();
 		clearZones();
-		clearMaterials();
+		clearMaterials();	
 	}
 
 	@Override

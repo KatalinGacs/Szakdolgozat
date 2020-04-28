@@ -20,6 +20,7 @@ public class Zone {
 
 	private String name;
 	private ObservableList<SprinklerShape> sprinklers = FXCollections.observableArrayList();
+	private ObservableList<SprinklerShape> notConnectedSprinklers = FXCollections.observableArrayList();
 	private double sumOfFlowRate = 0;
 	private double durationOfWatering;
 	private int numberOfHeads;
@@ -61,6 +62,16 @@ public class Zone {
 			sumOfFlowRate += s.getFlowRate();
 		}
 		numberOfHeads = sprinklers.size();
+	}
+
+	@XmlElementWrapper(name = "SprinklerShapesNotConnectedByPipes")
+	@XmlElement(name = "sprinklerShape")
+	public ObservableList<SprinklerShape> getNotConnectedSprinklers() {
+		return notConnectedSprinklers;
+	}
+
+	public void setNotConnectedSprinklers(ObservableList<SprinklerShape> notConnectedSprinklers) {
+		this.notConnectedSprinklers = notConnectedSprinklers;
 	}
 
 	@XmlTransient
@@ -117,7 +128,11 @@ public class Zone {
 			return color;
 		} else {
 			SprinklerController controller = new SprinklerControllerImpl();
-			return controller.getPipeGraph(this).getColor().toString();
+			if (controller.getPipeGraph(this) != null) {
+				return controller.getPipeGraph(this).getColor().toString();
+			} else {
+				return "";
+			}
 		}
 	}
 
@@ -131,7 +146,11 @@ public class Zone {
 			return beginningPressure;
 		} else {
 			SprinklerController controller = new SprinklerControllerImpl();
-			return controller.getPipeGraph(this).getBeginningPressure();
+			if (controller.getPipeGraph(this) != null) {
+				return controller.getPipeGraph(this).getBeginningPressure();
+			} else {
+				return 0;
+			}
 		}
 	}
 
@@ -141,33 +160,38 @@ public class Zone {
 
 	public void updateVertices() {
 		SprinklerController controller = new SprinklerControllerImpl();
-
-		ArrayList<VertexElement> result = new ArrayList<>();
-		for (Vertex v : controller.getPipeGraph(this).getVertices()) { 
-			VertexElement vE = new VertexElement();
-			vE.setRoot(v.getParent() == null);
-			vE.setBreakpoint(v.isBreakPoint());
-			vE.setX(v.getX());
-			vE.setY(v.getY());
-			vE.setSprinklerShape(v.getSprinklerShape());
-			v.setVertexElement(vE);
-			result.add(vE);
-		}
-
-		for (Vertex v : controller.getPipeGraph(this).getVertices()) {
-			VertexElement vE = v.getVertexElement();
-			Set<String> childrenIDs = new HashSet<>();
-			for (Vertex child : v.getChildren()) {
-				childrenIDs.add(child.getVertexElement().getID());
+		for (SprinklerShape s : sprinklers) {
+			if (!s.isConnectedToPipe()) {
+				notConnectedSprinklers.add(s);
 			}
-			vE.setChildrenID(childrenIDs);
-			if (!vE.isRoot()) {
-				vE.setParentID(v.getParent().getVertexElement().getID());
+		}
+		
+		ArrayList<VertexElement> result = new ArrayList<>();
+		if (controller.getPipeGraph(this) != null) {
+			for (Vertex v : controller.getPipeGraph(this).getVertices()) {
+				VertexElement vE = new VertexElement();
+				vE.setRoot(v.getParent() == null);
+				vE.setBreakpoint(v.isBreakPoint());
+				vE.setX(v.getX());
+				vE.setY(v.getY());
+				vE.setSprinklerShape(v.getSprinklerShape());
+				v.setVertexElement(vE);
+				result.add(vE);
+			}
+			for (Vertex v : controller.getPipeGraph(this).getVertices()) {
+				VertexElement vE = v.getVertexElement();
+				Set<String> childrenIDs = new HashSet<>();
+				for (Vertex child : v.getChildren()) {
+					childrenIDs.add(child.getVertexElement().getID());
+				}
+				vE.setChildrenID(childrenIDs);
+				if (!vE.isRoot()) {
+					vE.setParentID(v.getParent().getVertexElement().getID());
+				}
 			}
 		}
 
 		vertices = result;
 	}
-
 
 }

@@ -360,11 +360,12 @@ public class CanvasPane extends Pane {
 			}
 		}
 
-		// set the stroke color of the selected shape to highlight it and save the
-		// original color
-		originalStrokeColorOfSelectedShape = selectedShape.getStroke();
-		selectedShape.setStroke(selectionColor);
-
+		if (selectedShape != null) {
+			// set the stroke color of the selected shape to highlight it and save the
+			// original color
+			originalStrokeColorOfSelectedShape = selectedShape.getStroke();
+			selectedShape.setStroke(selectionColor);
+		}
 	}
 
 	/**
@@ -590,16 +591,18 @@ public class CanvasPane extends Pane {
 	 * @param zone the Zone whose pipelines are to be deleted.
 	 */
 	public void deletePipes(Zone zone) {
-		PipeGraph pg = controller.getPipeGraph(zone);
-		for (SprinklerShape s : zone.getSprinklers()) {
-			s.setConnectedToPipe(false);
-		}
-		for (Edge e : pg.getEdges()) {
-			pipeLineLayer.getChildren().remove(e);
-		}
-		pipeLineLayer.getChildren().remove(pg.getValve());
-		for (Text t : pg.getPipeTextes()) {
-			pipeTextLayer.getChildren().remove(t);
+		if (controller.getPipeGraph(zone) != null) {
+			PipeGraph pg = controller.getPipeGraph(zone);
+			for (SprinklerShape s : zone.getSprinklers()) {
+				s.setConnectedToPipe(false);
+			}
+			for (Edge e : pg.getEdges()) {
+				pipeLineLayer.getChildren().remove(e);
+			}
+			pipeLineLayer.getChildren().remove(pg.getValve());
+			for (Text t : pg.getPipeTextes()) {
+				pipeTextLayer.getChildren().remove(t);
+			}
 		}
 	}
 

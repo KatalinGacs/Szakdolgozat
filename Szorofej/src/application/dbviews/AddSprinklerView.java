@@ -47,13 +47,14 @@ public class AddSprinklerView {
 	private Text minPressureText = new Text("Min. szükséges víznyomás (bar)");
 	private TextField minPressureField = new TextField();
 	private Text sprinklerGroupText = new Text("Szórófej csoport");
-	private ChoiceBox<SprinklerGroup> sprinklerGroupChoiceBox = new ChoiceBox<SprinklerGroup>(sprinklerGroups);
+	private ChoiceBox<SprinklerGroup> sprinklerGroupChoiceBox;
 
 	private Button addBtn = new Button("Hozzáad");
 
 	public AddSprinklerView() {
 		try {
 			sprinklerGroups = controller.listSprinklerGroups();
+			sprinklerGroupChoiceBox = new ChoiceBox<SprinklerGroup>(sprinklerGroups);
 		} catch (DbException ex) {
 			Common.showAlert(ex.getMessage());
 		}
@@ -93,7 +94,7 @@ public class AddSprinklerView {
 						s.setMaxRadius(Double.parseDouble(maxRadiusField.getText()));
 						s.setMinAngle(Double.parseDouble(minAngleField.getText()));
 						s.setMaxAngle(Double.parseDouble(maxAngleField.getText()));
-						s.setFixWaterConsumption(fixWaterConsumptionCheckBox.isSelected());
+						s.setFixWaterConsumption(!fixWaterConsumptionCheckBox.isSelected());
 						s.setWaterCounsumption(Double.parseDouble(waterConsumptionfField.getText()));
 						s.setMinPressure(Double.parseDouble(minPressureField.getText()));
 						s.setSprinklerGroup(sprinklerGroupChoiceBox.getValue());
