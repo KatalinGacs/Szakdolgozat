@@ -238,8 +238,6 @@ public class DrawingPanel extends VBox {
 	 */
 	private CanvasPane canvasPane = new CanvasPane();
 
-	UndoManager undoManager = new UndoManager(canvasPane);
-
 	/**
 	 * An extension of ScrollPane that can be zoomed by scrolling the mouse. In this
 	 * the CanvasPane is put so the drawing is zoomable.
@@ -329,6 +327,8 @@ public class DrawingPanel extends VBox {
 	 * the canvasPane's action handlers.
 	 */
 	public DrawingPanel() {
+		
+		
 
 		// set the toolbar and its buttons
 		getChildren().add(toolbar);
@@ -337,7 +337,7 @@ public class DrawingPanel extends VBox {
 		
 		ImageView newImage = new ImageView(new Image(loader.getResource("img/new.png").toString()));
 		newCanvas.setGraphic(newImage);
-		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
+		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)")); // TODO implement ctrl+n
 		newCanvas.setOnAction(e -> {
 			FileHandler.newCanvas(canvasPane);
 		});
@@ -346,28 +346,28 @@ public class DrawingPanel extends VBox {
 		openCanvas.setGraphic(openImage);
 		openCanvas.setTooltip(new Tooltip("Megnyitás"));
 		openCanvas.setOnAction(e -> {
-			FileHandler.newCanvas(canvasPane);
+			FileHandler.loadCanvas(canvasPane, null);
 		});
 		
 		ImageView saveImage = new ImageView(new Image(loader.getResource("img/save.png").toString()));
 		saveCanvas.setGraphic(saveImage);
-		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
+		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)")); // TODO implement ctrl+s
 		saveCanvas.setOnAction(e -> {
-			FileHandler.newCanvas(canvasPane);
+			FileHandler.saveCanvas(null, canvasPane, false);
 		});
 		
 		ImageView undoImage = new ImageView(new Image(loader.getResource("img/undo.png").toString()));		
 		undoButton.setGraphic(undoImage);
-		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
+		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)")); // TODO implement ctrl+z
 		undoButton.setOnAction(e -> {
-			canvasPane.undoManager.undo();
+			UndoManager.getInstance().undo();
 		});
 		
 		ImageView redoImage = new ImageView(new Image(loader.getResource("img/redo.png").toString()));
 		redoButton.setGraphic(redoImage);
-		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
+		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)")); // TODO implement ctrl+y
 		redoButton.setOnAction(e -> {
-			canvasPane.undoManager.redo();
+			UndoManager.getInstance().redo();
 		});
 		
 		

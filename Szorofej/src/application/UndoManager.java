@@ -13,12 +13,30 @@ public class UndoManager {
 	private Stack<Pair<DrawingAction, Object>> modifications = new Stack<Pair<DrawingAction, Object>>();
 	private Stack<Pair<DrawingAction, Object>> undone = new Stack<Pair<DrawingAction, Object>>();
 
-	private CanvasPane canvasPane;
+	private final CanvasPane canvasPane;
 
-	public UndoManager(CanvasPane canvasPane) {
+	private static UndoManager singleton = null;
+	
+	private UndoManager(CanvasPane canvasPane) {
 		this.canvasPane = canvasPane;
 	}
+	
+	public static UndoManager init(CanvasPane canvasPane) {
+		if (singleton != null) {
+			throw new AssertionError("Instance already initialized");
+		}
+		singleton = new UndoManager(canvasPane);
+		return singleton;
+	}
 
+	public static UndoManager getInstance() 
+    { 
+        if (singleton == null) {
+        	throw new AssertionError("Init has to be called first");
+        }
+        return singleton; 
+    } 
+	
 	public enum DrawingAction {
 		SPRINKLER, BORDERLINE, OBSTACLE, TEXT
 	}

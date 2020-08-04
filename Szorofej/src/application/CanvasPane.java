@@ -41,7 +41,6 @@ import model.bean.Zone;
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
-	UndoManager undoManager = new UndoManager(this);
 
 	/**
 	 * Represents different phases of drawing where the user interaction with the

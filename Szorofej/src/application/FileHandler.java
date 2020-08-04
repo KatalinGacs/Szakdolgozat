@@ -80,6 +80,7 @@ public class FileHandler {
 		newCanvas( canvasPane, null);
 	}
 	
+	// TODO ide kell a stage? lehet null ez a paraméter, refaktor?
 
 	/**
 	 * Save the current file in XML. If it is a previously saved plan and saveAs is

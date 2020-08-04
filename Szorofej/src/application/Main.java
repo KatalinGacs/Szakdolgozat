@@ -153,13 +153,15 @@ public class Main extends Application {
 	 */
 	@Override
 	public void start(Stage primaryStage) {
+		
 		try {
 			primaryStage.setTitle("Öntözõ programka - " + filePath);
 			BorderPane root = new BorderPane();
 			Scene scene = new Scene(root, 800, 600);
 			primaryStage.setScene(scene);
 			root.setCenter(drawingPanel);
-
+			UndoManager.init(drawingPanel.getCanvasPane());
+			
 			menuBar.getMenus().addAll(fileMenu, dbMenu);
 			
 			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem,

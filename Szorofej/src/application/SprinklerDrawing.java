@@ -286,7 +286,7 @@ public class SprinklerDrawing {
 
 								drawingState = SprinklerDrawingState.CENTER;
 								
-								canvasPane.undoManager.draw(DrawingAction.SPRINKLER, sprinkler);
+								UndoManager.getInstance().draw(DrawingAction.SPRINKLER, sprinkler);
 							}
 						} catch (NumberFormatException ex) {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
@@ -364,7 +364,7 @@ public class SprinklerDrawing {
 				canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
 				controller.addSprinklerShape(sprinkler);
 				drawingState = SprinklerDrawingState.CENTER;
-				canvasPane.undoManager.draw(DrawingAction.SPRINKLER, sprinkler);
+				UndoManager.getInstance().draw(DrawingAction.SPRINKLER, sprinkler);
 
 				// TODO az összes helyen, ahol rajzolunk, az undomanager draw meghívása
 				if (canvasPane.isDrawingSeveralSprinklers())
