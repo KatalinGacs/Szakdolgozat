@@ -185,7 +185,7 @@ public class Main extends Application {
 				PrintHandler.print(primaryStage, drawingPanel.getCanvasPane());
 			});
 			exitMenuItem.setOnAction(e -> {
-				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
+				if (drawingPanel.getCanvasPane().isDirty()) {
 					SaveModificationsAlert s = new SaveModificationsAlert(true, drawingPanel.getCanvasPane(),
 							primaryStage);
 				} else {
@@ -213,7 +213,7 @@ public class Main extends Application {
 
 			primaryStage.setOnCloseRequest(e -> {
 				e.consume();
-				if (drawingPanel.getCanvasPane().isModifiedSinceLastSave()) {
+				if (drawingPanel.getCanvasPane().isDirty()) {
 					SaveModificationsAlert s = new SaveModificationsAlert(true, drawingPanel.getCanvasPane(),
 							primaryStage);
 				} else {
@@ -233,7 +233,7 @@ public class Main extends Application {
 						delMenuItem.setOnAction(ev -> {
 							drawingPanel.getCanvasPane().deletePipes(selectedZone);
 							controller.removeZone(selectedZone);
-							drawingPanel.getCanvasPane().setModifiedSinceLastSave(true);
+							drawingPanel.getCanvasPane().setDirty(true);
 							ev.consume();
 						});
 					}

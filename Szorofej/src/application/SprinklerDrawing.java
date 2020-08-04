@@ -1,6 +1,7 @@
 package application;
 
 import application.CanvasPane.Use;
+import application.UndoManager.DrawingAction;
 import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
@@ -272,12 +273,20 @@ public class SprinklerDrawing {
 								canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
 								controller.addSprinklerShape(sprinkler);
 
-								canvasPane.setModifiedSinceLastSave(true);
+								label.setX(centerX);
+								label.setY(centerY - (Common.pixelPerMeter / 2));
+								label.setStyle(Common.textstyle);
+								sprinkler.setLabel(label);
+								canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
+								
+								canvasPane.setDirty(true);
 
 								angleInput.setText("");
 								angleInput.setVisible(false);
 
 								drawingState = SprinklerDrawingState.CENTER;
+								
+								canvasPane.undoManager.draw(DrawingAction.SPRINKLER, sprinkler);
 							}
 						} catch (NumberFormatException ex) {
 							Common.showAlert("Számokban add meg a szórófej sugarát!");
@@ -289,7 +298,7 @@ public class SprinklerDrawing {
 			// draw the second side of the sprinkler shape and finish drawing it
 		} else if (drawingState == SprinklerDrawingState.SECONDSIDE) {
 
-			canvasPane.setModifiedSinceLastSave(true);
+			canvasPane.setDirty(true);
 
 			angleInput.setVisible(false);
 
@@ -355,6 +364,9 @@ public class SprinklerDrawing {
 				canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
 				controller.addSprinklerShape(sprinkler);
 				drawingState = SprinklerDrawingState.CENTER;
+				canvasPane.undoManager.draw(DrawingAction.SPRINKLER, sprinkler);
+
+				// TODO az összes helyen, ahol rajzolunk, az undomanager draw meghívása
 				if (canvasPane.isDrawingSeveralSprinklers())
 					drawSeveralSprinklers(canvasPane);
 			}

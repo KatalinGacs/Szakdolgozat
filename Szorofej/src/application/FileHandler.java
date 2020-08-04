@@ -65,7 +65,7 @@ public class FileHandler {
 	 *                   save it first, this is the owner window of the Save dialog
 	 */
 	public static void newCanvas(CanvasPane canvasPane, Stage stage) {
-		if (canvasPane.isModifiedSinceLastSave()) {
+		if (canvasPane.isDirty()) {
 			SaveModificationsAlert s = new SaveModificationsAlert(false, canvasPane, stage);
 		} else {
 			canvasPane.clear();
@@ -73,8 +73,13 @@ public class FileHandler {
 			currentPath = "";
 			stage.setTitle(Common.programName + " - " + currentPath);
 		}
-		canvasPane.setModifiedSinceLastSave(false);
+		canvasPane.setDirty(false);
 	}
+	
+	public static void newCanvas(CanvasPane canvasPane) {
+		newCanvas( canvasPane, null);
+	}
+	
 
 	/**
 	 * Save the current file in XML. If it is a previously saved plan and saveAs is
@@ -86,7 +91,7 @@ public class FileHandler {
 	 */
 	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
 		File file;
-		/////
+	
 		for (Zone z : controller.listZones()) {
 			System.out.println(z.getColor());
 			System.out.println(controller.getPipeGraph(z));
@@ -112,12 +117,13 @@ public class FileHandler {
 				Marshaller m = context.createMarshaller();
 				m.setProperty(Marshaller.JAXB_FORMATTED_OUTPUT, Boolean.TRUE);
 				m.marshal(plan, fileOS);
-				canvasPane.setModifiedSinceLastSave(false);
+				canvasPane.setDirty(false);
+				stage.setTitle(Common.programName + " - " + currentPath);
 			} catch (IOException | JAXBException ex) {
 				ex.printStackTrace();
 			}
 		}
-		stage.setTitle(Common.programName + " - " + currentPath);
+		
 	}
 
 	/**
@@ -150,7 +156,7 @@ public class FileHandler {
 				loadRectangleObstacles(canvasPane, plan);
 				loadZones(canvasPane, plan);
 				loadTexts(canvasPane, plan);
-				canvasPane.setModifiedSinceLastSave(false);
+				canvasPane.setDirty(false);
 			} catch (JAXBException | FileNotFoundException e) {
 				e.printStackTrace();
 			} catch (Exception e) {

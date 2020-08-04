@@ -41,7 +41,7 @@ public class SaveModificationsAlert extends Alert {
 	 *                   to save
 	 * @param stage      owner window of the filechooser for saving
 	 */
-	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane, Stage stage) {
+	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane, Stage stage ) {
 		super(AlertType.CONFIRMATION);
 
 		setTitle(windowTitle);
@@ -73,5 +73,8 @@ public class SaveModificationsAlert extends Alert {
 		} else {
 			close();
 		}
+	}
+	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane ) {
+		this(exit, canvasPane, null);
 	}
 }

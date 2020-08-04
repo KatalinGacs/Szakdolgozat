@@ -41,6 +41,7 @@ import model.bean.Zone;
 public class CanvasPane extends Pane {
 
 	SprinklerController controller = new SprinklerControllerImpl();
+	UndoManager undoManager = new UndoManager(this);
 
 	/**
 	 * Represents different phases of drawing where the user interaction with the
@@ -258,7 +259,7 @@ public class CanvasPane extends Pane {
 	 * file. Used to confirm before starting a new drawing, closing or opening a
 	 * drawing.
 	 */
-	private boolean modifiedSinceLastSave = false;
+	private boolean dirty = false;
 
 	/**
 	 * Create the CanvasPane. Add the layers and other child items to it. Draw a
@@ -337,7 +338,7 @@ public class CanvasPane extends Pane {
 					irrigationLayer.getChildren().remove(s.getCircle());
 					sprinklerArcLayer.getChildren().remove(s.getArc());
 					sprinklerTextLayer.getChildren().remove(s.getLabel());
-					modifiedSinceLastSave = true;
+					dirty = true;
 					ev.consume();
 				});
 			}
@@ -485,7 +486,7 @@ public class CanvasPane extends Pane {
 		zone.setDurationOfWatering(durationInHours);
 		controller.addZone(zone);
 		deselectAll();
-		modifiedSinceLastSave = true;
+		dirty = true;
 	}
 
 	/**
@@ -622,12 +623,12 @@ public class CanvasPane extends Pane {
 		this.stateOfCanvasUse = stateOfCanvasUse;
 	}
 
-	public boolean isModifiedSinceLastSave() {
-		return modifiedSinceLastSave;
+	public boolean isDirty() {
+		return dirty;
 	}
 
-	public void setModifiedSinceLastSave(boolean modifiedSinceLastSave) {
-		this.modifiedSinceLastSave = modifiedSinceLastSave;
+	public void setDirty(boolean dirty) {
+		this.dirty = dirty;
 	}
 
 	public Shape getSelectedShape() {

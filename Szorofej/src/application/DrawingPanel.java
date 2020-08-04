@@ -16,6 +16,9 @@ import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.Tooltip;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
@@ -41,7 +44,15 @@ import model.bean.SprinklerShape;
 public class DrawingPanel extends VBox {
 
 	SprinklerController controller = new SprinklerControllerImpl();
-
+	
+	private HBox toolbar = new HBox();
+	private Button newCanvas = new Button(); // TODO
+	private Button openCanvas = new Button(); // TODO
+	private Button saveCanvas = new Button(); // TODO
+	private Button undoButton = new Button(); 
+	private Button redoButton = new Button();
+	
+	
 	/**
 	 * TabPane with tabs for different phases of drawing.
 	 */
@@ -227,6 +238,8 @@ public class DrawingPanel extends VBox {
 	 */
 	private CanvasPane canvasPane = new CanvasPane();
 
+	UndoManager undoManager = new UndoManager(canvasPane);
+
 	/**
 	 * An extension of ScrollPane that can be zoomed by scrolling the mouse. In this
 	 * the CanvasPane is put so the drawing is zoomable.
@@ -317,6 +330,48 @@ public class DrawingPanel extends VBox {
 	 */
 	public DrawingPanel() {
 
+		// set the toolbar and its buttons
+		getChildren().add(toolbar);
+		toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
+		ClassLoader loader = Main.class.getClassLoader();
+		
+		ImageView newImage = new ImageView(new Image(loader.getResource("img/new.png").toString()));
+		newCanvas.setGraphic(newImage);
+		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
+		newCanvas.setOnAction(e -> {
+			FileHandler.newCanvas(canvasPane);
+		});
+		
+		ImageView openImage = new ImageView(new Image(loader.getResource("img/open.png").toString()));
+		openCanvas.setGraphic(openImage);
+		openCanvas.setTooltip(new Tooltip("Megnyitás"));
+		openCanvas.setOnAction(e -> {
+			FileHandler.newCanvas(canvasPane);
+		});
+		
+		ImageView saveImage = new ImageView(new Image(loader.getResource("img/save.png").toString()));
+		saveCanvas.setGraphic(saveImage);
+		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
+		saveCanvas.setOnAction(e -> {
+			FileHandler.newCanvas(canvasPane);
+		});
+		
+		ImageView undoImage = new ImageView(new Image(loader.getResource("img/undo.png").toString()));		
+		undoButton.setGraphic(undoImage);
+		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
+		undoButton.setOnAction(e -> {
+			canvasPane.undoManager.undo();
+		});
+		
+		ImageView redoImage = new ImageView(new Image(loader.getResource("img/redo.png").toString()));
+		redoButton.setGraphic(redoImage);
+		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
+		redoButton.setOnAction(e -> {
+			canvasPane.undoManager.redo();
+		});
+		
+		
+		
 		// order the tabs under the tabpane
 		getChildren().add(tabPane);
 		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);

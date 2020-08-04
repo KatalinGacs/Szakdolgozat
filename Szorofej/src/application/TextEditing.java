@@ -88,7 +88,7 @@ public class TextEditing {
 	 * @param canvasPane CanvasPane on which the text is written
 	 */
 	public static void startWritingText(MouseEvent e, CanvasPane canvasPane) {
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 		stage.close();
 		textField.setVisible(true);
 		textField.requestFocus();

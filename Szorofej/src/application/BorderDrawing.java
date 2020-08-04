@@ -168,7 +168,7 @@ public class BorderDrawing {
 
 		canvasPane.controller.addBorderShape(line);
 		canvasPane.getBordersLayer().getChildren().add(line);
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 	}
 
 	/**
@@ -194,7 +194,7 @@ public class BorderDrawing {
 		canvasPane.getBordersLayer().getChildren().add(rect);
 		canvasPane.controller.addBorderShape(rect);
 		canvasPane.controller.addObstacle(rect);
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 	}
 
 	/**
@@ -311,7 +311,7 @@ public class BorderDrawing {
 		canvasPane.getBordersLayer().getChildren().add(circle);
 		canvasPane.controller.addBorderShape(circle);
 		canvasPane.controller.addObstacle(circle);
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 	}
 	
 }

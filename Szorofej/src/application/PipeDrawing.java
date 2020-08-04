@@ -115,7 +115,7 @@ public class PipeDrawing {
 		BorderDrawing.startX = breakPointVertex.getX();
 		BorderDrawing.startY = breakPointVertex.getY();
 		BorderDrawing.lengthInput.setVisible(false);
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 	}
 
 	/**
@@ -126,7 +126,7 @@ public class PipeDrawing {
 	 * @param canvasPane CanvasPane on which the line is drawn
 	 */
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 		BorderDrawing.lengthInput.setVisible(false);
 		BorderDrawing.tempBorderLine.setVisible(false);
 		Edge line = new Edge();
@@ -171,7 +171,7 @@ public class PipeDrawing {
 	 * @throws PressureException
 	 */
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) throws PressureException {
-		canvasPane.setModifiedSinceLastSave(true);
+		canvasPane.setDirty(true);
 		PipeGraph pg = controller.getPipeGraph(zone);
 		int leafes = pg.getNumberOfLeaves();
 		Vertex startingVertex = root;

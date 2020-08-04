@@ -271,21 +271,24 @@
       <operations public="false" package="false" protected="false" private="false" static="false"/>    
     </display>  
   </class>  
-  <dependency id="31">    
+  <association id="31">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="32" name="sprinklerShapes">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="33" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="29" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="34">    
     <end type="SOURCE" refId="18"/>    
     <end type="TARGET" refId="8"/>  
   </dependency>  
-  <association id="32">    
-    <end type="SOURCE" refId="13" navigable="false" variant="ASSOCIATION">      
-      <attribute id="33" name="pipeGraphUnderEditing"/>      
-      <multiplicity id="34" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="28" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
   <association id="35">    
-    <bendpoint x="157" y="293"/>    
-    <end type="SOURCE" refId="11" navigable="false" variant="ASSOCIATION">      
+    <end type="SOURCE" refId="12" navigable="false">      
       <attribute id="36" name="controller">        
         <position height="0" width="0" x="-645" y="16"/>      
       </attribute>      
@@ -293,491 +296,362 @@
         <position height="0" width="0" x="-645" y="16"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
   <dependency id="38">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="6"/>  
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="8"/>  
   </dependency>  
   <dependency id="39">    
-    <end type="SOURCE" refId="16"/>    
-    <end type="TARGET" refId="13"/>  
+    <end type="SOURCE" refId="12"/>    
+    <end type="TARGET" refId="14"/>  
   </dependency>  
   <association id="40">    
-    <bendpoint x="617" y="149"/>    
-    <bendpoint x="566" y="164"/>    
-    <end type="SOURCE" refId="15" navigable="false" variant="ASSOCIATION">      
-      <attribute id="41" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
+    <bendpoint x="344" y="754"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="41" name="sprinklertypes">        
+        <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="42" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
+      <multiplicity id="42" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="23" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="43">    
-    <end type="SOURCE" refId="9" navigable="false" variant="ASSOCIATION">      
-      <attribute id="44" name="simplex">        
-        <position height="0" width="0" x="-430" y="-140"/>      
-      </attribute>      
-      <multiplicity id="45" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-430" y="-140"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="10" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="46">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="47" name="zones"/>      
-      <multiplicity id="48" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="27" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <realization id="49">    
-    <end type="SOURCE" refId="6"/>    
-    <end type="TARGET" refId="5"/>  
-  </realization>  
-  <association id="50">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="51" name="borderLines"/>      
-      <multiplicity id="52" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="1" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="53">    
-    <end type="SOURCE" refId="25" navigable="false" variant="ASSOCIATION">      
-      <attribute id="54" name="material"/>      
-      <multiplicity id="55" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="24" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="56">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="57" name="texts"/>      
-      <multiplicity id="58" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="2" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="59">    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="60" name="pipeGraphs"/>      
-      <multiplicity id="61" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="28" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="62">    
-    <bendpoint x="189" y="676"/>    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="63" name="materials"/>      
-      <multiplicity id="64" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="24" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="65">    
-    <bendpoint x="845" y="326"/>    
-    <bendpoint x="749" y="353"/>    
-    <bendpoint x="614" y="369"/>    
-    <bendpoint x="469" y="372"/>    
-    <end type="SOURCE" refId="21"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="66">    
-    <end type="SOURCE" refId="18" navigable="false" variant="ASSOCIATION">      
-      <attribute id="67" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </attribute>      
-      <multiplicity id="68" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="69">    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="70" name="sprinklergroups"/>      
-      <multiplicity id="71" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="22" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="72">    
-    <bendpoint x="853" y="344"/>    
-    <bendpoint x="694" y="381"/>    
-    <end type="SOURCE" refId="21" navigable="false" variant="ASSOCIATION">      
-      <attribute id="73" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </attribute>      
-      <multiplicity id="74" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="75">    
-    <end type="SOURCE" refId="12" navigable="false" variant="ASSOCIATION">      
-      <attribute id="76" name="canvasPane">        
-        <position height="0" width="0" x="-1048" y="-171"/>      
-      </attribute>      
-      <multiplicity id="77" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-1048" y="-171"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="13" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="78">    
-    <end type="SOURCE" refId="12"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="79">    
-    <bendpoint x="558" y="110"/>    
-    <bendpoint x="506" y="242"/>    
-    <end type="SOURCE" refId="17" navigable="false" variant="ASSOCIATION">      
-      <attribute id="80" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </attribute>      
-      <multiplicity id="81" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="82">    
-    <end type="SOURCE" refId="29" navigable="false" variant="ASSOCIATION">      
-      <attribute id="83" name="sprinkler"/>      
-      <multiplicity id="84" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="23" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="85">    
-    <bendpoint x="718" y="262"/>    
-    <bendpoint x="549" y="282"/>    
-    <end type="SOURCE" refId="19"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="86">    
-    <end type="SOURCE" refId="14" navigable="false" variant="ASSOCIATION">      
-      <attribute id="87" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </attribute>      
-      <multiplicity id="88" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="89">    
-    <bendpoint x="574" y="504"/>    
-    <bendpoint x="541" y="710"/>    
-    <end type="SOURCE" refId="14" navigable="false" variant="ASSOCIATION">      
-      <attribute id="90" name="sprinklerType"/>      
-      <multiplicity id="91" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="23" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="92">    
-    <bendpoint x="717" y="106"/>    
-    <bendpoint x="529" y="141"/>    
-    <end type="SOURCE" refId="15"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="93">    
-    <end type="SOURCE" refId="20" navigable="false" variant="ASSOCIATION">      
-      <attribute id="94" name="sprinklerGroups"/>      
-      <multiplicity id="95" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="22" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="96">    
-    <bendpoint x="406" y="132"/>    
-    <end type="SOURCE" refId="17"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="97">    
-    <end type="SOURCE" refId="20" navigable="false" variant="ASSOCIATION">      
-      <attribute id="98" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </attribute>      
-      <multiplicity id="99" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
-      </multiplicity>    
-    </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="100">    
+  <dependency id="43">    
     <bendpoint x="201" y="124"/>    
     <bendpoint x="153" y="193"/>    
     <end type="SOURCE" refId="13"/>    
     <end type="TARGET" refId="8"/>  
   </dependency>  
-  <association id="101">    
-    <bendpoint x="29" y="128"/>    
-    <bendpoint x="34" y="258"/>    
-    <bendpoint x="36" y="608"/>    
-    <bendpoint x="402" y="668"/>    
-    <end type="SOURCE" refId="11" navigable="false" variant="ASSOCIATION">      
-      <attribute id="102" name="selectedZone"/>      
-      <multiplicity id="103" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="27" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="104">    
-    <end type="SOURCE" refId="26" navigable="false" variant="ASSOCIATION">      
-      <attribute id="105" name="material"/>      
-      <multiplicity id="106" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="24" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="107">    
-    <bendpoint x="353" y="140"/>    
-    <bendpoint x="333" y="189"/>    
-    <bendpoint x="350" y="273"/>    
-    <end type="SOURCE" refId="16"/>    
-    <end type="TARGET" refId="7"/>  
-  </dependency>  
-  <dependency id="108">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="13"/>  
-  </dependency>  
-  <dependency id="109">    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="13"/>  
-  </dependency>  
-  <realization id="110">    
-    <end type="SOURCE" refId="8"/>    
-    <end type="TARGET" refId="7"/>  
-  </realization>  
-  <association id="111">    
-    <bendpoint x="596" y="268"/>    
-    <end type="SOURCE" refId="19" navigable="false" variant="ASSOCIATION">      
-      <attribute id="112" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
+  <association id="44">    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="45" name="pipeGraphUnderEditing">        
+        <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="113" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
+      <multiplicity id="46" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="28" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="114">    
-    <bendpoint x="344" y="754"/>    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="115" name="sprinklertypes"/>      
-      <multiplicity id="116" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="23" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="117">    
-    <end type="SOURCE" refId="14"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="118">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="119" name="rectangleObstacles"/>      
-      <multiplicity id="120" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="4" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="121">    
-    <bendpoint x="2" y="62"/>    
-    <bendpoint x="20" y="654"/>    
-    <bendpoint x="252" y="662"/>    
-    <end type="SOURCE" refId="13" navigable="false" variant="ASSOCIATION">      
-      <attribute id="122" name="sprinklerShapeNearCursor"/>      
-      <multiplicity id="123" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="29" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="124">    
-    <end type="SOURCE" refId="26" navigable="false" variant="ASSOCIATION">      
-      <attribute id="125" name="sprinklerType"/>      
-      <multiplicity id="126" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="23" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="127">    
-    <end type="SOURCE" refId="11"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="128">    
-    <end type="SOURCE" refId="27" navigable="false" variant="ASSOCIATION">      
-      <attribute id="129" name="sprinklers"/>      
-      <multiplicity id="130" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="29" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="131">    
-    <bendpoint x="688" y="586"/>    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="132" name="zones"/>      
-      <multiplicity id="133" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="27" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="134">    
-    <end type="SOURCE" refId="20"/>    
-    <end type="TARGET" refId="8"/>  
-  </dependency>  
-  <association id="135">    
-    <end type="SOURCE" refId="23" navigable="false" variant="ASSOCIATION">      
-      <attribute id="136" name="sprinklerGroup"/>      
-      <multiplicity id="137" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="22" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <dependency id="138">    
-    <bendpoint x="866" y="16"/>    
-    <bendpoint x="664" y="5"/>    
-    <bendpoint x="425" y="14"/>    
-    <end type="SOURCE" refId="15"/>    
-    <end type="TARGET" refId="13"/>  
-  </dependency>  
-  <association id="139">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="140" name="circleObstacles"/>      
-      <multiplicity id="141" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="3" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="142">    
-    <end type="SOURCE" refId="12" navigable="false" variant="ASSOCIATION">      
-      <attribute id="143" name="controller">        
-        <position height="0" width="0" x="-645" y="16"/>      
+  <association id="47">    
+    <end type="SOURCE" refId="28" navigable="false">      
+      <attribute id="48" name="zone">        
+        <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="144" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-645" y="16"/>      
+      <multiplicity id="49" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="27" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <dependency id="145">    
+  <dependency id="50">    
     <bendpoint x="964" y="150"/>    
     <bendpoint x="1002" y="244"/>    
     <bendpoint x="984" y="334"/>    
     <end type="SOURCE" refId="15"/>    
     <end type="TARGET" refId="9"/>  
   </dependency>  
-  <association id="146">    
-    <end type="SOURCE" refId="11" navigable="false" variant="ASSOCIATION">      
-      <attribute id="147" name="drawingPanel">        
-        <position height="0" width="0" x="-1220" y="-15"/>      
+  <association id="51">    
+    <bendpoint x="157" y="293"/>    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="52" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
       </attribute>      
-      <multiplicity id="148" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-1220" y="-15"/>      
+      <multiplicity id="53" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="12" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="149">    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="150" name="sprinklerShapes"/>      
-      <multiplicity id="151" minimum="0" maximum="2147483647"/>    
+  <association id="54">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="55" name="circleObstacles">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="56" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
-    <end type="TARGET" refId="29" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="3" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <dependency id="152">    
-    <end type="SOURCE" refId="12"/>    
-    <end type="TARGET" refId="14"/>  
+  <association id="57">    
+    <end type="SOURCE" refId="12" navigable="false">      
+      <attribute id="58" name="canvasPane">        
+        <position height="0" width="0" x="-1048" y="-171"/>      
+      </attribute>      
+      <multiplicity id="59" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-1048" y="-171"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="13" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="60">    
+    <end type="SOURCE" refId="23" navigable="false">      
+      <attribute id="61" name="sprinklerGroup">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="62" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="22" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="63">    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="64" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="65" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="66">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="8"/>  
   </dependency>  
-  <association id="153">    
-    <end type="SOURCE" refId="6" navigable="false" variant="ASSOCIATION">      
-      <attribute id="154" name="materialSum"/>      
-      <multiplicity id="155" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="25" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="156">    
+  <association id="67">    
     <bendpoint x="329" y="228"/>    
-    <end type="SOURCE" refId="13" navigable="false" variant="ASSOCIATION">      
-      <attribute id="157" name="controller">        
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="68" name="controller">        
         <position height="0" width="0" x="-645" y="16"/>      
       </attribute>      
-      <multiplicity id="158" minimum="0" maximum="1">        
+      <multiplicity id="69" minimum="0" maximum="1">        
         <position height="0" width="0" x="-645" y="16"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="159">    
-    <end type="SOURCE" refId="28" navigable="false" variant="ASSOCIATION">      
-      <attribute id="160" name="zone"/>      
-      <multiplicity id="161" minimum="0" maximum="1"/>    
+  <association id="70">    
+    <end type="SOURCE" refId="27" navigable="false">      
+      <attribute id="71" name="sprinklers">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="72" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
     </end>    
-    <end type="TARGET" refId="27" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="29" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="162">    
+  <association id="73">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="74" name="borderLines">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="75" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="1" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="76">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="77" name="sprinklerGroups">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="78" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="22" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="79">    
+    <bendpoint x="574" y="504"/>    
+    <bendpoint x="541" y="710"/>    
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="80" name="sprinklerType">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="81" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="23" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="82">    
     <bendpoint x="533" y="466"/>    
-    <end type="SOURCE" refId="14" navigable="false" variant="ASSOCIATION">      
-      <attribute id="163" name="sprinkler"/>      
-      <multiplicity id="164" minimum="0" maximum="1"/>    
-    </end>    
-    <end type="TARGET" refId="29" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="165">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="166" name="sprinklerShapesNotInZone"/>      
-      <multiplicity id="167" minimum="0" maximum="2147483647"/>    
-    </end>    
-    <end type="TARGET" refId="29" navigable="true" variant="ASSOCIATION"/>    
-    <display labels="false" multiplicity="false"/>  
-  </association>  
-  <association id="168">    
-    <end type="SOURCE" refId="8" navigable="false" variant="ASSOCIATION">      
-      <attribute id="169" name="dao">        
-        <position height="0" width="0" x="-639" y="-170"/>      
+    <end type="SOURCE" refId="14" navigable="false">      
+      <attribute id="83" name="sprinkler">        
+        <position height="0" width="0" x="0" y="0"/>      
       </attribute>      
-      <multiplicity id="170" minimum="0" maximum="1">        
-        <position height="0" width="0" x="-639" y="-170"/>      
+      <multiplicity id="84" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
       </multiplicity>    
     </end>    
-    <end type="TARGET" refId="5" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="29" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <association id="171">    
-    <end type="SOURCE" refId="30" navigable="false" variant="ASSOCIATION">      
-      <attribute id="172" name="controller"/>      
-      <multiplicity id="173" minimum="0" maximum="1"/>    
+  <dependency id="85">    
+    <bendpoint x="353" y="140"/>    
+    <bendpoint x="333" y="189"/>    
+    <bendpoint x="350" y="273"/>    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="7"/>  
+  </dependency>  
+  <dependency id="86">    
+    <end type="SOURCE" refId="16"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="87">    
+    <bendpoint x="558" y="110"/>    
+    <bendpoint x="506" y="242"/>    
+    <end type="SOURCE" refId="17" navigable="false">      
+      <attribute id="88" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="89" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
     </end>    
-    <end type="TARGET" refId="7" navigable="true" variant="ASSOCIATION"/>    
+    <end type="TARGET" refId="7" navigable="true"/>    
     <display labels="false" multiplicity="false"/>  
   </association>  
-  <dependency id="174">    
+  <association id="90">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="91" name="sprinklergroups">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="92" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="22" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="93">    
+    <end type="SOURCE" refId="20" navigable="false">      
+      <attribute id="94" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="95" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="96">    
+    <end type="SOURCE" refId="29" navigable="false">      
+      <attribute id="97" name="sprinkler">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="98" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="23" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="99">    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="100" name="sprinklerType">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="101" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="23" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="102">    
+    <bendpoint x="866" y="16"/>    
+    <bendpoint x="664" y="5"/>    
+    <bendpoint x="425" y="14"/>    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="103">    
+    <bendpoint x="688" y="586"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="104" name="zones">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="105" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="27" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="106">    
+    <bendpoint x="189" y="676"/>    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="107" name="materials">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="108" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="24" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="109">    
+    <bendpoint x="406" y="132"/>    
+    <end type="SOURCE" refId="17"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <association id="110">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="111" name="pipeGraphs">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="112" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="28" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="113">    
+    <bendpoint x="853" y="344"/>    
+    <bendpoint x="694" y="381"/>    
+    <end type="SOURCE" refId="21" navigable="false">      
+      <attribute id="114" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="115" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="116">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="6"/>  
+  </dependency>  
+  <association id="117">    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="118" name="drawingPanel">        
+        <position height="0" width="0" x="-1220" y="-15"/>      
+      </attribute>      
+      <multiplicity id="119" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-1220" y="-15"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="12" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="120">    
     <bendpoint x="829" y="22"/>    
     <bendpoint x="706" y="17"/>    
     <bendpoint x="581" y="22"/>    
@@ -785,6 +659,236 @@
     <end type="SOURCE" refId="15"/>    
     <end type="TARGET" refId="16"/>  
   </dependency>  
+  <association id="121">    
+    <end type="SOURCE" refId="8" navigable="false">      
+      <attribute id="122" name="dao">        
+        <position height="0" width="0" x="-639" y="-170"/>      
+      </attribute>      
+      <multiplicity id="123" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-639" y="-170"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="5" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="124">    
+    <bendpoint x="29" y="128"/>    
+    <bendpoint x="34" y="258"/>    
+    <bendpoint x="36" y="608"/>    
+    <bendpoint x="402" y="668"/>    
+    <end type="SOURCE" refId="11" navigable="false">      
+      <attribute id="125" name="selectedZone">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="126" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="27" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="127">    
+    <end type="SOURCE" refId="26" navigable="false">      
+      <attribute id="128" name="material">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="129" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="24" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <realization id="130">    
+    <end type="SOURCE" refId="6"/>    
+    <end type="TARGET" refId="5"/>  
+  </realization>  
+  <dependency id="131">    
+    <end type="SOURCE" refId="11"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <dependency id="132">    
+    <end type="SOURCE" refId="20"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <association id="133">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="134" name="sprinklerShapesNotInZone">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="135" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="29" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="136">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="137" name="controller">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="138" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <realization id="139">    
+    <end type="SOURCE" refId="8"/>    
+    <end type="TARGET" refId="7"/>  
+  </realization>  
+  <dependency id="140">    
+    <bendpoint x="845" y="326"/>    
+    <bendpoint x="749" y="353"/>    
+    <bendpoint x="614" y="369"/>    
+    <bendpoint x="469" y="372"/>    
+    <end type="SOURCE" refId="21"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="141">    
+    <bendpoint x="717" y="106"/>    
+    <bendpoint x="529" y="141"/>    
+    <end type="SOURCE" refId="15"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <dependency id="142">    
+    <bendpoint x="718" y="262"/>    
+    <bendpoint x="549" y="282"/>    
+    <end type="SOURCE" refId="19"/>    
+    <end type="TARGET" refId="8"/>  
+  </dependency>  
+  <association id="143">    
+    <end type="SOURCE" refId="25" navigable="false">      
+      <attribute id="144" name="material">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="145" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="24" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <dependency id="146">    
+    <end type="SOURCE" refId="14"/>    
+    <end type="TARGET" refId="13"/>  
+  </dependency>  
+  <association id="147">    
+    <bendpoint x="596" y="268"/>    
+    <end type="SOURCE" refId="19" navigable="false">      
+      <attribute id="148" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="149" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="150">    
+    <bendpoint x="617" y="149"/>    
+    <bendpoint x="566" y="164"/>    
+    <end type="SOURCE" refId="15" navigable="false">      
+      <attribute id="151" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="152" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="153">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="154" name="zones">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="155" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="27" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="156">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="157" name="rectangleObstacles">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="158" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="4" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="159">    
+    <end type="SOURCE" refId="9" navigable="false">      
+      <attribute id="160" name="simplex">        
+        <position height="0" width="0" x="-430" y="-140"/>      
+      </attribute>      
+      <multiplicity id="161" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-430" y="-140"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="10" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="162">    
+    <end type="SOURCE" refId="6" navigable="false">      
+      <attribute id="163" name="materialSum">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="164" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="25" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="165">    
+    <end type="SOURCE" refId="30" navigable="false">      
+      <attribute id="166" name="texts">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="167" minimum="0" maximum="2147483647">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="2" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="168">    
+    <end type="SOURCE" refId="18" navigable="false">      
+      <attribute id="169" name="controller">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </attribute>      
+      <multiplicity id="170" minimum="0" maximum="1">        
+        <position height="0" width="0" x="-645" y="16"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="7" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
+  <association id="171">    
+    <bendpoint x="2" y="62"/>    
+    <bendpoint x="20" y="654"/>    
+    <bendpoint x="252" y="662"/>    
+    <end type="SOURCE" refId="13" navigable="false">      
+      <attribute id="172" name="sprinklerShapeNearCursor">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </attribute>      
+      <multiplicity id="173" minimum="0" maximum="1">        
+        <position height="0" width="0" x="0" y="0"/>      
+      </multiplicity>    
+    </end>    
+    <end type="TARGET" refId="29" navigable="true"/>    
+    <display labels="false" multiplicity="false"/>  
+  </association>  
   <classifier-display autosize="true" stereotype="true" package="true" initial-value="true" signature="true" 
     sort-features="false" accessors="true" visibility="true">    
     <attributes public="false" package="false" protected="false" private="false" static="false"/>    
