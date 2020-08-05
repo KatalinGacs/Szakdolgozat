@@ -16,7 +16,7 @@ import model.bean.Zone;
  */
 public class SprinklerDetailTable extends GridPane {
 
-	private SprinklerController controller = new SprinklerControllerImpl();
+	private SprinklerController controller;
 
 	private Text sprinklerTypeText = new Text("Szórófej típus");
 	private TextField sprinklerTypeField = new TextField();
@@ -29,8 +29,10 @@ public class SprinklerDetailTable extends GridPane {
 	private Text zoneText = new Text("Zóna");
 	private TextField zoneField = new TextField();
 
-	public SprinklerDetailTable(SprinklerShape s) {
+	public SprinklerDetailTable(SprinklerShape s, SprinklerController dataController) {
 
+		controller = dataController;
+		
 		Zone zone = null;
 		for (Zone z : controller.listZones()) {
 			if (z.getSprinklers().contains(s)) {

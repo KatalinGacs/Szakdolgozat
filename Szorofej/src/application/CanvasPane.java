@@ -7,7 +7,6 @@ import java.util.Set;
 
 import application.common.Common;
 import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
 import javafx.geometry.Side;
@@ -40,7 +39,7 @@ import model.bean.Zone;
  */
 public class CanvasPane extends Pane {
 
-	SprinklerController controller = new SprinklerControllerImpl();
+	SprinklerController controller;
 
 	/**
 	 * Represents different phases of drawing where the user interaction with the
@@ -263,9 +262,12 @@ public class CanvasPane extends Pane {
 	/**
 	 * Create the CanvasPane. Add the layers and other child items to it. Draw a
 	 * grid on it. Set the helper shapes, input fields etc. to be invisible.
+	 * @param dataController 
 	 */
-	public CanvasPane() {
+	public CanvasPane(SprinklerController dataController) {
 
+		controller = dataController;
+		
 		setWidth(Common.canvasWidth);
 		setHeight(Common.canvasHeight);
 
@@ -521,7 +523,6 @@ public class CanvasPane extends Pane {
 	 *         position.
 	 */
 	public String generalInfos(MouseEvent e) {
-
 		double sumOfWaterCoverageInMmPerHour = 0;
 		for (SprinklerShape s : controller.listSprinklerShapes()) {
 			boolean counts = false;

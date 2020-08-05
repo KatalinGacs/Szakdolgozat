@@ -76,4 +76,7 @@ public interface SprinklerDAO {
 	void clearMaterials();
 
 	public void clearAll();
+	
+	// file management
+	public FileHandler getFileManager();
 }

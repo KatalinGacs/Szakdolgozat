@@ -26,6 +26,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 	private static final String DBFILE = "/sprinkler.db";
 
+	private FileHandler fileManager = new FileHandler();
+	
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
@@ -606,6 +608,11 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		}
 		return result;
+	}
+
+	@Override
+	public FileHandler getFileManager() {
+		return fileManager;
 	}
 
 }

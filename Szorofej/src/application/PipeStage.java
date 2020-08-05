@@ -33,11 +33,6 @@ import model.bean.Zone;
 public class PipeStage extends Stage {
 
 	/**
-	 * Controller to access data from the database
-	 */
-	private SprinklerController controller = new SprinklerControllerImpl();
-
-	/**
 	 * Root container in the stage
 	 */
 	private GridPane root = new GridPane();
@@ -115,13 +110,13 @@ public class PipeStage extends Stage {
 		root.add(beginningPressureField, 1, 3);
 		root.add(okBtn, 0, 4);
 
-		zonePicker.setItems(controller.listZones());
+		zonePicker.setItems(canvasPane.controller.listZones());
 		zonePicker.getSelectionModel().select(0);
-		setColor();
+		setColor(canvasPane);
 		zonePicker.setOnAction(e -> {
-			setColor();
+			setColor(canvasPane);
 
-			canvasPane.pipeGraphUnderEditing = controller.getPipeGraph(zonePicker.getValue());
+			canvasPane.pipeGraphUnderEditing = canvasPane.controller.getPipeGraph(zonePicker.getValue());
 		});
 
 		startDrawingpipesBtn.setOnAction(e -> {
@@ -132,7 +127,7 @@ public class PipeStage extends Stage {
 				if (canvasPane.pipeGraphUnderEditing == null
 						|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
 					canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
-					controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
+					canvasPane.controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
 				}
 			} else {
 				startDrawingpipesBtn.setSelected(false);
@@ -192,8 +187,8 @@ public class PipeStage extends Stage {
 	 * zone is selected that already has pipes drawn with one color, then setting a
 	 * new color is disabled.
 	 */
-	private void setColor() {
-		for (PipeGraph pipeGraph : controller.listPipeGraphs()) {
+	private void setColor(CanvasPane canvasPane) {
+		for (PipeGraph pipeGraph : canvasPane.controller.listPipeGraphs()) {
 			if (pipeGraph.getZone() == zonePicker.getValue()) {
 				colorPicker.setValue(pipeGraph.getColor());
 				colorPicker.setDisable(true);
@@ -226,7 +221,7 @@ public class PipeStage extends Stage {
 			}
 		try {
 			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
-					controller.getPipeGraph(zonePicker.getValue()).getRoot());
+					canvasPane.controller.getPipeGraph(zonePicker.getValue()).getRoot());
 			close();
 		} catch (PressureException e) {
 			Common.showAlert(e.getMessage());

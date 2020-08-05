@@ -18,6 +18,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import model.FileHandler;
 import model.bean.Zone;
 
 /**
@@ -41,7 +42,7 @@ public class Main extends Application {
 	/**
 	 * Container with the drawing area and its controls
 	 */
-	private DrawingPanel drawingPanel = new DrawingPanel();
+	private DrawingPanel drawingPanel = new DrawingPanel(controller);
 
 	/**
 	 * Container for the layouts and controls left from the drawing panel
@@ -51,7 +52,7 @@ public class Main extends Application {
 	/**
 	 * Table listing the zones on the current plan and their infos
 	 */
-	private ZoneTable zoneTable = new ZoneTable(drawingPanel.getCanvasPane());
+	private ZoneTable zoneTable;
 	
 	/**
 	 * Selected zone in zoneTable
@@ -224,6 +225,7 @@ public class Main extends Application {
 			});
 
 			rightClickMenu.getItems().add(delMenuItem);
+			zoneTable = new ZoneTable(drawingPanel.controller);
 			zoneTable.setOnMouseClicked(e -> {
 				selectedZone = zoneTable.getSelectionModel().getSelectedItem();
 				if (selectedZone != null) {
@@ -242,11 +244,11 @@ public class Main extends Application {
 				}
 			});
 			
-			sprinklerListTable = new SprinklerListTable(selectedZone);
+			sprinklerListTable = new SprinklerListTable(selectedZone, drawingPanel.controller);
 			sprinklerListTable.setOnMouseClicked(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
 					sprinklerDetailTable = new SprinklerDetailTable(
-							sprinklerListTable.getSelectionModel().getSelectedItem());
+							sprinklerListTable.getSelectionModel().getSelectedItem(), drawingPanel.controller);
 					root.setRight(sprinklerDetailTable);
 
 				}

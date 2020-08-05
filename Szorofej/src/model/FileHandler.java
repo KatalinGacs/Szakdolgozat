@@ -1,5 +1,6 @@
-package application;
+package model;
 
+import java.beans.PropertyChangeSupport;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -11,6 +12,10 @@ import javax.xml.bind.JAXBException;
 import javax.xml.bind.Marshaller;
 import javax.xml.bind.Unmarshaller;
 
+import application.CanvasPane;
+import application.PipeDrawing;
+import application.SaveModificationsAlert;
+import application.ValveIcon;
 import application.common.Common;
 import controller.PressureException;
 import controller.SprinklerController;
@@ -27,13 +32,12 @@ import javafx.scene.text.FontWeight;
 import javafx.scene.text.Text;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
-import model.DbException;
 import model.bean.BorderLine;
-import model.bean.Plan;
 import model.bean.CircleObstacle;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
+import model.bean.Plan;
 import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
 import model.bean.TextElement;
@@ -47,12 +51,14 @@ public class FileHandler {
 	/**
 	 * Path of the XML file if the plan is saved.
 	 */
-	static String currentPath = "";
+	public static String currentPath = "";
 
+	//protected PropertyChangeSupport propertyChangeSupport = new PropertyChangeSupport(FileHandler);
+	
 	/**
 	 * Name of the XML file if the plan is saved.
 	 */
-	static String currentFileName = "";
+	public static String currentFileName = "";
 
 	/**
 	 * Clear everything off from the CanvasPane and start a new plan. If called
@@ -80,7 +86,7 @@ public class FileHandler {
 		newCanvas( canvasPane, null);
 	}
 	
-	// TODO ide kell a stage? lehet null ez a paraméter, refaktor?
+	
 
 	/**
 	 * Save the current file in XML. If it is a previously saved plan and saveAs is

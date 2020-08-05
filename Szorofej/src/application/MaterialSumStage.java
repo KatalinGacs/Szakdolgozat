@@ -39,7 +39,7 @@ public class MaterialSumStage extends Stage {
 	/**
 	 * Controller to access data from the database
 	 */
-	private SprinklerController controller = new SprinklerControllerImpl();
+	private SprinklerController controller;
 
 	/**
 	 * Root container in the stage
@@ -74,7 +74,8 @@ public class MaterialSumStage extends Stage {
 	/**
 	 * Create the stage, set its controls, populate the table with the materials
 	 */
-	public MaterialSumStage() {
+	public MaterialSumStage(SprinklerController dataController) {
+		controller = dataController;
 		initModality(Modality.APPLICATION_MODAL);
 		setTitle("Összegzés");
 		setScene(scene);

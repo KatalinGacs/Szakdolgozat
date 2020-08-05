@@ -1,5 +1,8 @@
 package application.common;
 
+import java.net.URL;
+
+import application.Main;
 import javafx.geometry.Point2D;
 import javafx.geometry.Rectangle2D;
 import javafx.scene.Group;
@@ -159,5 +162,17 @@ public class Common {
 		for (Node node : layer.getChildren()) {
 			node.setVisible(false);
 		}
+	}
+	
+	//
+	/**
+	 * @return the path of the program in the following format file:/C:/Users/Gacs%20Katalin/git/Szakdolgozat/Szorofej/
+	 */
+	public static String getSourceFolder() {
+		ClassLoader loader = Main.class.getClassLoader();
+		String temp = loader.getResource("").toString();
+		int index = temp.indexOf("target");
+		String result = temp.substring(0, index);
+		return result;
 	}
 }

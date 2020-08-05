@@ -3,8 +3,6 @@ package application;
 import application.CanvasPane.Use;
 import application.UndoManager.DrawingAction;
 import application.common.Common;
-import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -30,7 +28,7 @@ public class SprinklerDrawing {
 	/**
 	 * Controller to access infos from the database
 	 */
-	static SprinklerController controller = new SprinklerControllerImpl();
+	//static SprinklerController controller = new SprinklerControllerImpl();
 
 	/**
 	 * Input field where the user can set the angle of the currently drawn
@@ -166,7 +164,7 @@ public class SprinklerDrawing {
 
 			// check that the user is not trying to draw on top of an obstacle
 			boolean validPoint = true;
-			for (Shape s : controller.listObstacles()) {
+			for (Shape s : canvasPane.controller.listObstacles()) {
 				if (s.contains(mouseEvent.getX(), mouseEvent.getY())) {
 					Common.showAlert("Ezen a ponton tereptárgy található");
 					validPoint = false;
@@ -271,7 +269,7 @@ public class SprinklerDrawing {
 								sprinkler.setArc(arc);
 
 								canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
-								controller.addSprinklerShape(sprinkler);
+								canvasPane.controller.addSprinklerShape(sprinkler);
 
 								label.setX(centerX);
 								label.setY(centerY - (Common.pixelPerMeter / 2));
@@ -362,7 +360,7 @@ public class SprinklerDrawing {
 				label.setStyle(Common.textstyle);
 				sprinkler.setLabel(label);
 				canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
-				controller.addSprinklerShape(sprinkler);
+				canvasPane.controller.addSprinklerShape(sprinkler);
 				drawingState = SprinklerDrawingState.CENTER;
 				UndoManager.getInstance().draw(DrawingAction.SPRINKLER, sprinkler);
 
@@ -398,7 +396,7 @@ public class SprinklerDrawing {
 	 * @param canvasPane CanvasPane on which the line can be found
 	 */
 	public static void selectLineForSprinklerDrawing(MouseEvent e, CanvasPane canvasPane) {
-		for (Shape border : controller.listBorderShapes()) {
+		for (Shape border : canvasPane.controller.listBorderShapes()) {
 			if (border instanceof Line) {
 				if (border.contains(e.getX(), e.getY())) {
 					canvasPane.lineSelected = true;

@@ -27,12 +27,7 @@ import model.bean.Zone;
  *
  */
 public class PipeDrawing {
-
-	/**
-	 * Controller to access data from the database
-	 */
-	private static SprinklerController controller = new SprinklerControllerImpl();
-
+	
 	/**
 	 * The point where the current pipe polyline is started
 	 */
@@ -172,7 +167,7 @@ public class PipeDrawing {
 	 */
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) throws PressureException {
 		canvasPane.setDirty(true);
-		PipeGraph pg = controller.getPipeGraph(zone);
+		PipeGraph pg = canvasPane.controller.getPipeGraph(zone);
 		int leafes = pg.getNumberOfLeaves();
 		Vertex startingVertex = root;
 		double beginningPressure = pg.getBeginningPressure();
@@ -287,7 +282,7 @@ public class PipeDrawing {
 				}
 			}
 			for (Double length : pipeLengths) {
-				controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
+				canvasPane.controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
 			}
 		} catch (GraphException ex) {
 			ex.printStackTrace();

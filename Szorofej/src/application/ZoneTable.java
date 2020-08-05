@@ -16,14 +16,12 @@ import model.bean.Zone;
  */
 public class ZoneTable extends TableView<Zone> {
 
-	SprinklerController controller = new SprinklerControllerImpl();
-
 	TableColumn<Zone, String> nameCol = new TableColumn<>("Név");
 	TableColumn<Zone, Integer> numberOfHeadsCol = new TableColumn<>("Fejek száma");
 	TableColumn<Zone, Double> durationCol = new TableColumn<>("Idõtartam");
 	TableColumn<Zone, Double> flowRateCol = new TableColumn<>("Vízfogyasztás (l/min)");
 
-	public ZoneTable(CanvasPane canvasPane) {
+	public ZoneTable(SprinklerController controller) {
 
 		nameCol.setCellValueFactory(new PropertyValueFactory<Zone, String>("name"));
 		numberOfHeadsCol.setCellValueFactory(new PropertyValueFactory<Zone, Integer>("numberOfHeads"));

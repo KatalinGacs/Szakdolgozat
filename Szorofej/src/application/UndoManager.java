@@ -8,8 +8,6 @@ import model.bean.SprinklerShape;
 
 public class UndoManager {
 
-	// TODO singletont csinálni belõle
-
 	private Stack<Pair<DrawingAction, Object>> modifications = new Stack<Pair<DrawingAction, Object>>();
 	private Stack<Pair<DrawingAction, Object>> undone = new Stack<Pair<DrawingAction, Object>>();
 

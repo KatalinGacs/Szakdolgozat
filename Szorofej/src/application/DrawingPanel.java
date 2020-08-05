@@ -3,7 +3,6 @@ package application;
 import application.CanvasPane.Use;
 import application.common.Common;
 import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
 import javafx.geometry.Pos;
@@ -30,6 +29,7 @@ import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
+import model.FileHandler;
 import model.bean.PipeGraph.Edge;
 import model.bean.SprinklerShape;
 
@@ -43,7 +43,7 @@ import model.bean.SprinklerShape;
  */
 public class DrawingPanel extends VBox {
 
-	SprinklerController controller = new SprinklerControllerImpl();
+	SprinklerController controller;
 	
 	private HBox toolbar = new HBox();
 	private Button newCanvas = new Button(); // TODO
@@ -236,13 +236,13 @@ public class DrawingPanel extends VBox {
 	/**
 	 * The CanvasPane on which the user draws.
 	 */
-	private CanvasPane canvasPane = new CanvasPane();
+	private CanvasPane canvasPane;
 
 	/**
 	 * An extension of ScrollPane that can be zoomed by scrolling the mouse. In this
 	 * the CanvasPane is put so the drawing is zoomable.
 	 */
-	private ZoomableScrollPane scrollPane = new ZoomableScrollPane(canvasPane);
+	private ZoomableScrollPane scrollPane;
 
 	/**
 	 * A container for showing actual informations about the drawing and for buttons
@@ -325,45 +325,48 @@ public class DrawingPanel extends VBox {
 	/**
 	 * Create a DrawingPanel. Set the controls under the tabs and in the footer. Set
 	 * the canvasPane's action handlers.
+	 * @param dataController
 	 */
-	public DrawingPanel() {
-		
-		
-
+	public DrawingPanel(SprinklerController dataController) {
+		controller = dataController;
+		canvasPane = new CanvasPane(controller);
+		scrollPane = new ZoomableScrollPane(canvasPane);
+		 
 		// set the toolbar and its buttons
 		getChildren().add(toolbar);
 		toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
 		ClassLoader loader = Main.class.getClassLoader();
 		
-		ImageView newImage = new ImageView(new Image(loader.getResource("img/new.png").toString()));
+		ImageView newImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
+		//ImageView newImage = new ImageView(new Image(loader.getResource("img/new.png").toString()));
 		newCanvas.setGraphic(newImage);
 		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)")); // TODO implement ctrl+n
 		newCanvas.setOnAction(e -> {
 			FileHandler.newCanvas(canvasPane);
 		});
 		
-		ImageView openImage = new ImageView(new Image(loader.getResource("img/open.png").toString()));
+		ImageView openImage = new ImageView(new Image(Common.getSourceFolder() + "/img/open.png"));
 		openCanvas.setGraphic(openImage);
 		openCanvas.setTooltip(new Tooltip("Megnyitás"));
 		openCanvas.setOnAction(e -> {
 			FileHandler.loadCanvas(canvasPane, null);
 		});
 		
-		ImageView saveImage = new ImageView(new Image(loader.getResource("img/save.png").toString()));
+		ImageView saveImage = new ImageView(new Image(Common.getSourceFolder() + "/img/save.png"));
 		saveCanvas.setGraphic(saveImage);
 		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)")); // TODO implement ctrl+s
 		saveCanvas.setOnAction(e -> {
 			FileHandler.saveCanvas(null, canvasPane, false);
 		});
 		
-		ImageView undoImage = new ImageView(new Image(loader.getResource("img/undo.png").toString()));		
+		ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));		
 		undoButton.setGraphic(undoImage);
 		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)")); // TODO implement ctrl+z
 		undoButton.setOnAction(e -> {
 			UndoManager.getInstance().undo();
 		});
 		
-		ImageView redoImage = new ImageView(new Image(loader.getResource("img/redo.png").toString()));
+		ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
 		redoButton.setGraphic(redoImage);
 		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)")); // TODO implement ctrl+y
 		redoButton.setOnAction(e -> {
@@ -459,7 +462,7 @@ public class DrawingPanel extends VBox {
 			setPipes();
 		});
 		summarizeBtn.setOnAction(e -> {
-			MaterialSumStage materialSumStage = new MaterialSumStage();
+			MaterialSumStage materialSumStage = new MaterialSumStage(canvasPane.controller);
 			materialSumStage.show();
 		});
 

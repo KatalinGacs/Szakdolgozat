@@ -7,6 +7,7 @@ import javafx.scene.control.Alert;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
 import javafx.stage.Stage;
+import model.FileHandler;
 
 /**
  * Pop up alert that asks the user to confirm if the unsaved modificatoins

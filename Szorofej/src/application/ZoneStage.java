@@ -25,8 +25,6 @@ import model.bean.Zone;
  */
 public class ZoneStage extends Stage {
 
-	static SprinklerController controller = new SprinklerControllerImpl();
-
 	private GridPane root = new GridPane();
 	private Scene scene = new Scene(root);
 	private Text zoneNameText = new Text("Zóna elnevezése");
@@ -74,7 +72,7 @@ public class ZoneStage extends Stage {
 		createZoneBtn.setOnAction(e -> {
 			boolean zoneNameInUse = false;
 			double durationInHours = hourPicker.getValue() + ((double) minutePicker.getValue() / 60);
-			for (Zone z : controller.listZones()) {
+			for (Zone z : canvasPane.controller.listZones()) {
 				if (z.getName().contentEquals(zoneNameTextField.getText().trim())) {
 					zoneNameInUse = true;
 					break;

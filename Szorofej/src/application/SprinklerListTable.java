@@ -18,7 +18,7 @@ import model.bean.Zone;
  */
 public class SprinklerListTable extends TableView<SprinklerShape> {
 
-	SprinklerController controller = new SprinklerControllerImpl();
+	SprinklerController controller;
 	
 	TableColumn<SprinklerShape, SprinklerType> nameCol = new TableColumn<>("Szórófej");
 	TableColumn<SprinklerShape, String> groupCol = new TableColumn<>("Csoport");
@@ -26,8 +26,10 @@ public class SprinklerListTable extends TableView<SprinklerShape> {
 	TableColumn<SprinklerShape, Double> waterCol = new TableColumn<>("Csapadék (mm)");
 	
 
-	public SprinklerListTable(Zone zone) {
+	public SprinklerListTable(Zone zone, SprinklerController dataController) {
 
+		controller = dataController;
+		
 		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, SprinklerType>("sprinkler"));
 		groupCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, String>("group"));
 		flowRateCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, Double>("flowRate"));

@@ -32,11 +32,6 @@ import model.bean.SprinklerType;
  */
 public class SetSprinklerAttributesStage extends Stage {
 
-	/**
-	 * Controller to access sprinkler types from the database
-	 */
-	private SprinklerController controller = new SprinklerControllerImpl();
-
 	private VBox sprinklerInfoRoot = new VBox();
 	private Scene sprinklerInfoScene = new Scene(sprinklerInfoRoot);
 	private HBox sprinklerGroupPane = new HBox();
@@ -95,10 +90,10 @@ public class SetSprinklerAttributesStage extends Stage {
 		waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
 		
 		try {
-			sprinklerGroupChoiceBox.setItems(controller.listSprinklerGroups());
+			sprinklerGroupChoiceBox.setItems(canvasPane.controller.listSprinklerGroups());
 			sprinklerGroupChoiceBox.getSelectionModel().select(0);
 			tableView.setItems(
-					controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+					canvasPane.controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 		} catch (DbException ex) {
 			Common.showAlert(ex.getMessage());
 		}
@@ -107,7 +102,7 @@ public class SetSprinklerAttributesStage extends Stage {
 			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
 				tableView.getItems().clear();
 				try {
-					tableView.setItems(controller
+					tableView.setItems(canvasPane.controller
 							.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
 				} catch (DbException ex) {
 					Common.showAlert(ex.getMessage());
