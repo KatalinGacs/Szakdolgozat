@@ -1,5 +1,6 @@
 package application;
 
+import application.UndoManager.DrawingAction;
 import application.common.Common;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
@@ -168,6 +169,7 @@ public class BorderDrawing {
 
 		canvasPane.controller.addBorderShape(line);
 		canvasPane.getBordersLayer().getChildren().add(line);
+		UndoManager.getInstance().draw(DrawingAction.BORDERLINE, line);
 		canvasPane.setDirty(true);
 	}
 
@@ -188,6 +190,8 @@ public class BorderDrawing {
 		double clickX = Common.mouseEventWithinBounds(e).getX();
 		double clickY = Common.mouseEventWithinBounds(e).getY();
 
+		tempRectangle.setVisible(false);
+		
 		Rectangle rect = Common.drawRectangle(strokeColor, startX, startY, clickX, clickY);
 		rect.setFill(fillColor);
 		rect.setStrokeWidth(width);
@@ -195,6 +199,8 @@ public class BorderDrawing {
 		canvasPane.controller.addBorderShape(rect);
 		canvasPane.controller.addObstacle(rect);
 		canvasPane.setDirty(true);
+		UndoManager.getInstance().draw(DrawingAction.OBSTACLE, rect);
+
 	}
 
 	/**
@@ -303,6 +309,8 @@ public class BorderDrawing {
 		double mouseX = Common.mouseEventWithinBounds(e).getX();
 		double mouseY = Common.mouseEventWithinBounds(e).getY();
 
+		tempCircle.setVisible(false);
+		
 		double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
 		Circle circle = new Circle(startX, startY, r, null);
 		circle.setStroke(strokeColor);
@@ -312,6 +320,7 @@ public class BorderDrawing {
 		canvasPane.controller.addBorderShape(circle);
 		canvasPane.controller.addObstacle(circle);
 		canvasPane.setDirty(true);
+		UndoManager.getInstance().draw(DrawingAction.OBSTACLE, circle);
 	}
 	
 }

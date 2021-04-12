@@ -50,6 +50,7 @@ public class PrintHandler {
 				ImageIO.write(renderedImage, "png", file);
 			} catch (IOException ex) {
 				ex.printStackTrace();
+				utilities.Error.HandleException(ex);
 			}
 		}
 		canvasPane.setClip(oldClip);

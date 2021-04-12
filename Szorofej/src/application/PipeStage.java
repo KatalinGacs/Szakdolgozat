@@ -227,6 +227,7 @@ public class PipeStage extends Stage {
 			Common.showAlert(e.getMessage());
 		} catch (Exception e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 		}
 
 	}

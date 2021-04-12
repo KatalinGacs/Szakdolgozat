@@ -286,8 +286,9 @@ public class PipeDrawing {
 			}
 		} catch (GraphException ex) {
 			ex.printStackTrace();
+			utilities.Error.HandleException(ex);
 		} catch (DbException ex) {
-			Common.showAlert(ex.getMessage());
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -349,6 +350,7 @@ public class PipeDrawing {
 			}
 		} catch (GraphException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 		}
 		return totalWaterFlow;
 	}

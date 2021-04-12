@@ -27,7 +27,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static final String DBFILE = "/sprinkler.db";
 
 	private FileHandler fileManager = new FileHandler();
-	
+
 	private ObservableList<SprinklerType> sprinklertypes = FXCollections.observableArrayList();
 
 	private ObservableList<SprinklerGroup> sprinklergroups = FXCollections.observableArrayList();
@@ -47,17 +47,19 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 	private static ObservableList<Text> texts = FXCollections.observableArrayList();
 
 	private static ObservableList<UsedMaterial> materialSum = FXCollections.observableArrayList();
-	
+
 	private static ObservableList<UsedMaterial> pipeMaterialSum = FXCollections.observableArrayList();
-	
+
 	private String addErrorText = "Hiba történt az adatbázisba mentés során";
 	private String deleteErrorText = "Hiba történt a törlés során";
 	private String dbErrorText = "Hiba történt az adatbázis elérése során";
-	
+
 	public SprinklerDAOImpl() {
 		try {
 			Class.forName("org.sqlite.JDBC");
 		} catch (ClassNotFoundException e) {
+
+			utilities.Error.HandleException(e);
 			e.printStackTrace();
 		}
 	}
@@ -95,6 +97,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(addErrorText);
 		}
 	}
@@ -120,6 +123,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 		return sprinklertypes;
@@ -133,6 +137,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(deleteErrorText);
 		}
 	}
@@ -150,6 +155,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 		return sprinklergroups;
@@ -163,6 +169,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(addErrorText);
 		}
 	}
@@ -175,6 +182,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(deleteErrorText);
 		}
 	}
@@ -202,6 +210,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 		return sprinklertypes;
@@ -313,7 +322,8 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.setString(2, name);
 			pst.execute();
 		} catch (SQLException e) {
-			e.printStackTrace();			
+			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 	}
@@ -386,7 +396,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 		clearSprinklerShapes();
 		clearTexts();
 		clearZones();
-		clearMaterials();	
+		clearMaterials();
 	}
 
 	@Override
@@ -399,6 +409,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(addErrorText);
 		}
 	}
@@ -411,6 +422,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(deleteErrorText);
 		}
 	}
@@ -429,6 +441,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			}
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 		return materials;
@@ -453,6 +466,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 
@@ -471,6 +485,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 		}
 	}
 
@@ -484,6 +499,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 			pst.execute();
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(deleteErrorText);
 		}
 	}
@@ -506,6 +522,7 @@ public class SprinklerDAOImpl implements SprinklerDAO {
 
 		} catch (SQLException e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 			throw new DbException(dbErrorText);
 		}
 		return materials;

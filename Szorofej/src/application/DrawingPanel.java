@@ -46,9 +46,9 @@ public class DrawingPanel extends VBox {
 	SprinklerController controller;
 	
 	private HBox toolbar = new HBox();
-	private Button newCanvas = new Button(); // TODO
-	private Button openCanvas = new Button(); // TODO
-	private Button saveCanvas = new Button(); // TODO
+	private Button newCanvas = new Button(); 
+	private Button openCanvas = new Button(); 
+	private Button saveCanvas = new Button();
 	private Button undoButton = new Button(); 
 	private Button redoButton = new Button();
 	
@@ -111,7 +111,7 @@ public class DrawingPanel extends VBox {
 	/**
 	 * Spinner with which the user can set the width of the border lines.
 	 */
-	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 20, 5);
+	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 20, 2);
 
 	/**
 	 * Text for borderLineWidth Spinner
@@ -335,12 +335,10 @@ public class DrawingPanel extends VBox {
 		// set the toolbar and its buttons
 		getChildren().add(toolbar);
 		toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
-		ClassLoader loader = Main.class.getClassLoader();
 		
 		ImageView newImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
-		//ImageView newImage = new ImageView(new Image(loader.getResource("img/new.png").toString()));
 		newCanvas.setGraphic(newImage);
-		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)")); // TODO implement ctrl+n
+		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
 		newCanvas.setOnAction(e -> {
 			FileHandler.newCanvas(canvasPane);
 		});
@@ -354,27 +352,25 @@ public class DrawingPanel extends VBox {
 		
 		ImageView saveImage = new ImageView(new Image(Common.getSourceFolder() + "/img/save.png"));
 		saveCanvas.setGraphic(saveImage);
-		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)")); // TODO implement ctrl+s
+		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
 		saveCanvas.setOnAction(e -> {
 			FileHandler.saveCanvas(null, canvasPane, false);
 		});
 		
 		ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));		
 		undoButton.setGraphic(undoImage);
-		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)")); // TODO implement ctrl+z
+		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
 		undoButton.setOnAction(e -> {
 			UndoManager.getInstance().undo();
 		});
 		
-		ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
+		ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/redo.png"));
 		redoButton.setGraphic(redoImage);
-		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)")); // TODO implement ctrl+y
+		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
 		redoButton.setOnAction(e -> {
 			UndoManager.getInstance().redo();
 		});
-		
-		
-		
+				
 		// order the tabs under the tabpane
 		getChildren().add(tabPane);
 		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);

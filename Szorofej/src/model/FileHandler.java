@@ -128,6 +128,7 @@ public class FileHandler {
 				stage.setTitle(Common.programName + " - " + currentPath);
 			} catch (IOException | JAXBException ex) {
 				ex.printStackTrace();
+				utilities.Error.HandleException(ex);
 			}
 		}
 		
@@ -166,8 +167,10 @@ public class FileHandler {
 				canvasPane.setDirty(false);
 			} catch (JAXBException | FileNotFoundException e) {
 				e.printStackTrace();
+				utilities.Error.HandleException(e);
 			} catch (Exception e) {
 				e.printStackTrace();
+				utilities.Error.HandleException(e);
 			}
 		}
 	}

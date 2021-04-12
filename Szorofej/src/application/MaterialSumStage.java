@@ -141,6 +141,7 @@ public class MaterialSumStage extends Stage {
 					workbook.close();
 				} catch (Exception ex) {
 					ex.printStackTrace();
+					utilities.Error.HandleException(ex);
 				}
 			}
 			close();

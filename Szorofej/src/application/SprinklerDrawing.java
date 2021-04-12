@@ -103,7 +103,7 @@ public class SprinklerDrawing {
 	 * Helper line showing where the second side of the arc will be
 	 */
 	static Line tempSecondSprinklerLine = new Line();
-	static Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 4);
+	static Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 8);
 
 	/**
 	 * Possible states of drawing a sprinklershape
@@ -191,11 +191,8 @@ public class SprinklerDrawing {
 						centerY = center.getY();
 					}
 				}
-
-				tempSprinklerCircle.setCenterX(centerX);
-				tempSprinklerCircle.setCenterY(centerY);
-				tempSprinklerCircle.setStroke(sprinklerColor);
-				tempSprinklerCircle.setFill(sprinklerColor);
+				setSprinklerCircleAttributes(tempSprinklerCircle, centerX, centerY);
+	
 				tempSprinklerCircle.setVisible(true);
 				drawingState = SprinklerDrawingState.FIRSTSIDE;
 			}
@@ -256,11 +253,8 @@ public class SprinklerDrawing {
 								arc.setStartAngle(startAngle);
 								arc.setLength(-arcExtent);
 
-								circle.setCenterX(centerX);
-								circle.setCenterY(centerY);
-								circle.setRadius(Common.pixelPerMeter / 4);
-								circle.setStroke(sprinklerColor);
-								circle.setFill(sprinklerColor);
+								setSprinklerCircleAttributes(circle, centerX, centerY);
+								
 								sprinkler.setCircle(circle);
 								canvasPane.getIrrigationLayer().getChildren().add(sprinkler.getCircle());
 
@@ -345,11 +339,8 @@ public class SprinklerDrawing {
 				sprinkler.setArc(arc);
 				canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
 
-				circle.setCenterX(centerX);
-				circle.setCenterY(centerY);
-				circle.setRadius(Common.pixelPerMeter / 4);
-				circle.setStroke(sprinklerColor);
-				circle.setFill(sprinklerColor);
+				setSprinklerCircleAttributes(circle, centerX, centerY);
+			
 				sprinkler.setCircle(circle);
 				canvasPane.getIrrigationLayer().getChildren().add(sprinkler.getCircle());
 
@@ -364,7 +355,6 @@ public class SprinklerDrawing {
 				drawingState = SprinklerDrawingState.CENTER;
 				UndoManager.getInstance().draw(DrawingAction.SPRINKLER, sprinkler);
 
-				// TODO az összes helyen, ahol rajzolunk, az undomanager draw meghívása
 				if (canvasPane.isDrawingSeveralSprinklers())
 					drawSeveralSprinklers(canvasPane);
 			}
@@ -484,7 +474,7 @@ public class SprinklerDrawing {
 			double diffY = startY - endY;
 
 			for (int i = 0; i < numberOfSprinklersInALine; i++) {
-				Circle center = new Circle(Common.pixelPerMeter / 4);
+				Circle center = new Circle(Common.pixelPerMeter / 8);
 				center.setStroke(CanvasPane.getTempLineColor());
 				center.setFill(CanvasPane.getTempLineColor());
 				center.setCenterX(startX - i * (diffX / (numberOfSprinklersInALine - 1)));
@@ -523,10 +513,7 @@ public class SprinklerDrawing {
 			centerY = canvasPane.tempSprinklerCentersInALine.get(0).getCenterY();
 			canvasPane.tempSprinklerCentersInALine.remove(0);
 			canvasPane.tempSprinklerCirclesInALine.remove(0);
-			tempSprinklerCircle.setCenterX(centerX);
-			tempSprinklerCircle.setCenterY(centerY);
-			tempSprinklerCircle.setStroke(sprinklerColor);
-			tempSprinklerCircle.setFill(sprinklerColor);
+			setSprinklerCircleAttributes(tempSprinklerCircle, centerX, centerY);	
 			tempSprinklerCircle.setVisible(true);
 			drawingState = SprinklerDrawingState.FIRSTSIDE;
 			canvasPane.requestFocus();
@@ -551,6 +538,15 @@ public class SprinklerDrawing {
 			}
 		canvasPane.tempSprinklerCirclesInALine.clear();
 		canvasPane.tempSprinklerCentersInALine.clear();
+	}
+	
+	private static void setSprinklerCircleAttributes(Circle circle, double centerX, double centerY) {
+		circle.setCenterX(centerX);
+		circle.setCenterY(centerY);
+		circle.setRadius(Common.pixelPerMeter / 8);
+		circle.setStroke(sprinklerColor);
+		circle.setStrokeWidth(Common.pixelPerMeter / 10);
+		circle.setFill(Color.TRANSPARENT);
 	}
 
 }

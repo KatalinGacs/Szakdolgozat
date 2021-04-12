@@ -2,7 +2,9 @@ package application;
 
 import java.util.Stack;
 
+import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
+import javafx.scene.text.Text;
 import javafx.util.Pair;
 import model.bean.SprinklerShape;
 
@@ -36,7 +38,7 @@ public class UndoManager {
     } 
 	
 	public enum DrawingAction {
-		SPRINKLER, BORDERLINE, OBSTACLE, TEXT
+		SPRINKLER, BORDERLINE, OBSTACLE, TEXT, PIPELINE
 	}
 
 	public void draw(DrawingAction action, Object drawnObject) {
@@ -49,7 +51,6 @@ public class UndoManager {
 			return;
 		}
 		Pair<DrawingAction, Object> modification = modifications.pop();
-
 		DrawingAction action = modification.getKey();
 
 		switch (action) {
@@ -58,21 +59,32 @@ public class UndoManager {
 			canvasPane.getSprinklerArcLayer().getChildren().remove(sprinkler.getArc());
 			canvasPane.getIrrigationLayer().getChildren().remove(sprinkler.getCircle());
 			canvasPane.getSprinklerTextLayer().getChildren().remove(sprinkler.getLabel());
+			canvasPane.controller.deleteSprinklerShape(sprinkler);
 			break;
 		case BORDERLINE:
-			// TODO
+			Line borderLine = (Line) modification.getValue();
+			canvasPane.controller.removeBorderShape(borderLine);
+			canvasPane.getBordersLayer().getChildren().remove(borderLine);
 			break;
 		case OBSTACLE:
-			// TODO
+			Shape shape = (Shape) modification.getValue();
+			canvasPane.controller.removeObstacle(shape);
+			canvasPane.controller.removeBorderShape(shape);
+			canvasPane.getBordersLayer().getChildren().remove(shape);
 			break;
 		case TEXT:
+			Text text = (Text) modification.getValue();
+			canvasPane.controller.removeText(text);
+			canvasPane.getTextLayer().getChildren().remove(text);
+			break;
+		case PIPELINE:
 			// TODO
 			break;
+			
 		}
 
 		undone.push(modification);
 		canvasPane.setDirty(true);
-
 	}
 
 	public void redo() {
@@ -88,15 +100,23 @@ public class UndoManager {
 			canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
 			canvasPane.getIrrigationLayer().getChildren().add(sprinkler.getCircle());
 			canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
+			canvasPane.controller.addSprinklerShape(sprinkler);
 			break;
 		case BORDERLINE:
-			// TODO
+			Line borderLine = (Line) modification.getValue();
+			canvasPane.controller.addBorderShape(borderLine);
+			canvasPane.getBordersLayer().getChildren().add(borderLine);
 			break;
 		case OBSTACLE:
-			// TODO
+			Shape shape = (Shape) modification.getValue();
+			canvasPane.controller.addObstacle(shape);
+			canvasPane.controller.addBorderShape(shape);
+			canvasPane.getBordersLayer().getChildren().add(shape);
 			break;
 		case TEXT:
-			// TODO
+			Text text = (Text) modification.getValue();
+			canvasPane.controller.addText(text);
+			canvasPane.getTextLayer().getChildren().add(text);
 			break;
 		}
 

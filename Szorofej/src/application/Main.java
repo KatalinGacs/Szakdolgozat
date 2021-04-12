@@ -14,6 +14,9 @@ import javafx.scene.control.ContextMenu;
 import javafx.scene.control.Menu;
 import javafx.scene.control.MenuBar;
 import javafx.scene.control.MenuItem;
+import javafx.scene.input.KeyCode;
+import javafx.scene.input.KeyCodeCombination;
+import javafx.scene.input.KeyCombination;
 import javafx.scene.input.MouseButton;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.VBox;
@@ -110,6 +113,21 @@ public class Main extends Application {
 	private MenuItem exitMenuItem = new MenuItem("Kilépés");
 
 	/**
+	 * Menu for editing the plan
+	 */
+	private Menu editMenu = new Menu("Szerkesztés");
+	
+	/**
+	 * Menu item for undoing a drawing action on the canvas
+	 */
+	private MenuItem undoMenu = new MenuItem("Visszavonás");
+	
+	/**
+	 * Menu item for redoing a drawing action on the canvas
+	 */
+	private MenuItem redoMenu = new MenuItem("Újra");	
+	
+	/**
 	 * Menu for actions related to the database
 	 */
 	private Menu dbMenu = new Menu("Adatbázis");
@@ -163,30 +181,39 @@ public class Main extends Application {
 			root.setCenter(drawingPanel);
 			UndoManager.init(drawingPanel.getCanvasPane());
 			
-			menuBar.getMenus().addAll(fileMenu, dbMenu);
+			menuBar.getMenus().addAll(fileMenu, editMenu, dbMenu);
 			
 			fileMenu.getItems().addAll(newMenuItem, openMenuItem, saveMenuItem, saveAsMenuItem, exportMenuItem,
 					exitMenuItem);
 			
+			editMenu.getItems().addAll(undoMenu, redoMenu);
+			
 			dbMenu.getItems().addAll(sprinklerGroupDbMenuItem, sprinklerDbMenuItem, newSprinklerMenuItem,
 					materialDbMenuItem, newMaterialMenuItem);
 			
+			newMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.N, KeyCombination.CONTROL_DOWN));
 			newMenuItem.setOnAction(e -> {
 				FileHandler.newCanvas(drawingPanel.getCanvasPane(), primaryStage);
 			});
+			
 			openMenuItem.setOnAction(e -> {
 				FileHandler.loadCanvas(drawingPanel.getCanvasPane(), primaryStage);
 				zoneTable.setItems(controller.listZones());
 			});
+			
+			saveMenuItem.setAccelerator(new KeyCodeCombination(KeyCode.S, KeyCombination.CONTROL_DOWN));
 			saveMenuItem.setOnAction(e -> {
 				FileHandler.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), false);
 			});
+			
 			saveAsMenuItem.setOnAction(e -> {
 				FileHandler.saveCanvas(primaryStage, drawingPanel.getCanvasPane(), true);
 			});
+			
 			exportMenuItem.setOnAction(e -> {
 				PrintHandler.print(primaryStage, drawingPanel.getCanvasPane());
 			});
+			
 			exitMenuItem.setOnAction(e -> {
 				if (drawingPanel.getCanvasPane().isDirty()) {
 					SaveModificationsAlert s = new SaveModificationsAlert(true, drawingPanel.getCanvasPane(),
@@ -195,6 +222,17 @@ public class Main extends Application {
 					Platform.exit();
 				}
 			});
+			
+			undoMenu.setAccelerator(new KeyCodeCombination(KeyCode.Z, KeyCombination.CONTROL_DOWN));
+			undoMenu.setOnAction(e -> {
+				UndoManager.getInstance().undo();
+			});
+			
+			redoMenu.setAccelerator(new KeyCodeCombination(KeyCode.Y, KeyCombination.CONTROL_DOWN));
+			redoMenu.setOnAction(e -> {
+				UndoManager.getInstance().redo();
+			});
+			
 			sprinklerDbMenuItem.setOnAction(e -> {
 				SprinklerDBView sprinklerDBView = new SprinklerDBView();
 			});
@@ -263,6 +301,7 @@ public class Main extends Application {
 
 		} catch (Exception e) {
 			e.printStackTrace();
+			utilities.Error.HandleException(e);
 		}
 	}
 

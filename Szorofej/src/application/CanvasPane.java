@@ -76,7 +76,7 @@ public class CanvasPane extends Pane {
 	/**
 	 * Stroke width of the sprinkler arcs.
 	 */
-	private static int strokeWidth = (int) (Common.pixelPerMeter / 12);
+	private static int strokeWidth = 1; //(int) (Common.pixelPerMeter / 20);
 
 	/**
 	 * Color of helper lines.

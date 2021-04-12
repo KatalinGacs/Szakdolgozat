@@ -6,6 +6,7 @@ import java.util.List;
 import com.sun.javafx.collections.ObservableListWrapper;
 
 import application.CanvasPane.Use;
+import application.UndoManager.DrawingAction;
 import application.common.Common;
 import javafx.geometry.Insets;
 import javafx.scene.Cursor;
@@ -107,12 +108,15 @@ public class TextEditing {
 				text.setFont(Font.font("arial", FontWeight.SEMI_BOLD, fontSize));
 				text.setStyle(style);
 				text.setFill(fontColor);
-				canvasPane.controller.addText(text);
-				canvasPane.setStateOfCanvasUse(Use.NONE);
-				canvasPane.getTextLayer().getChildren().add(text);
+				
 				textField.setVisible(false);
 				textField.setText("");
 				canvasPane.setCursor(Cursor.DEFAULT);
+				canvasPane.setStateOfCanvasUse(Use.NONE);
+				
+				canvasPane.controller.addText(text);
+				canvasPane.getTextLayer().getChildren().add(text);
+				UndoManager.getInstance().draw(DrawingAction.TEXT, text);
 			}
 		});
 	}
