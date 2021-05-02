@@ -24,12 +24,6 @@ import utilities.Common;
  *
  */
 public class SprinklerDrawing {
-
-	/**
-	 * Controller to access infos from the database
-	 */
-	//static SprinklerController controller = new SprinklerControllerImpl();
-
 	/**
 	 * Input field where the user can set the angle of the currently drawn
 	 * sprinklershape
@@ -103,7 +97,16 @@ public class SprinklerDrawing {
 	 * Helper line showing where the second side of the arc will be
 	 */
 	static Line tempSecondSprinklerLine = new Line();
-	static Circle tempSprinklerCircle = new Circle(Common.pixelPerMeter / 8);
+
+	/**
+	 * Helper circle showing where the sprinkler head will be
+	 */
+	static Circle tempSprinklerHeadCircle = new Circle(Common.pixelPerMeter / 8);
+
+	/**
+	 * Helper circle showing where the arc of the sprinkler will be
+	 */
+	static Circle tempSprinklerSprinklingCircle = new Circle();
 
 	/**
 	 * Possible states of drawing a sprinklershape
@@ -192,10 +195,11 @@ public class SprinklerDrawing {
 							centerY = center.getY();
 						}
 					}
-					setSprinklerCircleAttributes(tempSprinklerCircle, centerX, centerY);
+					setSprinklerCircleAttributes(tempSprinklerHeadCircle, centerX, centerY);
 
-					tempSprinklerCircle.setVisible(true);
+					tempSprinklerHeadCircle.setVisible(true);
 					drawingState = SprinklerDrawingState.FIRSTSIDE;
+					tempSprinklerSprinklingCircle.setVisible(false);
 				}
 
 				// draw the first side of the sprinkler
@@ -219,7 +223,8 @@ public class SprinklerDrawing {
 					sprinkler.setRadius(sprinklerRadius / Common.pixelPerMeter);
 				}
 
-				// calculate the start angle of the arc from the positions of the center and the first side
+				// calculate the start angle of the arc from the positions of the center and the
+				// first side
 				startAngle = -Math.toDegrees(Math.atan((firstY - centerY) / (firstX - centerX))) - 180;
 				if (centerX <= firstX)
 					startAngle -= 180;
@@ -241,7 +246,8 @@ public class SprinklerDrawing {
 										|| Double.parseDouble(angleInput.getText()) < sprinklerType.getMinAngle()) {
 									Common.showAlert("A megadott szög (" + angleInput.getText()
 											+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
-											+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
+											+ sprinklerType.getMinAngle() + ", max. szög: "
+											+ sprinklerType.getMaxAngle());
 								}
 								// if the user sets the arc extent in the input field then finish drawing the
 								// sprinkler shape using this angle
@@ -255,11 +261,11 @@ public class SprinklerDrawing {
 									arc.setLength(-arcExtent);
 
 									setSprinklerCircleAttributes(circle, centerX, centerY);
-									
+
 									sprinkler.setCircle(circle);
 									canvasPane.getIrrigationLayer().getChildren().add(sprinkler.getCircle());
 
-									tempSprinklerCircle.setVisible(false);
+									tempSprinklerHeadCircle.setVisible(false);
 
 									sprinkler.setArc(arc);
 
@@ -271,14 +277,14 @@ public class SprinklerDrawing {
 									label.setStyle(Common.textstyle);
 									sprinkler.setLabel(label);
 									canvasPane.getSprinklerTextLayer().getChildren().add(sprinkler.getLabel());
-									
+
 									canvasPane.setDirty(true);
 
 									angleInput.setText("");
 									angleInput.setVisible(false);
 
 									drawingState = SprinklerDrawingState.CENTER;
-									
+
 									UndoManager.getInstance().draw(DrawingAction.SPRINKLER, sprinkler);
 								}
 							} catch (NumberFormatException ex) {
@@ -341,11 +347,11 @@ public class SprinklerDrawing {
 					canvasPane.getSprinklerArcLayer().getChildren().add(sprinkler.getArc());
 
 					setSprinklerCircleAttributes(circle, centerX, centerY);
-				
+
 					sprinkler.setCircle(circle);
 					canvasPane.getIrrigationLayer().getChildren().add(sprinkler.getCircle());
 
-					tempSprinklerCircle.setVisible(false);
+					tempSprinklerHeadCircle.setVisible(false);
 
 					label.setX(centerX);
 					label.setY(centerY - (Common.pixelPerMeter / 2));
@@ -376,7 +382,8 @@ public class SprinklerDrawing {
 			drawingState = SprinklerDrawingState.CENTER;
 			tempFirstSprinklerLine.setVisible(false);
 			tempSecondSprinklerLine.setVisible(false);
-			tempSprinklerCircle.setVisible(false);
+			tempSprinklerHeadCircle.setVisible(false);
+			tempSprinklerSprinklingCircle.setVisible(false);
 			angleInput.setVisible(false);
 			angleInput.setText("");
 			canvasPane.setSprinklerAttributesSet(false);
@@ -534,8 +541,8 @@ public class SprinklerDrawing {
 				centerY = canvasPane.tempSprinklerCentersInALine.get(0).getCenterY();
 				canvasPane.tempSprinklerCentersInALine.remove(0);
 				canvasPane.tempSprinklerCirclesInALine.remove(0);
-				setSprinklerCircleAttributes(tempSprinklerCircle, centerX, centerY);	
-				tempSprinklerCircle.setVisible(true);
+				setSprinklerCircleAttributes(tempSprinklerHeadCircle, centerX, centerY);
+				tempSprinklerHeadCircle.setVisible(true);
 				drawingState = SprinklerDrawingState.FIRSTSIDE;
 				canvasPane.requestFocus();
 			}
@@ -567,7 +574,7 @@ public class SprinklerDrawing {
 			utilities.Error.HandleException(ex);
 		}
 	}
-	
+
 	private static void setSprinklerCircleAttributes(Circle circle, double centerX, double centerY) {
 		try {
 			circle.setCenterX(centerX);
@@ -576,6 +583,24 @@ public class SprinklerDrawing {
 			circle.setStroke(sprinklerColor);
 			circle.setStrokeWidth(Common.pixelPerMeter / 10);
 			circle.setFill(Color.TRANSPARENT);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
+	}
+
+	public static void showTempSprinklingCircle(MouseEvent e, CanvasPane canvasPane) {
+		try {
+			if (drawingState == SprinklerDrawingState.CENTER) {
+				tempSprinklerSprinklingCircle.setStroke(CanvasPane.getTempLineColor());
+				tempSprinklerSprinklingCircle.setFill((Color.TRANSPARENT));
+				tempSprinklerSprinklingCircle.setCenterX(e.getX());
+				tempSprinklerSprinklingCircle.setCenterY(e.getY());
+				tempSprinklerSprinklingCircle.setRadius(sprinklerRadius);
+				tempSprinklerSprinklingCircle.setVisible(true);
+	
+				setSprinklerCircleAttributes(tempSprinklerHeadCircle, e.getX(), e.getY());
+				tempSprinklerHeadCircle.setVisible(true);
+			}
 		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
 		}

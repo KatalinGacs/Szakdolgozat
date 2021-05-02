@@ -76,7 +76,7 @@ public class CanvasPane extends Pane {
 	/**
 	 * Stroke width of the sprinkler arcs.
 	 */
-	private static int strokeWidth = 1; //(int) (Common.pixelPerMeter / 20);
+	private static int strokeWidth = 1; // (int) (Common.pixelPerMeter / 20);
 
 	/**
 	 * Color of helper lines.
@@ -262,13 +262,14 @@ public class CanvasPane extends Pane {
 	/**
 	 * Create the CanvasPane. Add the layers and other child items to it. Draw a
 	 * grid on it. Set the helper shapes, input fields etc. to be invisible.
-	 * @param dataController 
+	 * 
+	 * @param dataController
 	 */
 	public CanvasPane(SprinklerController dataController) {
 
 		try {
 			controller = dataController;
-			
+
 			setWidth(Common.canvasWidth);
 			setHeight(Common.canvasHeight);
 
@@ -289,12 +290,13 @@ public class CanvasPane extends Pane {
 			}
 
 			tempLineLayer.getChildren().addAll(SprinklerDrawing.tempFirstSprinklerLine,
-					SprinklerDrawing.tempSecondSprinklerLine, SprinklerDrawing.tempSprinklerCircle,
-					BorderDrawing.tempBorderLine, BorderDrawing.tempCircle, BorderDrawing.tempRectangle, focusCircle,
-					measuringIntersectionsLine);
+					SprinklerDrawing.tempSecondSprinklerLine, SprinklerDrawing.tempSprinklerHeadCircle,
+					SprinklerDrawing.tempSprinklerSprinklingCircle, BorderDrawing.tempBorderLine,
+					BorderDrawing.tempCircle, BorderDrawing.tempRectangle, focusCircle, measuringIntersectionsLine);
 
 			SprinklerDrawing.tempFirstSprinklerLine.setVisible(false);
-			SprinklerDrawing.tempSprinklerCircle.setVisible(false);
+			SprinklerDrawing.tempSprinklerHeadCircle.setVisible(false);
+			SprinklerDrawing.tempSprinklerSprinklingCircle.setVisible(false);
 			BorderDrawing.tempRectangle.setVisible(false);
 			BorderDrawing.tempCircle.setVisible(false);
 
@@ -317,9 +319,9 @@ public class CanvasPane extends Pane {
 
 			rightClickMenu.getItems().add(delMenuItem);
 
-			getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, pipeLineLayer,
-					sprinklerTextLayer, /*pipeTextLayer,*/ textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput,
-					TextEditing.textField);
+			getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer,
+					pipeLineLayer, sprinklerTextLayer, /* pipeTextLayer, */ textLayer, SprinklerDrawing.angleInput,
+					BorderDrawing.lengthInput, TextEditing.textField);
 		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
 		}

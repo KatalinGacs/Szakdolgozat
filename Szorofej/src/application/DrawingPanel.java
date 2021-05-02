@@ -381,6 +381,7 @@ public class DrawingPanel extends VBox {
 			tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
 				canvasPane.setStateOfCanvasUse(Use.NONE);
 				canvasPane.setSprinklerAttributesSet(false);
+				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				sprinklerInfoText.setText("");
 			});
 			
@@ -597,6 +598,10 @@ public class DrawingPanel extends VBox {
 				SprinklerDrawing.showTempLine(e, canvasPane);
 				Point2D mousePoint = new Point2D(e.getX(), e.getY());
 
+				if (canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
+					SprinklerDrawing.showTempSprinklingCircle(e, canvasPane);
+				}
+				
 				if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
 					canvasPane.setCursor(Cursor.TEXT);
 				}
