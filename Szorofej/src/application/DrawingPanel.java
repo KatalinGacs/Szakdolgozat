@@ -1,7 +1,6 @@
 package application;
 
 import application.CanvasPane.Use;
-import application.common.Common;
 import controller.SprinklerController;
 import javafx.geometry.Insets;
 import javafx.geometry.Point2D;
@@ -31,6 +30,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.FileHandler;
 import model.bean.PipeGraph.Edge;
+import utilities.Common;
 import model.bean.SprinklerShape;
 
 /**
@@ -111,7 +111,7 @@ public class DrawingPanel extends VBox {
 	/**
 	 * Spinner with which the user can set the width of the border lines.
 	 */
-	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 20, 2);
+	private Spinner<Integer> borderLineWidth = new Spinner<Integer>(1, 20, 5);
 
 	/**
 	 * Text for borderLineWidth Spinner
@@ -328,451 +328,471 @@ public class DrawingPanel extends VBox {
 	 * @param dataController
 	 */
 	public DrawingPanel(SprinklerController dataController) {
-		controller = dataController;
-		canvasPane = new CanvasPane(controller);
-		scrollPane = new ZoomableScrollPane(canvasPane);
-		 
-		// set the toolbar and its buttons
-		getChildren().add(toolbar);
-		toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
-		
-		ImageView newImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
-		newCanvas.setGraphic(newImage);
-		newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
-		newCanvas.setOnAction(e -> {
-			FileHandler.newCanvas(canvasPane);
-		});
-		
-		ImageView openImage = new ImageView(new Image(Common.getSourceFolder() + "/img/open.png"));
-		openCanvas.setGraphic(openImage);
-		openCanvas.setTooltip(new Tooltip("Megnyitás"));
-		openCanvas.setOnAction(e -> {
-			FileHandler.loadCanvas(canvasPane, null);
-		});
-		
-		ImageView saveImage = new ImageView(new Image(Common.getSourceFolder() + "/img/save.png"));
-		saveCanvas.setGraphic(saveImage);
-		saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
-		saveCanvas.setOnAction(e -> {
-			FileHandler.saveCanvas(null, canvasPane, false);
-		});
-		
-		ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));		
-		undoButton.setGraphic(undoImage);
-		undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
-		undoButton.setOnAction(e -> {
-			UndoManager.getInstance().undo();
-		});
-		
-		ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/redo.png"));
-		redoButton.setGraphic(redoImage);
-		redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
-		redoButton.setOnAction(e -> {
-			UndoManager.getInstance().redo();
-		});
-				
-		// order the tabs under the tabpane
-		getChildren().add(tabPane);
-		tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);
-		tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
-		tabPane.setMinHeight(Common.pixelPerMeter * 2);
-		// by changing the selected tab in the tabpane the current drawing activity is disrupted
-		tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
-			canvasPane.setStateOfCanvasUse(Use.NONE);
-			canvasPane.setSprinklerAttributesSet(false);
-			sprinklerInfoText.setText("");
-		});
-		
-		// set the elements of borderTab
-		borderTab.setContent(borderTabElements);
-		borderButtons.getToggles().addAll(borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn);
-		borderTabElements.setAlignment(Pos.CENTER_LEFT);
-		borderTabElements.setSpacing(10);
-		borderColor.setValue(Color.LIMEGREEN);
-		borderLineWidth.setPrefWidth(70);
-		borderTabElements.getChildren().addAll(borderColorText, borderColor, borderLineWidthText, borderLineWidth,
-				borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn, obstacleStrokeText, obstacleStrokeColor,
-				obstacleFillText, obstacleFillColor, textButton);	
-		borderTab.setOnSelectionChanged(e -> {
-			borderButtons.selectToggle(null);
-			canvasPane.endLineDrawing();
-		});
-
-		// set the elements of srpinklerTab
-		sprinklerTab.setContent(sprinklerTabElements);
-		sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerOptions, selectLine,
-				numberOfSprinklerText, numberOfSprinklers, showSprinklers, drawSeveralSprinklers);
-		sprinklerTabElements.setAlignment(Pos.CENTER_LEFT);
-		sprinklerTabElements.setSpacing(10);
-		numberOfSprinklerText.setVisible(false);
-		numberOfSprinklers.setVisible(false);
-		showSprinklers.setVisible(false);
-		selectLine.setVisible(false);
-		drawSeveralSprinklers.setVisible(false);
-		drawSeveralSprinklerOptions.setOnAction(e -> {
-			if (drawSeveralSprinklerOptions.isSelected()) {
-				numberOfSprinklers.setVisible(true);
-				showSprinklers.setVisible(true);
-				selectLine.setVisible(true);
-				numberOfSprinklerText.setVisible(true);
-				drawSeveralSprinklers.setVisible(true);
-			} else {
-				numberOfSprinklers.setVisible(false);
-				showSprinklers.setVisible(false);
-				selectLine.setVisible(false);
-				numberOfSprinklerText.setVisible(false);
-				drawSeveralSprinklers.setVisible(false);
-			}
-		});
-		
-		setSprinklerBtn.setOnAction(e -> {
-			canvasPane.setSprinklerAttributes();
-		});
-
-		showSprinklers.setOnAction(e -> {
-			showSprinklersInALine();
-		});
-
-		drawSeveralSprinklers.setOnAction(e -> {
-			if (!canvasPane.isSprinklerAttributesSet()) {
-				Common.showAlert("A szórófej típusa nincs kiválasztva!");
-			} else if (!canvasPane.lineSelected) {
-				Common.showAlert("A vonal nincs kiválasztva!");
-			} else {
-				showSprinklersInALine();
-				SprinklerDrawing.drawSeveralSprinklers(canvasPane);
-			}
-		});
-
-		// set the elements of zonetab
-		zoneTab.setContent(zoneTabElements);
-		zoneTabElements.getChildren().addAll(zoneBtn, pipeBtn, summarizeBtn);
-		zoneTabElements.setAlignment(Pos.CENTER_LEFT);
-		zoneTabElements.setSpacing(10);
-		addHeads.setToggleGroup(addOrRemoveGroup);
-		removeHeads.setToggleGroup(addOrRemoveGroup);
-		zoneBtn.setOnAction(e -> {
-			setZones();
-		});
-		pipeBtn.setOnAction(e -> {
-			setPipes();
-		});
-		summarizeBtn.setOnAction(e -> {
-			MaterialSumStage materialSumStage = new MaterialSumStage(canvasPane.controller);
-			materialSumStage.show();
-		});
-
-		// set the elements of miscTab
-		miscTab.setContent(miscTabElements);
-		miscTabElements.getChildren().addAll(textButton);
-		miscTabElements.setAlignment(Pos.CENTER_LEFT);
-		miscTabElements.setSpacing(10);
-		textButton.setOnAction(e -> {
-			TextEditing.openTextFormatStage(canvasPane);
-		});
-
-		// set the scrollpane with the canvaspane
-		getChildren().add(scrollPane);
-
-		// set the footer and handle showing/hiding layers
-		footer.setLeft(viewElements);
-		footer.setRight(generalInfoBox);
-		footer.setCenter(sprinklerInfoBox);
-		footer.setPadding(new Insets(10));
-		viewElements.setMinHeight(Common.pixelPerMeter * 2);
-		viewElements.setAlignment(Pos.CENTER_LEFT);
-		viewElements.setSpacing(10);
-		showGrid.setSelected(true);
-		showArcs.setSelected(true);
-		showTexts.setSelected(true);
-		viewElements.getChildren().addAll(showGrid, showArcs, showTexts);
-		sprinklerInfoBox.getChildren().addAll(sprinklerInfoText);
-		sprinklerInfoBox.setAlignment(Pos.CENTER);
-		generalInfoBox.getChildren().addAll(generalInfoText);
-		generalInfoBox.setAlignment(Pos.CENTER_RIGHT);
-		getChildren().add(footer);
-
-		// handle user interactions on the canvasPane
-		canvasPane.setOnMouseClicked(e -> {
-			canvasPane.requestFocus();
+		try {
+			controller = dataController;
+			canvasPane = new CanvasPane(controller);
+			scrollPane = new ZoomableScrollPane(canvasPane);
+			 
+			// set the toolbar and its buttons
+			getChildren().add(toolbar);
+			toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
 			
-			// delete selection
-			if (canvasPane.getSelectedShape() != null) {
-				canvasPane.getSelectedShape().setStroke(canvasPane.getOriginalStrokeColorOfSelectedShape());
-				canvasPane.setSelectedShape(null);
-			}
+			ImageView newImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
+			newCanvas.setGraphic(newImage);
+			newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
+			newCanvas.setOnAction(e -> {
+				FileHandler.newCanvas(canvasPane);
+			});
+			
+			ImageView openImage = new ImageView(new Image(Common.getSourceFolder() + "/img/open.png"));
+			openCanvas.setGraphic(openImage);
+			openCanvas.setTooltip(new Tooltip("Megnyitás"));
+			openCanvas.setOnAction(e -> {
+				FileHandler.loadCanvas(canvasPane, null);
+			});
+			
+			ImageView saveImage = new ImageView(new Image(Common.getSourceFolder() + "/img/save.png"));
+			saveCanvas.setGraphic(saveImage);
+			saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
+			saveCanvas.setOnAction(e -> {
+				FileHandler.saveCanvas(null, canvasPane, false);
+			});
+			
+			ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));		
+			undoButton.setGraphic(undoImage);
+			undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
+			undoButton.setOnAction(e -> {
+				UndoManager.getInstance().undo();
+			});
+			
+			ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/redo.png"));
+			redoButton.setGraphic(redoImage);
+			redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
+			redoButton.setOnAction(e -> {
+				UndoManager.getInstance().redo();
+			});
+					
+			// order the tabs under the tabpane
+			getChildren().add(tabPane);
+			tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);
+			tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
+			tabPane.setMinHeight(Common.pixelPerMeter * 2);
+			// by changing the selected tab in the tabpane the current drawing activity is disrupted
+			tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
+				canvasPane.setStateOfCanvasUse(Use.NONE);
+				canvasPane.setSprinklerAttributesSet(false);
+				sprinklerInfoText.setText("");
+			});
+			
+			// set the elements of borderTab
+			borderTab.setContent(borderTabElements);
+			borderButtons.getToggles().addAll(borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn);
+			borderTabElements.setAlignment(Pos.CENTER_LEFT);
+			borderTabElements.setSpacing(10);
+			borderColor.setValue(Color.LIMEGREEN);
+			borderLineWidth.setPrefWidth(70);
+			borderTabElements.getChildren().addAll(borderColorText, borderColor, borderLineWidthText, borderLineWidth,
+					borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn, obstacleStrokeText, obstacleStrokeColor,
+					obstacleFillText, obstacleFillColor, textButton);	
+			borderTab.setOnSelectionChanged(e -> {
+				borderButtons.selectToggle(null);
+				canvasPane.endLineDrawing();
+			});
 
-			if (e.getButton() == MouseButton.PRIMARY) {
-				if (selectLine.isSelected()) {
-					SprinklerDrawing.selectLineForSprinklerDrawing(e, canvasPane);
-					if (canvasPane.lineSelected)
-						selectLine.setSelected(false);
-				} else if (canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
-					SprinklerDrawing.drawNewSprinkler(e, canvasPane);
-				} else if (borderButtons.getSelectedToggle() == borderLineBtn
-						&& canvasPane.getStateOfCanvasUse() != Use.BORDERDRAWING) {
+			// set the elements of srpinklerTab
+			sprinklerTab.setContent(sprinklerTabElements);
+			sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerOptions, selectLine,
+					numberOfSprinklerText, numberOfSprinklers, showSprinklers, drawSeveralSprinklers);
+			sprinklerTabElements.setAlignment(Pos.CENTER_LEFT);
+			sprinklerTabElements.setSpacing(10);
+			numberOfSprinklerText.setVisible(false);
+			numberOfSprinklers.setVisible(false);
+			showSprinklers.setVisible(false);
+			selectLine.setVisible(false);
+			drawSeveralSprinklers.setVisible(false);
+			drawSeveralSprinklerOptions.setOnAction(e -> {
+				if (drawSeveralSprinklerOptions.isSelected()) {
+					numberOfSprinklers.setVisible(true);
+					showSprinklers.setVisible(true);
+					selectLine.setVisible(true);
+					numberOfSprinklerText.setVisible(true);
+					drawSeveralSprinklers.setVisible(true);
+				} else {
+					numberOfSprinklers.setVisible(false);
+					showSprinklers.setVisible(false);
+					selectLine.setVisible(false);
+					numberOfSprinklerText.setVisible(false);
+					drawSeveralSprinklers.setVisible(false);
+				}
+			});
+			
+			setSprinklerBtn.setOnAction(e -> {
+				canvasPane.setSprinklerAttributes();
+			});
+
+			showSprinklers.setOnAction(e -> {
+				showSprinklersInALine();
+			});
+
+			drawSeveralSprinklers.setOnAction(e -> {
+				if (!canvasPane.isSprinklerAttributesSet()) {
+					Common.showAlert("A szórófej típusa nincs kiválasztva!");
+				} else if (!canvasPane.lineSelected) {
+					Common.showAlert("A vonal nincs kiválasztva!");
+				} else {
+					showSprinklersInALine();
+					SprinklerDrawing.drawSeveralSprinklers(canvasPane);
+				}
+			});
+
+			// set the elements of zonetab
+			zoneTab.setContent(zoneTabElements);
+			zoneTabElements.getChildren().addAll(zoneBtn, pipeBtn, summarizeBtn);
+			zoneTabElements.setAlignment(Pos.CENTER_LEFT);
+			zoneTabElements.setSpacing(10);
+			addHeads.setToggleGroup(addOrRemoveGroup);
+			removeHeads.setToggleGroup(addOrRemoveGroup);
+			zoneBtn.setOnAction(e -> {
+				setZones();
+			});
+			pipeBtn.setOnAction(e -> {
+				setPipes();
+			});
+			summarizeBtn.setOnAction(e -> {
+				MaterialSumStage materialSumStage = new MaterialSumStage(canvasPane.controller);
+				materialSumStage.show();
+			});
+
+			// set the elements of miscTab
+			miscTab.setContent(miscTabElements);
+			miscTabElements.getChildren().addAll(textButton);
+			miscTabElements.setAlignment(Pos.CENTER_LEFT);
+			miscTabElements.setSpacing(10);
+			textButton.setOnAction(e -> {
+				TextEditing.openTextFormatStage(canvasPane);
+			});
+
+			// set the scrollpane with the canvaspane
+			getChildren().add(scrollPane);
+
+			// set the footer and handle showing/hiding layers
+			footer.setLeft(viewElements);
+			footer.setRight(generalInfoBox);
+			footer.setCenter(sprinklerInfoBox);
+			footer.setPadding(new Insets(10));
+			viewElements.setMinHeight(Common.pixelPerMeter * 2);
+			viewElements.setAlignment(Pos.CENTER_LEFT);
+			viewElements.setSpacing(10);
+			showGrid.setSelected(true);
+			showArcs.setSelected(true);
+			showTexts.setSelected(true);
+			viewElements.getChildren().addAll(showGrid, showArcs, showTexts);
+			sprinklerInfoBox.getChildren().addAll(sprinklerInfoText);
+			sprinklerInfoBox.setAlignment(Pos.CENTER);
+			generalInfoBox.getChildren().addAll(generalInfoText);
+			generalInfoBox.setAlignment(Pos.CENTER_RIGHT);
+			getChildren().add(footer);
+
+			// handle user interactions on the canvasPane
+			canvasPane.setOnMouseClicked(e -> {
+				canvasPane.requestFocus();
+				
+				// delete selection
+				if (canvasPane.getSelectedShape() != null) {
+					canvasPane.getSelectedShape().setStroke(canvasPane.getOriginalStrokeColorOfSelectedShape());
+					canvasPane.setSelectedShape(null);
+				}
+
+				if (e.getButton() == MouseButton.PRIMARY) {
+					if (selectLine.isSelected()) {
+						SprinklerDrawing.selectLineForSprinklerDrawing(e, canvasPane);
+						if (canvasPane.lineSelected)
+							selectLine.setSelected(false);
+					} else if (canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
+						SprinklerDrawing.drawNewSprinkler(e, canvasPane);
+					} else if (borderButtons.getSelectedToggle() == borderLineBtn
+							&& canvasPane.getStateOfCanvasUse() != Use.BORDERDRAWING) {
+						canvasPane.setStateOfCanvasUse(Use.BORDERDRAWING);
+						BorderDrawing.startDrawingBorder(e);
+					} else if (borderButtons.getSelectedToggle() == borderLineBtn
+							&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
+						BorderDrawing.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
+					} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
+						if (addHeads.isSelected()) {
+							canvasPane.selectHeadsForZone(e, true, true);
+						} else if (removeHeads.isSelected()) {
+							canvasPane.selectHeadsForZone(e, false, true);
+						}
+						updateZoneInfos();
+					} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
+						PipeDrawing.startDrawingPipeLine(e, canvasPane);
+					} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
+						PipeDrawing.drawPipeLine(e, canvasPane);
+					} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
+						TextEditing.startWritingText(e, canvasPane);
+					}
+				} else if (e.getButton() == MouseButton.SECONDARY) {
+					canvasPane.selectElement(e);
+				}
+				e.consume();
+				if (canvasPane.getStateOfCanvasUse() != Use.PREPAREFORTEXTEDITING)
+					canvasPane.requestFocus();
+			});
+
+			canvasPane.setOnMousePressed(e -> {
+				canvasPane.requestFocus();
+				if ((borderButtons.getSelectedToggle() == obstacleRectangleBtn
+						|| borderButtons.getSelectedToggle() == obstacleCircleBtn)
+						&& e.getButton() == MouseButton.PRIMARY) {
 					canvasPane.setStateOfCanvasUse(Use.BORDERDRAWING);
 					BorderDrawing.startDrawingBorder(e);
-				} else if (borderButtons.getSelectedToggle() == borderLineBtn
+				} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
+					BorderDrawing.startDrawingBorder(e);
+				}
+			});
+
+			canvasPane.setOnMouseDragged(e -> {
+				if ((canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
+						&& borderButtons.getSelectedToggle() == obstacleRectangleBtn)
+						|| (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING))
+					BorderDrawing.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
+							canvasPane);
+				else if (canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
+						&& borderButtons.getSelectedToggle() == obstacleCircleBtn)
+					BorderDrawing.showTempBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
+							canvasPane);
+			});
+
+			canvasPane.setOnMouseReleased(e -> {
+				if (e.getButton() == MouseButton.PRIMARY) {
+					if (borderButtons.getSelectedToggle() == obstacleRectangleBtn) {
+						BorderDrawing.drawBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
+								borderLineWidth.getValue(), canvasPane);
+						canvasPane.setStateOfCanvasUse(Use.NONE);
+					} else if (borderButtons.getSelectedToggle() == obstacleCircleBtn) {
+						BorderDrawing.drawBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
+								borderLineWidth.getValue(), canvasPane);
+						canvasPane.setStateOfCanvasUse(Use.NONE);
+					} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
+						if (addHeads.isSelected()) {
+							canvasPane.selectHeadsForZone(e, true, false);
+							updateZoneInfos();
+						} else {
+							canvasPane.selectHeadsForZone(e, false, false);
+							updateZoneInfos();
+						}
+					}
+				}
+			});
+
+			canvasPane.setOnMouseMoved(e -> {
+				generalInfoText.setText(canvasPane.generalInfos(e));
+
+				if (canvasPane.isSprinklerAttributesSet()
+						&& tabPane.getSelectionModel().getSelectedItem() == sprinklerTab) {
+					sprinklerInfoText.setText(canvasPane.sprinklerInfos());
+				}
+
+				canvasPane.showFocusCircle(e);
+				SprinklerDrawing.showTempLine(e, canvasPane);
+				Point2D mousePoint = new Point2D(e.getX(), e.getY());
+
+				if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
+					canvasPane.setCursor(Cursor.TEXT);
+				}
+
+				if (canvasPane.getPressedKey() == KeyCode.SHIFT) {
+					for (Shape border : controller.listBorderShapes()) {
+						if (border.contains(mousePoint)) {
+							canvasPane.setCursor(Cursor.CROSSHAIR);
+							break;
+						} else
+							canvasPane.setCursor(Cursor.DEFAULT);
+					}
+				}
+
+				if (borderButtons.getSelectedToggle() == borderLineBtn
 						&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
-					BorderDrawing.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
-				} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
-					if (addHeads.isSelected()) {
-						canvasPane.selectHeadsForZone(e, true, true);
-					} else if (removeHeads.isSelected()) {
-						canvasPane.selectHeadsForZone(e, false, true);
+					BorderDrawing.showTempBorderLine(e, borderColor.getValue(), canvasPane);
+					for (Shape border : controller.listBorderShapes()) {
+						if (border instanceof Line) {
+							if ((Math.abs(e.getX() - ((Line) border).getStartX()) < Common.pixelPerMeter / 2
+									&& Math.abs(e.getY() - ((Line) border).getStartY()) < Common.pixelPerMeter / 2)) {
+								canvasPane.setCursor(Cursor.CROSSHAIR);
+								BorderDrawing.lineEndX = ((Line) border).getStartX();
+								BorderDrawing.lineEndY = ((Line) border).getStartY();
+								canvasPane.cursorNearLineEnd = true;
+								break;
+							} else if (Math.abs(e.getX() - ((Line) border).getEndX()) < Common.pixelPerMeter / 2
+									&& Math.abs(e.getY() - ((Line) border).getEndY()) < Common.pixelPerMeter / 2) {
+								canvasPane.setCursor(Cursor.CROSSHAIR);
+								BorderDrawing.lineEndX = ((Line) border).getEndX();
+								BorderDrawing.lineEndY = ((Line) border).getEndY();
+								canvasPane.cursorNearLineEnd = true;
+								break;
+							} else {
+								canvasPane.setCursor(Cursor.DEFAULT);
+								canvasPane.cursorNearLineEnd = false;
+							}
+						}
 					}
-					updateZoneInfos();
-				} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
-					PipeDrawing.startDrawingPipeLine(e, canvasPane);
-				} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
-					PipeDrawing.drawPipeLine(e, canvasPane);
-				} else if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
-					TextEditing.startWritingText(e, canvasPane);
-				}
-			} else if (e.getButton() == MouseButton.SECONDARY) {
-				canvasPane.selectElement(e);
-			}
-			e.consume();
-			if (canvasPane.getStateOfCanvasUse() != Use.PREPAREFORTEXTEDITING)
-				canvasPane.requestFocus();
-		});
-
-		canvasPane.setOnMousePressed(e -> {
-			canvasPane.requestFocus();
-			if ((borderButtons.getSelectedToggle() == obstacleRectangleBtn
-					|| borderButtons.getSelectedToggle() == obstacleCircleBtn)
-					&& e.getButton() == MouseButton.PRIMARY) {
-				canvasPane.setStateOfCanvasUse(Use.BORDERDRAWING);
-				BorderDrawing.startDrawingBorder(e);
-			} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
-				BorderDrawing.startDrawingBorder(e);
-			}
-		});
-
-		canvasPane.setOnMouseDragged(e -> {
-			if ((canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
-					&& borderButtons.getSelectedToggle() == obstacleRectangleBtn)
-					|| (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING))
-				BorderDrawing.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-						canvasPane);
-			else if (canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
-					&& borderButtons.getSelectedToggle() == obstacleCircleBtn)
-				BorderDrawing.showTempBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-						canvasPane);
-		});
-
-		canvasPane.setOnMouseReleased(e -> {
-			if (e.getButton() == MouseButton.PRIMARY) {
-				if (borderButtons.getSelectedToggle() == obstacleRectangleBtn) {
-					BorderDrawing.drawBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-							borderLineWidth.getValue(), canvasPane);
-					canvasPane.setStateOfCanvasUse(Use.NONE);
-				} else if (borderButtons.getSelectedToggle() == obstacleCircleBtn) {
-					BorderDrawing.drawBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-							borderLineWidth.getValue(), canvasPane);
-					canvasPane.setStateOfCanvasUse(Use.NONE);
-				} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
-					if (addHeads.isSelected()) {
-						canvasPane.selectHeadsForZone(e, true, false);
-						updateZoneInfos();
-					} else {
-						canvasPane.selectHeadsForZone(e, false, false);
-						updateZoneInfos();
+				} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING
+						|| canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
+					if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
+						BorderDrawing.showTempBorderLine(e, CanvasPane.getPipeLineColor(), canvasPane);
+						for (SprinklerShape s : controller.listSprinklerShapes()) {
+							if ((Math.abs(e.getX() - s.getCircle().getCenterX()) < Common.pixelPerMeter / 2
+									&& Math.abs(e.getY() - (s.getCircle().getCenterY())) < Common.pixelPerMeter / 2)) {
+								canvasPane.setCursor(Cursor.CROSSHAIR);
+								CanvasPane.sprinklerHeadX = s.getCircle().getCenterX();
+								CanvasPane.sprinklerHeadY = s.getCircle().getCenterY();
+								canvasPane.cursorNearSprinklerHead = true;
+								canvasPane.sprinklerShapeNearCursor = s;
+								break;
+							} else {
+								canvasPane.setCursor(Cursor.DEFAULT);
+								canvasPane.cursorNearSprinklerHead = false;
+							}
+						}
 					}
-				}
-			}
-		});
-
-		canvasPane.setOnMouseMoved(e -> {
-			generalInfoText.setText(canvasPane.generalInfos(e));
-
-			if (canvasPane.isSprinklerAttributesSet()
-					&& tabPane.getSelectionModel().getSelectedItem() == sprinklerTab) {
-				sprinklerInfoText.setText(canvasPane.sprinklerInfos());
-			}
-
-			canvasPane.showFocusCircle(e);
-			SprinklerDrawing.showTempLine(e, canvasPane);
-			Point2D mousePoint = new Point2D(e.getX(), e.getY());
-
-			if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
-				canvasPane.setCursor(Cursor.TEXT);
-			}
-
-			if (canvasPane.getPressedKey() == KeyCode.SHIFT) {
-				for (Shape border : controller.listBorderShapes()) {
-					if (border.contains(mousePoint)) {
-						canvasPane.setCursor(Cursor.CROSSHAIR);
-						break;
-					} else
-						canvasPane.setCursor(Cursor.DEFAULT);
-				}
-			}
-
-			if (borderButtons.getSelectedToggle() == borderLineBtn
-					&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
-				BorderDrawing.showTempBorderLine(e, borderColor.getValue(), canvasPane);
-				for (Shape border : controller.listBorderShapes()) {
-					if (border instanceof Line) {
-						if ((Math.abs(e.getX() - ((Line) border).getStartX()) < Common.pixelPerMeter / 2
-								&& Math.abs(e.getY() - ((Line) border).getStartY()) < Common.pixelPerMeter / 2)) {
-							canvasPane.setCursor(Cursor.CROSSHAIR);
-							BorderDrawing.lineEndX = ((Line) border).getStartX();
-							BorderDrawing.lineEndY = ((Line) border).getStartY();
-							canvasPane.cursorNearLineEnd = true;
-							break;
-						} else if (Math.abs(e.getX() - ((Line) border).getEndX()) < Common.pixelPerMeter / 2
-								&& Math.abs(e.getY() - ((Line) border).getEndY()) < Common.pixelPerMeter / 2) {
-							canvasPane.setCursor(Cursor.CROSSHAIR);
-							BorderDrawing.lineEndX = ((Line) border).getEndX();
-							BorderDrawing.lineEndY = ((Line) border).getEndY();
-							canvasPane.cursorNearLineEnd = true;
-							break;
-						} else {
-							canvasPane.setCursor(Cursor.DEFAULT);
-							canvasPane.cursorNearLineEnd = false;
+					if (!canvasPane.cursorNearSprinklerHead) {
+						for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
+							if (line.contains(e.getX(), e.getY())) {
+								canvasPane.setCursor(Cursor.CROSSHAIR);
+								PipeDrawing.lineBreakPointX = e.getX();
+								PipeDrawing.lineBreakPointY = e.getY();
+								canvasPane.cursorOnPipeLine = true;
+								PipeDrawing.pipeLineToSplit = line;
+								break;
+							} else {
+								canvasPane.setCursor(Cursor.DEFAULT);
+								canvasPane.cursorOnPipeLine = false;
+							}
 						}
 					}
 				}
-			} else if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING
-					|| canvasPane.getStateOfCanvasUse() == Use.PREPAREFORPIPEDRAWING) {
-				if (canvasPane.getStateOfCanvasUse() == Use.PIPEDRAWING) {
-					BorderDrawing.showTempBorderLine(e, CanvasPane.getPipeLineColor(), canvasPane);
-					for (SprinklerShape s : controller.listSprinklerShapes()) {
-						if ((Math.abs(e.getX() - s.getCircle().getCenterX()) < Common.pixelPerMeter / 2
-								&& Math.abs(e.getY() - (s.getCircle().getCenterY())) < Common.pixelPerMeter / 2)) {
+
+				if (selectLine.isSelected()) {
+					canvasPane.setStateOfCanvasUse(Use.PREPAREFORDRAWINGSEVERALSPRINKLERS);
+					for (Shape border : controller.listBorderShapes()) {
+						if (border instanceof Line && border.contains(e.getX(), e.getY())) {
 							canvasPane.setCursor(Cursor.CROSSHAIR);
-							CanvasPane.sprinklerHeadX = s.getCircle().getCenterX();
-							CanvasPane.sprinklerHeadY = s.getCircle().getCenterY();
-							canvasPane.cursorNearSprinklerHead = true;
-							canvasPane.sprinklerShapeNearCursor = s;
 							break;
-						} else {
+						} else
 							canvasPane.setCursor(Cursor.DEFAULT);
-							canvasPane.cursorNearSprinklerHead = false;
-						}
 					}
 				}
-				if (!canvasPane.cursorNearSprinklerHead) {
-					for (Edge line : canvasPane.pipeGraphUnderEditing.getEdges()) {
-						if (line.contains(e.getX(), e.getY())) {
-							canvasPane.setCursor(Cursor.CROSSHAIR);
-							PipeDrawing.lineBreakPointX = e.getX();
-							PipeDrawing.lineBreakPointY = e.getY();
-							canvasPane.cursorOnPipeLine = true;
-							PipeDrawing.pipeLineToSplit = line;
-							break;
-						} else {
-							canvasPane.setCursor(Cursor.DEFAULT);
-							canvasPane.cursorOnPipeLine = false;
-						}
+			});
+
+			canvasPane.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+				canvasPane.setPressedKey(null);
+				canvasPane.setCursor(Cursor.DEFAULT);
+			});
+
+			canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+				canvasPane.setPressedKey(e.getCode());
+				if (canvasPane.getPressedKey().equals(KeyCode.ESCAPE)) {
+					SprinklerDrawing.endSprinklerDrawing(canvasPane);
+					sprinklerInfoText.setText("");
+					canvasPane.endLineDrawing();
+					borderButtons.selectToggle(null);
+					if (canvasPane.cursorNearSprinklerHead) {
+						canvasPane.cursorNearSprinklerHead = false;
 					}
 				}
-			}
+			});
+			
+			// show or hide grid layer
+			showGrid.setOnAction(e -> {
+				if (showGrid.isSelected())
+					Common.showLayer(canvasPane.getGridLayer());
+				else
+					Common.hideLayer(canvasPane.getGridLayer());
+			});
 
-			if (selectLine.isSelected()) {
-				canvasPane.setStateOfCanvasUse(Use.PREPAREFORDRAWINGSEVERALSPRINKLERS);
-				for (Shape border : controller.listBorderShapes()) {
-					if (border instanceof Line && border.contains(e.getX(), e.getY())) {
-						canvasPane.setCursor(Cursor.CROSSHAIR);
-						break;
-					} else
-						canvasPane.setCursor(Cursor.DEFAULT);
+			// show or hide arcs of sprinklers
+			showArcs.setOnAction(e -> {
+				if (showArcs.isSelected())
+					Common.showLayer(canvasPane.getSprinklerArcLayer());
+				else
+					Common.hideLayer(canvasPane.getSprinklerArcLayer());
+			});
+
+			// show or hide texts
+			showTexts.setOnAction(e -> {
+				if (showTexts.isSelected()) {
+					Common.showLayer(canvasPane.getTextLayer());
+					Common.showLayer(canvasPane.getPipeTextLayer());
 				}
-			}
-		});
-
-		canvasPane.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
-			canvasPane.setPressedKey(null);
-			canvasPane.setCursor(Cursor.DEFAULT);
-		});
-
-		canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
-			canvasPane.setPressedKey(e.getCode());
-			if (canvasPane.getPressedKey().equals(KeyCode.ESCAPE)) {
-				SprinklerDrawing.endSprinklerDrawing(canvasPane);
-				sprinklerInfoText.setText("");
-				canvasPane.endLineDrawing();
-				borderButtons.selectToggle(null);
-				if (canvasPane.cursorNearSprinklerHead) {
-					canvasPane.cursorNearSprinklerHead = false;
+				else {
+					Common.hideLayer(canvasPane.getTextLayer());
+					Common.hideLayer(canvasPane.getPipeTextLayer());
 				}
-			}
-		});
-		
-		// show or hide grid layer
-		showGrid.setOnAction(e -> {
-			if (showGrid.isSelected())
-				Common.showLayer(canvasPane.getGridLayer());
-			else
-				Common.hideLayer(canvasPane.getGridLayer());
-		});
-
-		// show or hide arcs of sprinklers
-		showArcs.setOnAction(e -> {
-			if (showArcs.isSelected())
-				Common.showLayer(canvasPane.getSprinklerArcLayer());
-			else
-				Common.hideLayer(canvasPane.getSprinklerArcLayer());
-		});
-
-		// show or hide texts
-		showTexts.setOnAction(e -> {
-			if (showTexts.isSelected()) {
-				Common.showLayer(canvasPane.getTextLayer());
-				Common.showLayer(canvasPane.getPipeTextLayer());
-			}
-			else {
-				Common.hideLayer(canvasPane.getTextLayer());
-				Common.hideLayer(canvasPane.getPipeTextLayer());
-			}
-		});
+			});
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 	
 	/**
 	 * Show the stage for creating zones.
 	 */
 	private void setZones() {
-		canvasPane.setSprinklerAttributesSet(false);
-		canvasPane.setStateOfCanvasUse(Use.ZONEEDITING);
-		canvasPane.selectedSprinklerShapes.clear();
-		numberOfSelectedHeadsText.setText("0");
-		flowRateOfSelectedHeadsText.setText("0");
-		Stage zoneStage = new ZoneStage(canvasPane, addHeads, removeHeads, numberOfSelectedHeadsText,
-				flowRateOfSelectedHeadsText);
-		canvasPane.requestFocus();
-		zoneStage.show();
+		try {
+			canvasPane.setSprinklerAttributesSet(false);
+			canvasPane.setStateOfCanvasUse(Use.ZONEEDITING);
+			canvasPane.selectedSprinklerShapes.clear();
+			numberOfSelectedHeadsText.setText("0");
+			flowRateOfSelectedHeadsText.setText("0");
+			Stage zoneStage = new ZoneStage(canvasPane, addHeads, removeHeads, numberOfSelectedHeadsText,
+					flowRateOfSelectedHeadsText);
+			canvasPane.requestFocus();
+			zoneStage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
 	 * Update the actual informations on the stage for creating zones according to the selected sprinklerheads.
 	 */
 	private void updateZoneInfos() {
-		numberOfSelectedHeadsText.setText(canvasPane.selectedSprinklerShapes.size() + "");
-		flowRateOfSelectedHeadsText.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
+		try {
+			numberOfSelectedHeadsText.setText(canvasPane.selectedSprinklerShapes.size() + "");
+			flowRateOfSelectedHeadsText.setText(String.format("%.2f", canvasPane.flowRateOfSelected));
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 	
 	/**
 	 * Show the stage for drawing pipes.
 	 */
 	private void setPipes() {
-		canvasPane.setSprinklerAttributesSet(false);
-		canvasPane.setStateOfCanvasUse(Use.NONE);
-		Stage pipeStage = new PipeStage(canvasPane);
-		canvasPane.requestFocus();
-		pipeStage.show();
+		try {
+			canvasPane.setSprinklerAttributesSet(false);
+			canvasPane.setStateOfCanvasUse(Use.NONE);
+			Stage pipeStage = new PipeStage(canvasPane);
+			canvasPane.requestFocus();
+			pipeStage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
 	 * When drawing several sprinklers in one line, show a preview of the sprinklers.
 	 */
 	private void showSprinklersInALine() {
-		if (canvasPane.isSprinklerAttributesSet()) {
-			SprinklerDrawing.showSprinklersInALine(numberOfSprinklers.getValue(), canvasPane);
-			selectLine.setSelected(false);
-		} else
-			Common.showAlert("Válaszd ki a szórófej típusát!");
+		try {
+			if (canvasPane.isSprinklerAttributesSet()) {
+				SprinklerDrawing.showSprinklersInALine(numberOfSprinklers.getValue(), canvasPane);
+				selectLine.setSelected(false);
+			} else
+				Common.showAlert("Válaszd ki a szórófej típusát!");
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	public CanvasPane getCanvasPane() {

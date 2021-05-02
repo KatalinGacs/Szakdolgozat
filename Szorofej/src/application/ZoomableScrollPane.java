@@ -20,25 +20,33 @@ public class ZoomableScrollPane extends ScrollPane {
 
 	public ZoomableScrollPane(Node content) {
 		super();
-		setContent(content);
+		try {
+			setContent(content);
 
-		scale = new Scale(scaleValue, scaleValue, 0, 0);
-		content.getTransforms().add(scale);
+			scale = new Scale(scaleValue, scaleValue, 0, 0);
+			content.getTransforms().add(scale);
 
-		content.setOnScroll(e -> {
-			if (e.getDeltaY() < 0)
-				scaleValue -= zoomIntensity;
-			else
-				scaleValue += zoomIntensity;
-			zoomTo(scaleValue);
-			e.consume();
-		});
+			content.setOnScroll(e -> {
+				if (e.getDeltaY() < 0)
+					scaleValue -= zoomIntensity;
+				else
+					scaleValue += zoomIntensity;
+				zoomTo(scaleValue);
+				e.consume();
+			});
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	public void zoomTo(double scaleValue) {
-		this.scaleValue = scaleValue;
-		scale.setX(scaleValue);
-		scale.setY(scaleValue);
+		try {
+			this.scaleValue = scaleValue;
+			scale.setX(scaleValue);
+			scale.setY(scaleValue);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 }

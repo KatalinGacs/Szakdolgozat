@@ -16,6 +16,7 @@ public class Error {
 	 */
 	// TODO: log the exceptions
 	public static void HandleException(Exception e) {
+		e.printStackTrace();
 		Alert alert = new Alert(AlertType.ERROR);
 		alert.setContentText(ExceptionUtils.getStackTrace(e));
 		alert.setHeaderText(e.getMessage());

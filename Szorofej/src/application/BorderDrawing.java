@@ -1,7 +1,6 @@
 package application;
 
 import application.UndoManager.DrawingAction;
-import application.common.Common;
 import javafx.geometry.Point2D;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
@@ -11,6 +10,7 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Rectangle;
+import utilities.Common;
 
 /**
  * Helper class for drawing borders and obstacles on the CanvasPane
@@ -80,24 +80,28 @@ public class BorderDrawing {
 	 */
 	public static void showTempBorderLine(MouseEvent e, Color color, CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double mouseX = Common.mouseEventWithinBounds(e).getX();
-		double mouseY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double mouseX = Common.mouseEventWithinBounds(e).getX();
+			double mouseY = Common.mouseEventWithinBounds(e).getY();
 
-		lengthInput.setVisible(true);
-		lengthInput.relocate(startX, startY);
-		tempBorderLine.setStartX(startX);
-		tempBorderLine.setStartY(startY);
-		tempBorderLine.setStroke(color);
-		tempBorderLine.setVisible(true);
+			lengthInput.setVisible(true);
+			lengthInput.relocate(startX, startY);
+			tempBorderLine.setStartX(startX);
+			tempBorderLine.setStartY(startY);
+			tempBorderLine.setStroke(color);
+			tempBorderLine.setVisible(true);
 
-		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
-			Point2D point = Common.snapToHorizontalOrVertival(startX, startY, mouseX, mouseY);
-			tempBorderLine.setEndX(point.getX());
-			tempBorderLine.setEndY(point.getY());
-		} else {
-			tempBorderLine.setEndX(mouseX);
-			tempBorderLine.setEndY(mouseY);
+			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
+				Point2D point = Common.snapToHorizontalOrVertival(startX, startY, mouseX, mouseY);
+				tempBorderLine.setEndX(point.getX());
+				tempBorderLine.setEndY(point.getY());
+			} else {
+				tempBorderLine.setEndX(mouseX);
+				tempBorderLine.setEndY(mouseY);
+			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -115,62 +119,66 @@ public class BorderDrawing {
 	 */
 	public static void drawBorderLine(MouseEvent e, Color color, int width, CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double clickX = Common.mouseEventWithinBounds(e).getX();
-		double clickY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double clickX = Common.mouseEventWithinBounds(e).getX();
+			double clickY = Common.mouseEventWithinBounds(e).getY();
 
-		tempBorderLine.setVisible(false);
+			tempBorderLine.setVisible(false);
 
-		Line line = new Line();
-		line.setStartX(startX);
-		line.setStartY(startY);
-		line.setStrokeWidth(width);
-		line.setStroke(color);
-		double endX, endY;
+			Line line = new Line();
+			line.setStartX(startX);
+			line.setStartY(startY);
+			line.setStrokeWidth(width);
+			line.setStroke(color);
+			double endX, endY;
 
-		// make line ends be connectable with each other
-		if (canvasPane.cursorNearLineEnd) {
-			endX = lineEndX;
-			endY = lineEndY;
-		} else {
-			endX = clickX;
-			endY = clickY;
-		}
-
-		// handle when the user sets the length of the line in lengthInput inputfield
-		if (!lengthInput.getText().trim().isEmpty() && lengthInput.getText() != null)
-			try {
-				double requiredLength = Double.parseDouble(lengthInput.getText()) * Common.pixelPerMeter;
-				double drawnLength = Math
-						.sqrt((startX - clickX) * (startX - clickX) + (startY - clickY) * (startY - clickY));
-				double ratio = requiredLength / drawnLength;
-
-				endX = startX + (clickX - startX) * ratio;
-				endY = startY + (clickY - startY) * ratio;
-
-				lengthInput.setText("");
-				lengthInput.setVisible(false);
-
-			} catch (NumberFormatException ex) {
-				Common.showAlert("Számokban add meg a vonal hosszát vagy hagyd üresen a mezõt!");
+			// make line ends be connectable with each other
+			if (canvasPane.cursorNearLineEnd) {
+				endX = lineEndX;
+				endY = lineEndY;
+			} else {
+				endX = clickX;
+				endY = clickY;
 			}
 
-		// when Control is held down, only horizontal or vertical lines can be drawn
-		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
-			Point2D point = Common.snapToHorizontalOrVertival(startX, startY, endX, endY);
-			endX = point.getX();
-			endY = point.getY();
+			// handle when the user sets the length of the line in lengthInput inputfield
+			if (!lengthInput.getText().trim().isEmpty() && lengthInput.getText() != null)
+				try {
+					double requiredLength = Double.parseDouble(lengthInput.getText()) * Common.pixelPerMeter;
+					double drawnLength = Math
+							.sqrt((startX - clickX) * (startX - clickX) + (startY - clickY) * (startY - clickY));
+					double ratio = requiredLength / drawnLength;
+
+					endX = startX + (clickX - startX) * ratio;
+					endY = startY + (clickY - startY) * ratio;
+
+					lengthInput.setText("");
+					lengthInput.setVisible(false);
+
+				} catch (NumberFormatException ex) {
+					Common.showAlert("Számokban add meg a vonal hosszát vagy hagyd üresen a mezõt!");
+				}
+
+			// when Control is held down, only horizontal or vertical lines can be drawn
+			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
+				Point2D point = Common.snapToHorizontalOrVertival(startX, startY, endX, endY);
+				endX = point.getX();
+				endY = point.getY();
+			}
+
+			line.setEndX(endX);
+			line.setEndY(endY);
+			startX = endX;
+			startY = endY;
+
+			canvasPane.controller.addBorderShape(line);
+			canvasPane.getBordersLayer().getChildren().add(line);
+			UndoManager.getInstance().draw(DrawingAction.BORDERLINE, line);
+			canvasPane.setDirty(true);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-
-		line.setEndX(endX);
-		line.setEndY(endY);
-		startX = endX;
-		startY = endY;
-
-		canvasPane.controller.addBorderShape(line);
-		canvasPane.getBordersLayer().getChildren().add(line);
-		UndoManager.getInstance().draw(DrawingAction.BORDERLINE, line);
-		canvasPane.setDirty(true);
 	}
 
 	/**
@@ -186,20 +194,24 @@ public class BorderDrawing {
 	public static void drawBorderRectanlge(MouseEvent e, Color strokeColor, Color fillColor, int width,
 			CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double clickX = Common.mouseEventWithinBounds(e).getX();
-		double clickY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double clickX = Common.mouseEventWithinBounds(e).getX();
+			double clickY = Common.mouseEventWithinBounds(e).getY();
 
-		tempRectangle.setVisible(false);
-		
-		Rectangle rect = Common.drawRectangle(strokeColor, startX, startY, clickX, clickY);
-		rect.setFill(fillColor);
-		rect.setStrokeWidth(width);
-		canvasPane.getBordersLayer().getChildren().add(rect);
-		canvasPane.controller.addBorderShape(rect);
-		canvasPane.controller.addObstacle(rect);
-		canvasPane.setDirty(true);
-		UndoManager.getInstance().draw(DrawingAction.OBSTACLE, rect);
+			tempRectangle.setVisible(false);
+			
+			Rectangle rect = Common.drawRectangle(strokeColor, startX, startY, clickX, clickY);
+			rect.setFill(fillColor);
+			rect.setStrokeWidth(width);
+			canvasPane.getBordersLayer().getChildren().add(rect);
+			canvasPane.controller.addBorderShape(rect);
+			canvasPane.controller.addObstacle(rect);
+			canvasPane.setDirty(true);
+			UndoManager.getInstance().draw(DrawingAction.OBSTACLE, rect);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 
 	}
 
@@ -216,18 +228,22 @@ public class BorderDrawing {
 	 */
 	public static void showTempBorderCircle(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double mouseX = Common.mouseEventWithinBounds(e).getX();
-		double mouseY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double mouseX = Common.mouseEventWithinBounds(e).getX();
+			double mouseY = Common.mouseEventWithinBounds(e).getY();
 
-		if (e.getButton() == MouseButton.PRIMARY) {
-			double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
-			tempCircle.setCenterX(startX);
-			tempCircle.setCenterY(startY);
-			tempCircle.setRadius(r);
-			tempCircle.setFill(fill);
-			tempCircle.setStroke(stroke);
-			tempCircle.setVisible(true);
+			if (e.getButton() == MouseButton.PRIMARY) {
+				double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
+				tempCircle.setCenterX(startX);
+				tempCircle.setCenterY(startY);
+				tempCircle.setRadius(r);
+				tempCircle.setFill(fill);
+				tempCircle.setStroke(stroke);
+				tempCircle.setVisible(true);
+			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -245,38 +261,42 @@ public class BorderDrawing {
 	 */
 	public static void showtempBorderRectanlge(MouseEvent e, Color stroke, Color fill, CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double mouseX = Common.mouseEventWithinBounds(e).getX();
-		double mouseY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double mouseX = Common.mouseEventWithinBounds(e).getX();
+			double mouseY = Common.mouseEventWithinBounds(e).getY();
 
-		if (e.getButton() == MouseButton.PRIMARY) {
-			double width = Math.abs(startX - mouseX);
-			double height = Math.abs(startY - mouseY);
-			double x = 0, y = 0;
-			if (startX > mouseX)
-				x = mouseX;
-			else
-				x = startX;
-			if (startY > mouseY)
-				y = mouseY;
-			else
-				y = startY;
-			tempRectangle.setX(x);
-			tempRectangle.setY(y);
-			tempRectangle.setWidth(width);
-			tempRectangle.setHeight(height);
+			if (e.getButton() == MouseButton.PRIMARY) {
+				double width = Math.abs(startX - mouseX);
+				double height = Math.abs(startY - mouseY);
+				double x = 0, y = 0;
+				if (startX > mouseX)
+					x = mouseX;
+				else
+					x = startX;
+				if (startY > mouseY)
+					y = mouseY;
+				else
+					y = startY;
+				tempRectangle.setX(x);
+				tempRectangle.setY(y);
+				tempRectangle.setWidth(width);
+				tempRectangle.setHeight(height);
 
-			// this method is also used in zone editing, when selecting sprinkler heads for
-			// the zone
-			// the selection is a rectangle
-			if (canvasPane.getStateOfCanvasUse() == CanvasPane.Use.ZONEEDITING) {
-				tempRectangle.setStroke(canvasPane.getSelectionColor());
-				tempRectangle.setFill(null);
-			} else {
-				tempRectangle.setStroke(stroke);
-				tempRectangle.setFill(fill);
+				// this method is also used in zone editing, when selecting sprinkler heads for
+				// the zone
+				// the selection is a rectangle
+				if (canvasPane.getStateOfCanvasUse() == CanvasPane.Use.ZONEEDITING) {
+					tempRectangle.setStroke(canvasPane.getSelectionColor());
+					tempRectangle.setFill(null);
+				} else {
+					tempRectangle.setStroke(stroke);
+					tempRectangle.setFill(fill);
+				}
+				tempRectangle.setVisible(true);
 			}
-			tempRectangle.setVisible(true);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -288,8 +308,12 @@ public class BorderDrawing {
 	 *          rectangle or circle drawing
 	 */
 	public static void startDrawingBorder(MouseEvent e) {
-		startX = e.getX();
-		startY = e.getY();
+		try {
+			startX = e.getX();
+			startY = e.getY();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -305,22 +329,26 @@ public class BorderDrawing {
 	public static void drawBorderCircle(MouseEvent e, Color strokeColor, Color fillColor, int width,
 			CanvasPane canvasPane) {
 
-		// ensure that the user does not draw outside the canvasPane
-		double mouseX = Common.mouseEventWithinBounds(e).getX();
-		double mouseY = Common.mouseEventWithinBounds(e).getY();
+		try {
+			// ensure that the user does not draw outside the canvasPane
+			double mouseX = Common.mouseEventWithinBounds(e).getX();
+			double mouseY = Common.mouseEventWithinBounds(e).getY();
 
-		tempCircle.setVisible(false);
-		
-		double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
-		Circle circle = new Circle(startX, startY, r, null);
-		circle.setStroke(strokeColor);
-		circle.setFill(fillColor);
-		circle.setStrokeWidth(width);
-		canvasPane.getBordersLayer().getChildren().add(circle);
-		canvasPane.controller.addBorderShape(circle);
-		canvasPane.controller.addObstacle(circle);
-		canvasPane.setDirty(true);
-		UndoManager.getInstance().draw(DrawingAction.OBSTACLE, circle);
+			tempCircle.setVisible(false);
+			
+			double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
+			Circle circle = new Circle(startX, startY, r, null);
+			circle.setStroke(strokeColor);
+			circle.setFill(fillColor);
+			circle.setStrokeWidth(width);
+			canvasPane.getBordersLayer().getChildren().add(circle);
+			canvasPane.controller.addBorderShape(circle);
+			canvasPane.controller.addObstacle(circle);
+			canvasPane.setDirty(true);
+			UndoManager.getInstance().draw(DrawingAction.OBSTACLE, circle);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 	
 }

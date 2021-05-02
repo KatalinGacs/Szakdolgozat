@@ -25,11 +25,12 @@
 		echo JAVA_HOME : %javaDir%
 
 		echo %javaDir%|findstr /r "jre1\.8"
-		rem if errorlevel 1 (
+		if errorlevel 1 (
 			start jre-8u271-windows-i586.exe
-		rem ) 
-		start szakdolgozat_V1_0.exe
+		 ) 
+		
     )
+	start szakdolgozat_V1_0.exe
 
 :endProcess 
     endlocal

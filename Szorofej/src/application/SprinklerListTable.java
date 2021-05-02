@@ -1,14 +1,13 @@
 package application;
 
-import application.common.DecimalCellFactory;
 import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 import model.bean.Zone;
+import utilities.DecimalCellFactory;
 
 /**
  * A table which lists informations about sprinklershapes in a selected zone
@@ -27,18 +26,21 @@ public class SprinklerListTable extends TableView<SprinklerShape> {
 	
 
 	public SprinklerListTable(Zone zone, SprinklerController dataController) {
+		try {
+			controller = dataController;
+			
+			nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, SprinklerType>("sprinkler"));
+			groupCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, String>("group"));
+			flowRateCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, Double>("flowRate"));
+			flowRateCol.setCellFactory(new DecimalCellFactory<SprinklerShape, Double>());
+			waterCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, Double>("waterCoverageInMmPerHour"));
+			waterCol.setCellFactory(new DecimalCellFactory<SprinklerShape, Double>());
 
-		controller = dataController;
-		
-		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, SprinklerType>("sprinkler"));
-		groupCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, String>("group"));
-		flowRateCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, Double>("flowRate"));
-		flowRateCol.setCellFactory(new DecimalCellFactory<SprinklerShape, Double>());
-		waterCol.setCellValueFactory(new PropertyValueFactory<SprinklerShape, Double>("waterCoverageInMmPerHour"));
-		waterCol.setCellFactory(new DecimalCellFactory<SprinklerShape, Double>());
-
-		getColumns().addAll(nameCol, groupCol, flowRateCol, waterCol);
-		
-		setItems(controller.listSprinklerShapes(zone));
+			getColumns().addAll(nameCol, groupCol, flowRateCol, waterCol);
+			
+			setItems(controller.listSprinklerShapes(zone));
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 }

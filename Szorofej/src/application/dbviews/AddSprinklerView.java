@@ -3,7 +3,6 @@ package application.dbviews;
 import java.util.Arrays;
 import java.util.List;
 
-import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.ObservableList;
@@ -19,6 +18,7 @@ import javafx.stage.Stage;
 import model.DbException;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
+import utilities.Common;
 
 public class AddSprinklerView {
 
@@ -107,6 +107,8 @@ public class AddSprinklerView {
 					Common.showAlert("Számokban add meg az értékeket!");
 				} catch (DbException ex) {
 					Common.showAlert(ex.getMessage());
+				} catch (Exception ex) {
+					utilities.Error.HandleException(ex);
 				}
 			}
 

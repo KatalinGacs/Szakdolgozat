@@ -1,10 +1,6 @@
 package application;
 
 import application.CanvasPane.Use;
-import application.common.Common;
-import application.common.DecimalCellFactory;
-import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
 import javafx.geometry.Pos;
 import javafx.scene.Scene;
@@ -22,6 +18,8 @@ import javafx.stage.Stage;
 import model.DbException;
 import model.bean.SprinklerGroup;
 import model.bean.SprinklerType;
+import utilities.Common;
+import utilities.DecimalCellFactory;
 
 /**
  * Stage for selecting a sprinkler type for sprinkler drawing and setting its
@@ -57,74 +55,79 @@ public class SetSprinklerAttributesStage extends Stage {
 	 * @param canvasPane
 	 */
 	public SetSprinklerAttributesStage(CanvasPane canvasPane) {
-		initModality(Modality.APPLICATION_MODAL);
-		setAlwaysOnTop(true);
-		setTitle("Szórófej kiválasztása");
-
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-
-		radiusBox.getChildren().addAll(radiusText, radiusField, meterText);
-		radiusBox.setAlignment(Pos.CENTER_LEFT);
-		radiusBox.setPadding(new Insets(5));
-		radiusBox.setSpacing(5);
-		
-		sprinklerGroupChoiceBox.getSelectionModel().selectFirst();
-		sprinklerGroupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
-		sprinklerGroupPane.setAlignment(Pos.CENTER_LEFT);
-		setScene(sprinklerInfoScene);
-		sprinklerInfoRoot.getChildren().addAll(sprinklerGroupPane, tableView, radiusBox, ok);
-		sprinklerInfoRoot.setPadding(new Insets(10));
-
-		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
-				waterConsumptionCol);
-		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
-		minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
-		minRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));
-		maxRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		minAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minAngle"));
-		minAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
-		maxAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
-		waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
-		
 		try {
-			sprinklerGroupChoiceBox.setItems(canvasPane.controller.listSprinklerGroups());
-			sprinklerGroupChoiceBox.getSelectionModel().select(0);
-			tableView.setItems(
-					canvasPane.controller.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
-		} catch (DbException ex) {
-			Common.showAlert(ex.getMessage());
-		}
+			initModality(Modality.APPLICATION_MODAL);
+			setAlwaysOnTop(true);
+			setTitle("Szórófej kiválasztása");
 
-		sprinklerGroupChoiceBox.setOnAction(e -> {
-			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
-				tableView.getItems().clear();
-				try {
-					tableView.setItems(canvasPane.controller
-							.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
-				} catch (DbException ex) {
-					Common.showAlert(ex.getMessage());
+			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+
+			radiusBox.getChildren().addAll(radiusText, radiusField, meterText);
+			radiusBox.setAlignment(Pos.CENTER_LEFT);
+			radiusBox.setPadding(new Insets(5));
+			radiusBox.setSpacing(5);
+
+			sprinklerGroupChoiceBox.getSelectionModel().selectFirst();
+			sprinklerGroupPane.getChildren().addAll(sprinklerGroupText, sprinklerGroupChoiceBox);
+			sprinklerGroupPane.setAlignment(Pos.CENTER_LEFT);
+			setScene(sprinklerInfoScene);
+			sprinklerInfoRoot.getChildren().addAll(sprinklerGroupPane, tableView, radiusBox, ok);
+			sprinklerInfoRoot.setPadding(new Insets(10));
+
+			tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
+					waterConsumptionCol);
+			nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
+			minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
+			minRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
+			maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));
+			maxRadiusCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
+			minAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minAngle"));
+			minAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
+			maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
+			maxAngleCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
+			waterConsumptionCol
+					.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
+			waterConsumptionCol.setCellFactory(new DecimalCellFactory<SprinklerType, Double>());
+
+			try {
+				sprinklerGroupChoiceBox.setItems(canvasPane.controller.listSprinklerGroups());
+				sprinklerGroupChoiceBox.getSelectionModel().select(0);
+				tableView.setItems(canvasPane.controller
+						.listSprinklerTypeByGroup(sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
+
+			sprinklerGroupChoiceBox.setOnAction(e -> {
+				if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
+					tableView.getItems().clear();
+					try {
+						tableView.setItems(canvasPane.controller.listSprinklerTypeByGroup(
+								sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem()));
+					} catch (DbException ex) {
+						Common.showAlert(ex.getMessage());
+					}
 				}
-			}
-		});
+			});
 
-		tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
-				radiusField.setText(String.valueOf(newSelection.getMaxRadius()));
-			}
-		});
+			tableView.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+				if (sprinklerGroupChoiceBox.getSelectionModel().getSelectedItem() != null) {
+					radiusField.setText(String.valueOf(newSelection.getMaxRadius()));
+				}
+			});
 
-		ok.setOnAction(e -> {
-			setAttributes(canvasPane);
-		});
-
-		tableView.setOnMousePressed(e -> {
-			if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+			ok.setOnAction(e -> {
 				setAttributes(canvasPane);
-			}
-		});
+			});
+
+			tableView.setOnMousePressed(e -> {
+				if (e.isPrimaryButtonDown() && e.getClickCount() == 2) {
+					setAttributes(canvasPane);
+				}
+			});
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -156,6 +159,8 @@ public class SetSprinklerAttributesStage extends Stage {
 				requestFocus();
 			} catch (NumberFormatException ex) {
 				Common.showAlert("Számokban add meg a szórófej sugarát!");
+			} catch (Exception ex) {
+				utilities.Error.HandleException(ex);
 			}
 		}
 		close();

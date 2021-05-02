@@ -1,6 +1,5 @@
 package application.dbviews;
 
-import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
@@ -22,6 +21,7 @@ import model.DbException;
 import model.bean.Material;
 import model.bean.MaterialSprinklerConnection;
 import model.bean.SprinklerType;
+import utilities.Common;
 
 public class ConnectMaterialsDbView {
 	private SprinklerController controller = new SprinklerControllerImpl();
@@ -49,80 +49,84 @@ public class ConnectMaterialsDbView {
 
 	public ConnectMaterialsDbView() {
 
-		stage.setTitle("Szórófej-anyag összekapcsolás");
-		stage.setScene(scene);
-		stage.initModality(Modality.APPLICATION_MODAL);
-
-		// the first panel: a list of the sprinkler types to which materials can be
-		// connected
-		sprinklerTypes.getColumns().add(nameCol);
-		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
 		try {
-			sprinklerTypes.setItems(controller.listSprinklerTypes());
-		} catch (DbException ex) {
-			Common.showAlert(ex.getMessage());
-		}
-		sprinklerTypes.getSelectionModel().selectFirst();
+			stage.setTitle("Szórófej-anyag összekapcsolás");
+			stage.setScene(scene);
+			stage.initModality(Modality.APPLICATION_MODAL);
 
-		// the second panel: a list of the materials already set to the sprinkler type
-		// selected in the first panel
-		addedMaterialPane.getChildren().addAll(addedTitle, alreadyAddedMaterials, deleteButton);
-		alreadyAddedMaterials.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		alreadyAddedMaterials.getColumns().addAll(materialCol, quantityCol);
-		materialCol.setCellValueFactory(new PropertyValueFactory<MaterialSprinklerConnection, Material>("material"));
-		quantityCol.setCellValueFactory(new PropertyValueFactory<MaterialSprinklerConnection, Integer>("quantity"));
-		addedMaterialPane.setSpacing(10);
-		addedMaterialPane.setAlignment(Pos.TOP_CENTER);
-
-		sprinklerTypes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
-			if (newSelection != null)
-				refreshTables();
-		});
-
-		deleteButton.setOnAction(e -> {
-			MaterialSprinklerConnection mConn = alreadyAddedMaterials.getSelectionModel().getSelectedItem();
-			Material m = mConn.getMaterial();
-			SprinklerType s = mConn.getSprinklerType();
+			// the first panel: a list of the sprinkler types to which materials can be
+			// connected
+			sprinklerTypes.getColumns().add(nameCol);
+			nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
 			try {
-				controller.deleteMaterialConnection(s, m);
+				sprinklerTypes.setItems(controller.listSprinklerTypes());
 			} catch (DbException ex) {
 				Common.showAlert(ex.getMessage());
 			}
-		});
+			sprinklerTypes.getSelectionModel().selectFirst();
 
-		// the third panel: adding further materials to the sprinkler type selected in
-		// the first panel
-		addConnectionPane.add(addTitle, 0, 0, 2, 1);
-		addConnectionPane.add(materials, 0, 1, 2, 1);
-		addConnectionPane.add(quantityText, 0, 2);
-		addConnectionPane.add(quantityPicker, 1, 2);
-		addConnectionPane.add(addButton, 0, 3, 2, 1);
-		addConnectionPane.setVgap(10);
-		addConnectionPane.setHgap(10);
-		addConnectionPane.setAlignment(Pos.TOP_CENTER);
+			// the second panel: a list of the materials already set to the sprinkler type
+			// selected in the first panel
+			addedMaterialPane.getChildren().addAll(addedTitle, alreadyAddedMaterials, deleteButton);
+			alreadyAddedMaterials.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			alreadyAddedMaterials.getColumns().addAll(materialCol, quantityCol);
+			materialCol.setCellValueFactory(new PropertyValueFactory<MaterialSprinklerConnection, Material>("material"));
+			quantityCol.setCellValueFactory(new PropertyValueFactory<MaterialSprinklerConnection, Integer>("quantity"));
+			addedMaterialPane.setSpacing(10);
+			addedMaterialPane.setAlignment(Pos.TOP_CENTER);
 
-		addButton.setOnAction(e -> {
-			if (sprinklerTypes.getSelectionModel().getSelectedItem() != null) {
-				SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
-				Material m = materials.getSelectionModel().getSelectedItem();
-				int quantity = quantityPicker.getValue();
+			sprinklerTypes.getSelectionModel().selectedItemProperty().addListener((obs, oldSelection, newSelection) -> {
+				if (newSelection != null)
+					refreshTables();
+			});
+
+			deleteButton.setOnAction(e -> {
+				MaterialSprinklerConnection mConn = alreadyAddedMaterials.getSelectionModel().getSelectedItem();
+				Material m = mConn.getMaterial();
+				SprinklerType s = mConn.getSprinklerType();
 				try {
-					controller.addMaterialConnection(s, m, quantity);
+					controller.deleteMaterialConnection(s, m);
 				} catch (DbException ex) {
 					Common.showAlert(ex.getMessage());
 				}
-				refreshTables();
-			}
+			});
 
-		});
+			// the third panel: adding further materials to the sprinkler type selected in
+			// the first panel
+			addConnectionPane.add(addTitle, 0, 0, 2, 1);
+			addConnectionPane.add(materials, 0, 1, 2, 1);
+			addConnectionPane.add(quantityText, 0, 2);
+			addConnectionPane.add(quantityPicker, 1, 2);
+			addConnectionPane.add(addButton, 0, 3, 2, 1);
+			addConnectionPane.setVgap(10);
+			addConnectionPane.setHgap(10);
+			addConnectionPane.setAlignment(Pos.TOP_CENTER);
 
-		refreshTables();
+			addButton.setOnAction(e -> {
+				if (sprinklerTypes.getSelectionModel().getSelectedItem() != null) {
+					SprinklerType s = sprinklerTypes.getSelectionModel().getSelectedItem();
+					Material m = materials.getSelectionModel().getSelectedItem();
+					int quantity = quantityPicker.getValue();
+					try {
+						controller.addMaterialConnection(s, m, quantity);
+					} catch (DbException ex) {
+						Common.showAlert(ex.getMessage());
+					}
+					refreshTables();
+				}
 
-		root.getChildren().addAll(sprinklerTypes, addedMaterialPane, addConnectionPane);
-		root.setPadding(new Insets(10));
-		root.setSpacing(10);
+			});
 
-		stage.show();
+			refreshTables();
+
+			root.getChildren().addAll(sprinklerTypes, addedMaterialPane, addConnectionPane);
+			root.setPadding(new Insets(10));
+			root.setSpacing(10);
+
+			stage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	private void refreshTables() {
@@ -131,6 +135,8 @@ public class ConnectMaterialsDbView {
 			materials.setItems(controller.listNotAddedMaterials(sprinklerTypes.getSelectionModel().getSelectedItem()));
 		} catch (DbException e) {
 			Common.showAlert(e.getMessage());
-		}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}	 
 	}
 }

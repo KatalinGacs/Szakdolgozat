@@ -67,10 +67,10 @@ public class Main extends Application {
 	 */
 	private SprinklerListTable sprinklerListTable;
 	
-	/**
-	 * Table listing the details of a srpinkler selected in sprinklerListTable
-	 */
-	private SprinklerDetailTable sprinklerDetailTable;
+//	/**
+//	 * Table listing the details of a srpinkler selected in sprinklerListTable
+//	 */
+//	private SprinklerDetailTable sprinklerDetailTable;
 
 	/**
 	 * Main menu bar
@@ -246,7 +246,7 @@ public class Main extends Application {
 				ConnectMaterialsDbView connectMaterialsDbView = new ConnectMaterialsDbView();
 			});
 			newMaterialMenuItem.setOnAction(e -> {
-				MaterialListDBView materialView = new MaterialListDBView();
+				MaterialListDBView materialListDBView = new MaterialListDBView();
 			});
 			root.setTop(menuBar);
 
@@ -283,14 +283,14 @@ public class Main extends Application {
 			});
 			
 			sprinklerListTable = new SprinklerListTable(selectedZone, drawingPanel.controller);
-			sprinklerListTable.setOnMouseClicked(e -> {
-				if (e.getButton() == MouseButton.PRIMARY) {
-					sprinklerDetailTable = new SprinklerDetailTable(
-							sprinklerListTable.getSelectionModel().getSelectedItem(), drawingPanel.controller);
-					root.setRight(sprinklerDetailTable);
-
-				}
-			});
+//			sprinklerListTable.setOnMouseClicked(e -> {
+//				if (e.getButton() == MouseButton.PRIMARY) {
+//					sprinklerDetailTable = new SprinklerDetailTable(
+//							sprinklerListTable.getSelectionModel().getSelectedItem(), drawingPanel.controller);
+//					root.setRight(sprinklerDetailTable);
+//
+//				}
+//			});
 
 			left.getChildren().addAll(zoneTable, sprinklerListTable);
 
@@ -300,7 +300,6 @@ public class Main extends Application {
 			primaryStage.show();
 
 		} catch (Exception e) {
-			e.printStackTrace();
 			utilities.Error.HandleException(e);
 		}
 	}
@@ -314,7 +313,12 @@ public class Main extends Application {
 	}
 
 	public static void main(String[] args) {
-		launch(args);
+	
+		try {
+			launch(args);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 }

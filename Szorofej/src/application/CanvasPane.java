@@ -5,7 +5,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import application.common.Common;
 import controller.SprinklerController;
 import javafx.collections.FXCollections;
 import javafx.geometry.Point2D;
@@ -27,6 +26,7 @@ import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
+import utilities.Common;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
@@ -266,59 +266,63 @@ public class CanvasPane extends Pane {
 	 */
 	public CanvasPane(SprinklerController dataController) {
 
-		controller = dataController;
-		
-		setWidth(Common.canvasWidth);
-		setHeight(Common.canvasHeight);
+		try {
+			controller = dataController;
+			
+			setWidth(Common.canvasWidth);
+			setHeight(Common.canvasHeight);
 
-		// Grid - horizontal lines
-		for (int i = 0; i < (int) getHeight(); i += Common.pixelPerMeter) {
+			// Grid - horizontal lines
+			for (int i = 0; i < (int) getHeight(); i += Common.pixelPerMeter) {
 
-			Line line = new Line(0, i, getWidth(), i);
-			line.setStroke(Color.SILVER);
-			getChildren().add(line);
-			gridLayer.getChildren().add(line);
+				Line line = new Line(0, i, getWidth(), i);
+				line.setStroke(Color.SILVER);
+				getChildren().add(line);
+				gridLayer.getChildren().add(line);
+			}
+			// Grid - vertical lines
+			for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
+				Line line = new Line(i, 0, i, getHeight());
+				line.setStroke(Color.SILVER);
+				getChildren().add(line);
+				gridLayer.getChildren().add(line);
+			}
+
+			tempLineLayer.getChildren().addAll(SprinklerDrawing.tempFirstSprinklerLine,
+					SprinklerDrawing.tempSecondSprinklerLine, SprinklerDrawing.tempSprinklerCircle,
+					BorderDrawing.tempBorderLine, BorderDrawing.tempCircle, BorderDrawing.tempRectangle, focusCircle,
+					measuringIntersectionsLine);
+
+			SprinklerDrawing.tempFirstSprinklerLine.setVisible(false);
+			SprinklerDrawing.tempSprinklerCircle.setVisible(false);
+			BorderDrawing.tempRectangle.setVisible(false);
+			BorderDrawing.tempCircle.setVisible(false);
+
+			focusCircle.setVisible(false);
+			focusCircle.setStroke(tempLineColor);
+			focusCircle.setStrokeWidth(strokeWidth);
+			focusCircle.setFill(Color.TRANSPARENT);
+
+			SprinklerDrawing.angleInput.setVisible(false);
+			SprinklerDrawing.angleInput.setMaxWidth(70);
+			SprinklerDrawing.angleInput.setFont(Font.font(20));
+			SprinklerDrawing.angleInput.setPromptText("Szög");
+
+			BorderDrawing.lengthInput.setVisible(false);
+			BorderDrawing.lengthInput.setMaxWidth(130);
+			BorderDrawing.lengthInput.setFont(Font.font(20));
+			BorderDrawing.lengthInput.setPromptText("Hossz (m)");
+
+			TextEditing.textField.setVisible(false);
+
+			rightClickMenu.getItems().add(delMenuItem);
+
+			getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, pipeLineLayer,
+					sprinklerTextLayer, /*pipeTextLayer,*/ textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput,
+					TextEditing.textField);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-		// Grid - vertical lines
-		for (int i = 0; i < (int) getWidth(); i += Common.pixelPerMeter) {
-			Line line = new Line(i, 0, i, getHeight());
-			line.setStroke(Color.SILVER);
-			getChildren().add(line);
-			gridLayer.getChildren().add(line);
-		}
-
-		tempLineLayer.getChildren().addAll(SprinklerDrawing.tempFirstSprinklerLine,
-				SprinklerDrawing.tempSecondSprinklerLine, SprinklerDrawing.tempSprinklerCircle,
-				BorderDrawing.tempBorderLine, BorderDrawing.tempCircle, BorderDrawing.tempRectangle, focusCircle,
-				measuringIntersectionsLine);
-
-		SprinklerDrawing.tempFirstSprinklerLine.setVisible(false);
-		SprinklerDrawing.tempSprinklerCircle.setVisible(false);
-		BorderDrawing.tempRectangle.setVisible(false);
-		BorderDrawing.tempCircle.setVisible(false);
-
-		focusCircle.setVisible(false);
-		focusCircle.setStroke(tempLineColor);
-		focusCircle.setStrokeWidth(strokeWidth);
-		focusCircle.setFill(Color.TRANSPARENT);
-
-		SprinklerDrawing.angleInput.setVisible(false);
-		SprinklerDrawing.angleInput.setMaxWidth(70);
-		SprinklerDrawing.angleInput.setFont(Font.font(20));
-		SprinklerDrawing.angleInput.setPromptText("Szög");
-
-		BorderDrawing.lengthInput.setVisible(false);
-		BorderDrawing.lengthInput.setMaxWidth(130);
-		BorderDrawing.lengthInput.setFont(Font.font(20));
-		BorderDrawing.lengthInput.setPromptText("Hossz (m)");
-
-		TextEditing.textField.setVisible(false);
-
-		rightClickMenu.getItems().add(delMenuItem);
-
-		getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer, pipeLineLayer,
-				sprinklerTextLayer, pipeTextLayer, textLayer, SprinklerDrawing.angleInput, BorderDrawing.lengthInput,
-				TextEditing.textField);
 	}
 
 	/**
@@ -329,44 +333,48 @@ public class CanvasPane extends Pane {
 	 */
 	public void selectElement(MouseEvent e) {
 
-		// check if a sprinklerhead was right clicked
-		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			if (s.getCircle().contains(e.getX(), e.getY())) {
-				selectedShape = s.getCircle();
-				rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
-				delMenuItem.setOnAction(ev -> {
-					controller.deleteSprinklerShape(s);
-					irrigationLayer.getChildren().remove(s.getCircle());
-					sprinklerArcLayer.getChildren().remove(s.getArc());
-					sprinklerTextLayer.getChildren().remove(s.getLabel());
-					dirty = true;
-					ev.consume();
-				});
+		try {
+			// check if a sprinklerhead was right clicked
+			for (SprinklerShape s : controller.listSprinklerShapes()) {
+				if (s.getCircle().contains(e.getX(), e.getY())) {
+					selectedShape = s.getCircle();
+					rightClickMenu.show(s.getCircle(), Side.RIGHT, 5, 5);
+					delMenuItem.setOnAction(ev -> {
+						controller.deleteSprinklerShape(s);
+						irrigationLayer.getChildren().remove(s.getCircle());
+						sprinklerArcLayer.getChildren().remove(s.getArc());
+						sprinklerTextLayer.getChildren().remove(s.getLabel());
+						dirty = true;
+						ev.consume();
+					});
+				}
 			}
-		}
-		// check if a border line or obstacle was right clicked
-		for (Shape border : controller.listBorderShapes()) {
-			if (border.contains(e.getX(), e.getY())) {
-				rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
-				selectedShape = border;
-				delMenuItem.setOnAction(ev -> {
-					controller.removeBorderShape(border);
-					bordersLayer.getChildren().remove(border);
-					if (controller.listObstacles().contains(border))
-						controller.removeObstacle(border);
-					BorderDrawing.tempBorderLine.setVisible(false);
-					BorderDrawing.tempRectangle.setVisible(false);
-					BorderDrawing.tempCircle.setVisible(false);
-					ev.consume();
-				});
+			// check if a border line or obstacle was right clicked
+			for (Shape border : controller.listBorderShapes()) {
+				if (border.contains(e.getX(), e.getY())) {
+					rightClickMenu.show(border, e.getScreenX(), e.getScreenY());
+					selectedShape = border;
+					delMenuItem.setOnAction(ev -> {
+						controller.removeBorderShape(border);
+						bordersLayer.getChildren().remove(border);
+						if (controller.listObstacles().contains(border))
+							controller.removeObstacle(border);
+						BorderDrawing.tempBorderLine.setVisible(false);
+						BorderDrawing.tempRectangle.setVisible(false);
+						BorderDrawing.tempCircle.setVisible(false);
+						ev.consume();
+					});
+				}
 			}
-		}
 
-		if (selectedShape != null) {
-			// set the stroke color of the selected shape to highlight it and save the
-			// original color
-			originalStrokeColorOfSelectedShape = selectedShape.getStroke();
-			selectedShape.setStroke(selectionColor);
+			if (selectedShape != null) {
+				// set the stroke color of the selected shape to highlight it and save the
+				// original color
+				originalStrokeColorOfSelectedShape = selectedShape.getStroke();
+				selectedShape.setStroke(selectionColor);
+			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -376,13 +384,17 @@ public class CanvasPane extends Pane {
 	 * drawn
 	 */
 	public void endLineDrawing() {
-		BorderDrawing.lengthInput.setVisible(false);
-		BorderDrawing.tempBorderLine.setVisible(false);
-		if (stateOfCanvasUse == Use.PIPEDRAWING)
-			stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
+		try {
+			BorderDrawing.lengthInput.setVisible(false);
+			BorderDrawing.tempBorderLine.setVisible(false);
+			if (stateOfCanvasUse == Use.PIPEDRAWING)
+				stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
 
-		else
-			stateOfCanvasUse = Use.NONE;
+			else
+				stateOfCanvasUse = Use.NONE;
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -392,27 +404,31 @@ public class CanvasPane extends Pane {
 	 * @param e MouseEvent, mouse moved
 	 */
 	public void showFocusCircle(MouseEvent e) {
-		if (pressedKey != null && pressedKey.equals(KeyCode.CONTROL) && sprinklerAttributesSet
-				&& stateOfCanvasUse == Use.SPRINKLERDRAWING
-				&& SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER) {
-			if ((e.getX() % Common.pixelPerMeter < Common.pixelPerMeter / 4
-					|| e.getX() % Common.pixelPerMeter > Common.pixelPerMeter * 3 / 4)
-					&& (e.getY() % Common.pixelPerMeter < Common.pixelPerMeter / 4
-							|| e.getY() % Common.pixelPerMeter > Common.pixelPerMeter * 3 / 4)) {
+		try {
+			if (pressedKey != null && pressedKey.equals(KeyCode.CONTROL) && sprinklerAttributesSet
+					&& stateOfCanvasUse == Use.SPRINKLERDRAWING
+					&& SprinklerDrawing.drawingState == SprinklerDrawing.SprinklerDrawingState.CENTER) {
+				if ((e.getX() % Common.pixelPerMeter < Common.pixelPerMeter / 4
+						|| e.getX() % Common.pixelPerMeter > Common.pixelPerMeter * 3 / 4)
+						&& (e.getY() % Common.pixelPerMeter < Common.pixelPerMeter / 4
+								|| e.getY() % Common.pixelPerMeter > Common.pixelPerMeter * 3 / 4)) {
 
-				setCursor(Cursor.CROSSHAIR);
-				Point2D focusCenter = Common.snapToGrid(e.getX(), e.getY());
-				focusCircle.setCenterX(focusCenter.getX());
-				focusCircle.setCenterY(focusCenter.getY());
-				focusCircle.setVisible(true);
-				showingFocusCircle = true;
+					setCursor(Cursor.CROSSHAIR);
+					Point2D focusCenter = Common.snapToGrid(e.getX(), e.getY());
+					focusCircle.setCenterX(focusCenter.getX());
+					focusCircle.setCenterY(focusCenter.getY());
+					focusCircle.setVisible(true);
+					showingFocusCircle = true;
+				} else {
+					focusCircle.setVisible(false);
+					showingFocusCircle = false;
+				}
 			} else {
 				focusCircle.setVisible(false);
 				showingFocusCircle = false;
 			}
-		} else {
-			focusCircle.setVisible(false);
-			showingFocusCircle = false;
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -421,8 +437,12 @@ public class CanvasPane extends Pane {
 	 * draw.
 	 */
 	public void setSprinklerAttributes() {
-		sprinklerAttributeStage = new SetSprinklerAttributesStage(this);
-		sprinklerAttributeStage.show();
+		try {
+			sprinklerAttributeStage = new SetSprinklerAttributesStage(this);
+			sprinklerAttributeStage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -438,39 +458,43 @@ public class CanvasPane extends Pane {
 	 *                         false if an area is selected
 	 */
 	public void selectHeadsForZone(MouseEvent e, boolean adding, boolean selectIndividual) {
-		if (stateOfCanvasUse == Use.ZONEEDITING) {
-			for (SprinklerShape s : controller.listSprinklerShapes()) {
-				boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
-						: BorderDrawing.tempRectangle.intersects(s.getCircle().getBoundsInLocal());
-				if (selected) {
-					if (adding) {
-						s.getCircle().setFill(selectionColor);
-						selectedSprinklerShapes.add(s);
-						flowRateOfSelected = 0;
-						for (SprinklerShape sh : selectedSprinklerShapes)
-							flowRateOfSelected += sh.getFlowRate();
-						for (Zone zone : controller.listZones()) {
-							for (SprinklerShape sInZone : zone.getSprinklers()) {
-								if (s == sInZone) {
-									s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
-									selectedSprinklerShapes.remove(s);
-									flowRateOfSelected = 0;
-									for (SprinklerShape sh : selectedSprinklerShapes)
-										flowRateOfSelected += sh.getFlowRate();
+		try {
+			if (stateOfCanvasUse == Use.ZONEEDITING) {
+				for (SprinklerShape s : controller.listSprinklerShapes()) {
+					boolean selected = selectIndividual ? s.getCircle().contains(e.getX(), e.getY())
+							: BorderDrawing.tempRectangle.intersects(s.getCircle().getBoundsInLocal());
+					if (selected) {
+						if (adding) {
+							s.getCircle().setFill(selectionColor);
+							selectedSprinklerShapes.add(s);
+							flowRateOfSelected = 0;
+							for (SprinklerShape sh : selectedSprinklerShapes)
+								flowRateOfSelected += sh.getFlowRate();
+							for (Zone zone : controller.listZones()) {
+								for (SprinklerShape sInZone : zone.getSprinklers()) {
+									if (s == sInZone) {
+										s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+										selectedSprinklerShapes.remove(s);
+										flowRateOfSelected = 0;
+										for (SprinklerShape sh : selectedSprinklerShapes)
+											flowRateOfSelected += sh.getFlowRate();
+									}
 								}
 							}
-						}
 
-					} else {
-						s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
-						selectedSprinklerShapes.remove(s);
-						flowRateOfSelected = 0;
-						for (SprinklerShape sh : selectedSprinklerShapes)
-							flowRateOfSelected += sh.getFlowRate();
+						} else {
+							s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+							selectedSprinklerShapes.remove(s);
+							flowRateOfSelected = 0;
+							for (SprinklerShape sh : selectedSprinklerShapes)
+								flowRateOfSelected += sh.getFlowRate();
+						}
 					}
 				}
+				BorderDrawing.tempRectangle.setVisible(false);
 			}
-			BorderDrawing.tempRectangle.setVisible(false);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -481,23 +505,31 @@ public class CanvasPane extends Pane {
 	 * @param durationInHours duration of watering (hours per day), set by the user
 	 */
 	public void createZone(String name, double durationInHours) {
-		Zone zone = new Zone();
-		zone.setName(name);
-		zone.setSprinklers(FXCollections.observableArrayList(selectedSprinklerShapes));
-		zone.setDurationOfWatering(durationInHours);
-		controller.addZone(zone);
-		deselectAll();
-		dirty = true;
+		try {
+			Zone zone = new Zone();
+			zone.setName(name);
+			zone.setSprinklers(FXCollections.observableArrayList(selectedSprinklerShapes));
+			zone.setDurationOfWatering(durationInHours);
+			controller.addZone(zone);
+			deselectAll();
+			dirty = true;
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
 	 * Deselect every selected shape
 	 */
 	public void deselectAll() {
-		for (SprinklerShape s : selectedSprinklerShapes) {
-			s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+		try {
+			for (SprinklerShape s : selectedSprinklerShapes) {
+				s.getCircle().setFill(SprinklerDrawing.sprinklerColor);
+			}
+			selectedSprinklerShapes.clear();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-		selectedSprinklerShapes.clear();
 	}
 
 	/**
@@ -507,8 +539,14 @@ public class CanvasPane extends Pane {
 	 *         sprinklerdrawing
 	 */
 	public String sprinklerInfos() {
-		return "Kiválasztott szórófej: " + SprinklerDrawing.sprinklerType + " "
-				+ SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter + " m";
+		String infos = "";
+		try {
+			infos += "Kiválasztott szórófej: " + SprinklerDrawing.sprinklerType + " "
+					+ SprinklerDrawing.sprinklerRadius / Common.pixelPerMeter + " m";
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
+		return infos;
 	}
 
 	/**
@@ -523,66 +561,80 @@ public class CanvasPane extends Pane {
 	 *         position.
 	 */
 	public String generalInfos(MouseEvent e) {
-		double sumOfWaterCoverageInMmPerHour = 0;
-		for (SprinklerShape s : controller.listSprinklerShapes()) {
-			boolean counts = false;
-			if (s.getArc().contains(e.getX(), e.getY())) {
-				measuringIntersectionsLine.setStartX(s.getCircle().getCenterX());
-				measuringIntersectionsLine.setStartY(s.getCircle().getCenterY());
-				measuringIntersectionsLine.setEndX(e.getX());
-				measuringIntersectionsLine.setEndY(e.getY());
-				measuringIntersectionsLine.setStroke(Color.TRANSPARENT);
-				List<Shape> intersects = new ArrayList<>();
-				if (!controller.listObstacles().isEmpty()) {
-					for (Shape obstacle : controller.listObstacles()) {
-						if (Shape.intersect(s.getArc(), obstacle).getBoundsInLocal().getMinX() != 0) {
-							intersects.add(Shape.intersect(s.getArc(), obstacle));
+		String infos = "";
+		try {
+			double sumOfWaterCoverageInMmPerHour = 0;
+			for (SprinklerShape s : controller.listSprinklerShapes()) {
+				boolean counts = false;
+				if (s.getArc().contains(e.getX(), e.getY())) {
+					measuringIntersectionsLine.setStartX(s.getCircle().getCenterX());
+					measuringIntersectionsLine.setStartY(s.getCircle().getCenterY());
+					measuringIntersectionsLine.setEndX(e.getX());
+					measuringIntersectionsLine.setEndY(e.getY());
+					measuringIntersectionsLine.setStroke(Color.TRANSPARENT);
+					List<Shape> intersects = new ArrayList<>();
+					if (!controller.listObstacles().isEmpty()) {
+						for (Shape obstacle : controller.listObstacles()) {
+							if (Shape.intersect(s.getArc(), obstacle).getBoundsInLocal().getMinX() != 0) {
+								intersects.add(Shape.intersect(s.getArc(), obstacle));
+							}
 						}
 					}
-				}
-				if (!intersects.isEmpty()) {
-					for (Shape obstacle : intersects) {
-						Shape intersect = Shape.intersect(measuringIntersectionsLine, obstacle);
-						if (intersect.getBoundsInLocal().getMinX() != 0
-								|| intersect.getBoundsInLocal().getMinY() != 0) {
-							counts = false;
-							break;
+					if (!intersects.isEmpty()) {
+						for (Shape obstacle : intersects) {
+							Shape intersect = Shape.intersect(measuringIntersectionsLine, obstacle);
+							if (intersect.getBoundsInLocal().getMinX() != 0
+									|| intersect.getBoundsInLocal().getMinY() != 0) {
+								counts = false;
+								break;
 
-						} else
-							counts = true;
+							} else
+								counts = true;
+						}
+					} else {
+						counts = true;
 					}
-				} else {
-					counts = true;
 				}
+				if (counts)
+					sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
 			}
-			if (counts)
-				sumOfWaterCoverageInMmPerHour += s.getWaterCoverageInMmPerHour();
+			infos += ("Egy négyzetrács mérete: 1x1 m \r\n" + "Csapadék: "
+					+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "
+					+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-		return ("Egy négyzetrács mérete: 1x1 m \r\n" + "Csapadék: "
-				+ String.format("%.2f", sumOfWaterCoverageInMmPerHour) + " mm/óra" + "\r\n" + "X: "
-				+ String.format("%10.2f", e.getX()) + " Y: " + String.format("%10.2f", e.getY()));
+		return infos;
 	}
 
 	/**
 	 * Clear everything that was drawn on the CanvasPane.
 	 */
 	public void clear() {
-		bordersLayer.getChildren().clear();
-		irrigationLayer.getChildren().clear();
-		pipeLineLayer.getChildren().clear();
-		pipeTextLayer.getChildren().clear();
-		sprinklerArcLayer.getChildren().clear();
-		sprinklerTextLayer.getChildren().clear();
-		textLayer.getChildren().clear();
-		controller.clearAll();
+		try {
+			bordersLayer.getChildren().clear();
+			irrigationLayer.getChildren().clear();
+			pipeLineLayer.getChildren().clear();
+			pipeTextLayer.getChildren().clear();
+			sprinklerArcLayer.getChildren().clear();
+			sprinklerTextLayer.getChildren().clear();
+			textLayer.getChildren().clear();
+			controller.clearAll();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
 	 * Hide every helper shape in the tempLineLayer.
 	 */
 	public void hideTempLayer() {
-		for (Node n : tempLineLayer.getChildren()) {
-			n.setVisible(false);
+		try {
+			for (Node n : tempLineLayer.getChildren()) {
+				n.setVisible(false);
+			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -592,18 +644,22 @@ public class CanvasPane extends Pane {
 	 * @param zone the Zone whose pipelines are to be deleted.
 	 */
 	public void deletePipes(Zone zone) {
-		if (controller.getPipeGraph(zone) != null) {
-			PipeGraph pg = controller.getPipeGraph(zone);
-			for (SprinklerShape s : zone.getSprinklers()) {
-				s.setConnectedToPipe(false);
+		try {
+			if (controller.getPipeGraph(zone) != null) {
+				PipeGraph pg = controller.getPipeGraph(zone);
+				for (SprinklerShape s : zone.getSprinklers()) {
+					s.setConnectedToPipe(false);
+				}
+				for (Edge e : pg.getEdges()) {
+					pipeLineLayer.getChildren().remove(e);
+				}
+				pipeLineLayer.getChildren().remove(pg.getValve());
+				for (Text t : pg.getPipeTextes()) {
+					pipeTextLayer.getChildren().remove(t);
+				}
 			}
-			for (Edge e : pg.getEdges()) {
-				pipeLineLayer.getChildren().remove(e);
-			}
-			pipeLineLayer.getChildren().remove(pg.getValve());
-			for (Text t : pg.getPipeTextes()) {
-				pipeTextLayer.getChildren().remove(t);
-			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 

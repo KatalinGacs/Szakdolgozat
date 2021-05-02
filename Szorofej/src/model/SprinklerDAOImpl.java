@@ -8,7 +8,6 @@ import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
 
-import application.common.Common;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.scene.shape.Shape;
@@ -21,6 +20,7 @@ import model.bean.SprinklerShape;
 import model.bean.SprinklerType;
 import model.bean.UsedMaterial;
 import model.bean.Zone;
+import utilities.Common;
 
 public class SprinklerDAOImpl implements SprinklerDAO {
 

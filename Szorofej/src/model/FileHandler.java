@@ -16,7 +16,6 @@ import application.CanvasPane;
 import application.PipeDrawing;
 import application.SaveModificationsAlert;
 import application.ValveIcon;
-import application.common.Common;
 import controller.PressureException;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
@@ -37,6 +36,7 @@ import model.bean.CircleObstacle;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
+import utilities.Common;
 import model.bean.Plan;
 import model.bean.RectangleObstacle;
 import model.bean.SprinklerShape;
@@ -98,11 +98,6 @@ public class FileHandler {
 	 */
 	public static void saveCanvas(Stage stage, CanvasPane canvasPane, boolean saveAs) {
 		File file;
-	
-		for (Zone z : controller.listZones()) {
-			System.out.println(z.getColor());
-			System.out.println(controller.getPipeGraph(z));
-		}
 		
 		if (currentPath == "" || saveAs == true) {
 			FileChooser fileChooser = new FileChooser();

@@ -1,6 +1,5 @@
 package application.dbviews;
 
-import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.FXCollections;
@@ -21,6 +20,7 @@ import javafx.stage.Modality;
 import javafx.stage.Stage;
 import model.DbException;
 import model.bean.Material;
+import utilities.Common;
 
 public class MaterialListDBView {
 	private SprinklerController controller = new SprinklerControllerImpl();
@@ -44,64 +44,68 @@ public class MaterialListDBView {
 	private Button addBtn = new Button("Hozzáadás");
 	
 
-	public MaterialListDBView() {
-		
-		stage.setTitle("Anyag adatbázis");
-		stage.initModality(Modality.APPLICATION_MODAL);
-		
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		tableView.getColumns().addAll(nameCol, unitCol);
-		stage.setScene(scene);
-		nameCol.setCellValueFactory(new PropertyValueFactory<Material, String>("name"));
-		unitCol.setCellValueFactory(new PropertyValueFactory<Material, String>("unit"));
-		root.setPadding(new Insets(10));
-		
-		ObservableList<String> units =  FXCollections.observableArrayList();
-		units.addAll("méter", "darab");
-		unitBox.setItems(units);
-		unitBox.getSelectionModel().select(1);
-		
-		addPane.add(addText, 0, 0, 2, 1);
-		addPane.add(nameText, 0, 1);
-		addPane.add(nameField, 1, 1);
-		addPane.add(unitText, 0, 2);
-		addPane.add(unitBox, 1, 2);
-		addPane.add(addBtn, 0, 3, 2 ,1);
-		addPane.setHgap(10);
-		GridPane.setHalignment(addBtn, HPos.CENTER);
-		
-		root.getChildren().addAll(tableView, delBtn, addPane);
-		
-		addBtn.setOnAction(e -> {
-			Material m  = new Material();
-			m.setName(nameField.getText().trim());
-			m.setUnit(unitBox.getSelectionModel().getSelectedItem());
-			
-			try {
-				controller.addMaterial(m);
-				tableView.setItems(controller.listMaterials());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-			nameField.setText("");
-		});
-		
-		delBtn.setOnAction(e -> {
-			try {
-				controller.deleteMaterial(tableView.getSelectionModel().getSelectedItem());
-				tableView.setItems(controller.listMaterials());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
+	public void ShowMaterialListDBView() {
 		
 		try {
-			tableView.setItems(controller.listMaterials());
-		} catch (DbException ex) {
-			Common.showAlert(ex.getMessage());
-		}
+			stage.setTitle("Anyag adatbázis");
+			stage.initModality(Modality.APPLICATION_MODAL);
+			
+			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			tableView.getColumns().addAll(nameCol, unitCol);
+			stage.setScene(scene);
+			nameCol.setCellValueFactory(new PropertyValueFactory<Material, String>("name"));
+			unitCol.setCellValueFactory(new PropertyValueFactory<Material, String>("unit"));
+			root.setPadding(new Insets(10));
+			
+			ObservableList<String> units =  FXCollections.observableArrayList();
+			units.addAll("méter", "darab");
+			unitBox.setItems(units);
+			unitBox.getSelectionModel().select(1);
+			
+			addPane.add(addText, 0, 0, 2, 1);
+			addPane.add(nameText, 0, 1);
+			addPane.add(nameField, 1, 1);
+			addPane.add(unitText, 0, 2);
+			addPane.add(unitBox, 1, 2);
+			addPane.add(addBtn, 0, 3, 2 ,1);
+			addPane.setHgap(10);
+			GridPane.setHalignment(addBtn, HPos.CENTER);
+			
+			root.getChildren().addAll(tableView, delBtn, addPane);
+			
+			addBtn.setOnAction(e -> {
+				Material m  = new Material();
+				m.setName(nameField.getText().trim());
+				m.setUnit(unitBox.getSelectionModel().getSelectedItem());
+				
+				try {
+					controller.addMaterial(m);
+					tableView.setItems(controller.listMaterials());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+				nameField.setText("");
+			});
+			
+			delBtn.setOnAction(e -> {
+				try {
+					controller.deleteMaterial(tableView.getSelectionModel().getSelectedItem());
+					tableView.setItems(controller.listMaterials());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			
+			try {
+				tableView.setItems(controller.listMaterials());
+			} catch (DbException ex) {
+				Common.showAlert(ex.getMessage());
+			}
 
-		tableView.setEditable(true);
-		stage.show();
+			tableView.setEditable(true);
+			stage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 }

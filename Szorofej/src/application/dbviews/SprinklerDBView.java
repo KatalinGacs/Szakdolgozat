@@ -1,6 +1,5 @@
 package application.dbviews;
 
-import application.common.Common;
 import controller.SprinklerController;
 import controller.SprinklerControllerImpl;
 import javafx.collections.ObservableList;
@@ -17,6 +16,7 @@ import javafx.stage.Stage;
 import javafx.util.converter.DoubleStringConverter;
 import model.DbException;
 import model.bean.SprinklerType;
+import utilities.Common;
 
 public class SprinklerDBView {
 
@@ -41,113 +41,117 @@ public class SprinklerDBView {
 
 	public SprinklerDBView() {
 
-		root.getChildren().addAll(tableView, delBtn);
-
-		tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
-		tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
-				fixWaterConsumptionCol, waterConsumptionCol, minPressureCol, sprinklerGroupCol);
-		stage.setScene(scene);
-		stage.initModality(Modality.APPLICATION_MODAL);
-		stage.setTitle("Szórófej adatbázis");
-		nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
-		minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
-		maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));
-		minAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minAngle"));
-		maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
-		fixWaterConsumptionCol
-				.setCellValueFactory(new PropertyValueFactory<SprinklerType, Boolean>("fixWaterConsumption"));
-		waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
-		minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
-		sprinklerGroupCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("sprinklerGroup"));
 		try {
-			tableView.setItems(controller.listSprinklerTypes());
-		} catch (DbException ex) {
-			Common.showAlert(ex.getMessage());
-		}
+			root.getChildren().addAll(tableView, delBtn);
 
-		delBtn.setOnAction(e -> {
-			ObservableList<SprinklerType> selected = tableView.getSelectionModel().getSelectedItems();
+			tableView.setColumnResizePolicy(TableView.CONSTRAINED_RESIZE_POLICY);
+			tableView.getColumns().addAll(nameCol, minRadiusCol, maxRadiusCol, minAngleCol, maxAngleCol,
+					fixWaterConsumptionCol, waterConsumptionCol, minPressureCol, sprinklerGroupCol);
+			stage.setScene(scene);
+			stage.initModality(Modality.APPLICATION_MODAL);
+			stage.setTitle("Szórófej adatbázis");
+			nameCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("name"));
+			minRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minRadius"));
+			maxRadiusCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxRadius"));
+			minAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minAngle"));
+			maxAngleCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("maxAngle"));
+			fixWaterConsumptionCol
+					.setCellValueFactory(new PropertyValueFactory<SprinklerType, Boolean>("fixWaterConsumption"));
+			waterConsumptionCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("waterConsumption"));
+			minPressureCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, Double>("minPressure"));
+			sprinklerGroupCol.setCellValueFactory(new PropertyValueFactory<SprinklerType, String>("sprinklerGroup"));
 			try {
-				for (SprinklerType s : selected) {
-					controller.deleteSprinklerType(s);
-				}
 				tableView.setItems(controller.listSprinklerTypes());
 			} catch (DbException ex) {
 				Common.showAlert(ex.getMessage());
 			}
-		});
-		
-		tableView.setEditable(true);
-		minRadiusCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		minRadiusCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("minRadius", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-		maxRadiusCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		maxRadiusCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("maxRadius", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-		minAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		minAngleCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("minAngle", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-		maxAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		maxAngleCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("maxAngle", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-		waterConsumptionCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		waterConsumptionCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("waterConsumption", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-		minPressureCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
-		minPressureCol.setOnEditCommit(event -> {
-		    SprinklerType s = event.getRowValue();
-		    s.setWaterCounsumption(event.getNewValue());
-		    try {
-				controller.updateSprinklerData("minPressure", event.getNewValue(), s.getName());
-			} catch (DbException ex) {
-				Common.showAlert(ex.getMessage());
-			}
-		});
-	
-		fixWaterConsumptionCol.setCellFactory(col -> new TableCell<SprinklerType, Boolean>() {
-		    @Override
-		    protected void updateItem(Boolean item, boolean empty) {
-		        super.updateItem(item, empty) ;
-		        setText(empty ? null : item ? "✓" : "✗" );
-		    }
-		});
-		
-		stage.show();
+
+			delBtn.setOnAction(e -> {
+				ObservableList<SprinklerType> selected = tableView.getSelectionModel().getSelectedItems();
+				try {
+					for (SprinklerType s : selected) {
+						controller.deleteSprinklerType(s);
+					}
+					tableView.setItems(controller.listSprinklerTypes());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			
+			tableView.setEditable(true);
+			minRadiusCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			minRadiusCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("minRadius", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			maxRadiusCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			maxRadiusCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("maxRadius", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			minAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			minAngleCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("minAngle", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			maxAngleCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			maxAngleCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("maxAngle", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			waterConsumptionCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			waterConsumptionCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("waterConsumption", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+			minPressureCol.setCellFactory(TextFieldTableCell.forTableColumn(new DoubleStringConverter()));
+			minPressureCol.setOnEditCommit(event -> {
+			    SprinklerType s = event.getRowValue();
+			    s.setWaterCounsumption(event.getNewValue());
+			    try {
+					controller.updateSprinklerData("minPressure", event.getNewValue(), s.getName());
+				} catch (DbException ex) {
+					Common.showAlert(ex.getMessage());
+				}
+			});
+
+			fixWaterConsumptionCol.setCellFactory(col -> new TableCell<SprinklerType, Boolean>() {
+			    @Override
+			    protected void updateItem(Boolean item, boolean empty) {
+			        super.updateItem(item, empty) ;
+			        setText(empty ? null : item ? "✓" : "✗" );
+			    }
+			});
+			
+			stage.show();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 }

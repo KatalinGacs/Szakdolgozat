@@ -31,29 +31,28 @@ public class PrintHandler {
 	 */
 	public static void print(Window owner, CanvasPane canvasPane) {
 
-		FileChooser fileChooser = new FileChooser();
-		fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("png files (*.png)", "*.png"));
-		File file = fileChooser.showSaveDialog(null);
+		try {
+			FileChooser fileChooser = new FileChooser();
+			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("png files (*.png)", "*.png"));
+			File file = fileChooser.showSaveDialog(null);
 
-		Rectangle nonEmptyArea = getNonEmptyArea(canvasPane);
-		Node oldClip = canvasPane.getClip();
+			Rectangle nonEmptyArea = getNonEmptyArea(canvasPane);
+			Node oldClip = canvasPane.getClip();
 
-		canvasPane.setClip(nonEmptyArea);
+			canvasPane.setClip(nonEmptyArea);
 
-		if (file != null) {
-			try {
+			if (file != null) {
 				WritableImage writableImage = new WritableImage((int) nonEmptyArea.getWidth() + 20,
 						(int) nonEmptyArea.getHeight() + 20);
 				canvasPane.snapshot(null, writableImage);
 				RenderedImage renderedImage = SwingFXUtils.fromFXImage(writableImage, null);
 
 				ImageIO.write(renderedImage, "png", file);
-			} catch (IOException ex) {
-				ex.printStackTrace();
-				utilities.Error.HandleException(ex);
 			}
+			canvasPane.setClip(oldClip);
+		} catch (IOException ex) {
+			utilities.Error.HandleException(ex);
 		}
-		canvasPane.setClip(oldClip);
 
 	}
 

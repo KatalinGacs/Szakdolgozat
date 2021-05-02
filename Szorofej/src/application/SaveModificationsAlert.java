@@ -45,36 +45,41 @@ public class SaveModificationsAlert extends Alert {
 	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane, Stage stage ) {
 		super(AlertType.CONFIRMATION);
 
-		setTitle(windowTitle);
-		setHeaderText(saveQuestionPart1 + FileHandler.currentFileName + saveQuestionPart2);
+		try {
+			setTitle(windowTitle);
+			setHeaderText(saveQuestionPart1 + FileHandler.currentFileName + saveQuestionPart2);
 
-		ButtonType yesButton = new ButtonType("Igen");
-		ButtonType noButton = new ButtonType("Nem");
-		ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
+			ButtonType yesButton = new ButtonType("Igen");
+			ButtonType noButton = new ButtonType("Nem");
+			ButtonType cancelButton = new ButtonType("Cancel", ButtonData.CANCEL_CLOSE);
 
-		getButtonTypes().setAll(yesButton, noButton, cancelButton);
+			getButtonTypes().setAll(yesButton, noButton, cancelButton);
 
-		Optional<ButtonType> result = showAndWait();
-		if (result.get() == yesButton) {
-			FileHandler.saveCanvas(stage, canvasPane, false);
-			if (exit) {
-				Platform.exit();
-			} else {
-				canvasPane.clear();
-				canvasPane.hideTempLayer();
-			}
-		} else if (result.get() == noButton) {
-			if (exit) {
-				Platform.exit();
+			Optional<ButtonType> result = showAndWait();
+			if (result.get() == yesButton) {
+				FileHandler.saveCanvas(stage, canvasPane, false);
+				if (exit) {
+					Platform.exit();
+				} else {
+					canvasPane.clear();
+					canvasPane.hideTempLayer();
+				}
+			} else if (result.get() == noButton) {
+				if (exit) {
+					Platform.exit();
+				} else {
+					close();
+					canvasPane.clear();
+					canvasPane.hideTempLayer();
+				}
 			} else {
 				close();
-				canvasPane.clear();
-				canvasPane.hideTempLayer();
 			}
-		} else {
-			close();
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
+	
 	public SaveModificationsAlert(boolean exit, CanvasPane canvasPane ) {
 		this(exit, canvasPane, null);
 	}

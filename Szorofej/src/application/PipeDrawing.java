@@ -3,20 +3,16 @@ package application;
 import java.util.ArrayList;
 
 import application.CanvasPane.Use;
-import application.common.Common;
-import controller.GraphException;
 import controller.PipeDiameterOptimizer;
 import controller.PressureException;
-import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Point2D;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.text.Text;
-import model.DbException;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
 import model.bean.PipeGraph.Vertex;
+import utilities.Common;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
 
@@ -67,25 +63,29 @@ public class PipeDrawing {
 	 */
 	public static void startDrawingPipeLine(MouseEvent e, CanvasPane canvasPane) {
 
-		if (!canvasPane.pipeGraphUnderEditing.getVertices().isEmpty() && !canvasPane.cursorOnPipeLine) {
-			Common.showAlert("A zóna megkezdett csövezésére kattintva folytasd a rajzolást!");
-			return;
-		}
-		if (canvasPane.cursorOnPipeLine) {
-			breakLine(canvasPane);
-		} else {
-			BorderDrawing.startX = e.getX();
-			BorderDrawing.startY = e.getY();
-			BorderDrawing.lengthInput.setVisible(false);
-			startVertex = new Vertex(e.getX(), e.getY(), null);
-			if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
-				canvasPane.pipeGraphUnderEditing
-						.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.getPipeLineColor()));
-				canvasPane.getPipeLineLayer().getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
+		try {
+			if (!canvasPane.pipeGraphUnderEditing.getVertices().isEmpty() && !canvasPane.cursorOnPipeLine) {
+				Common.showAlert("A zóna megkezdett csövezésére kattintva folytasd a rajzolást!");
+				return;
 			}
-			canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
+			if (canvasPane.cursorOnPipeLine) {
+				breakLine(canvasPane);
+			} else {
+				BorderDrawing.startX = e.getX();
+				BorderDrawing.startY = e.getY();
+				BorderDrawing.lengthInput.setVisible(false);
+				startVertex = new Vertex(e.getX(), e.getY(), null);
+				if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
+					canvasPane.pipeGraphUnderEditing
+							.setValve(ValveIcon.valveIcon(e.getX(), e.getY(), CanvasPane.getPipeLineColor()));
+					canvasPane.getPipeLineLayer().getChildren().add(canvasPane.pipeGraphUnderEditing.getValve());
+				}
+				canvasPane.pipeGraphUnderEditing.addVertex(startVertex);
+			}
+			canvasPane.setStateOfCanvasUse(Use.PIPEDRAWING);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-		canvasPane.setStateOfCanvasUse(Use.PIPEDRAWING);
 	}
 
 	/**
@@ -95,22 +95,26 @@ public class PipeDrawing {
 	 * @param canvasPane CanvasPane on which the line is drawn
 	 */
 	public static void breakLine(CanvasPane canvasPane) {
-		Vertex breakPointVertex = new Vertex(lineBreakPointX, lineBreakPointY);
-		breakPointVertex.setBreakPoint(true);
-		breakPointVertex.setParent(pipeLineToSplit.getvParent());
-		breakPointVertex.addChild(pipeLineToSplit.getvChild());
-		pipeLineToSplit.getvChild().setParent(breakPointVertex);
-		pipeLineToSplit.getvParent().getChildren().clear();
-		pipeLineToSplit.getvParent().addChild(breakPointVertex);
-		canvasPane.pipeGraphUnderEditing.addVertex(breakPointVertex);
-		canvasPane.pipeGraphUnderEditing.removeEdge(pipeLineToSplit);
-		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(pipeLineToSplit.getvParent(), breakPointVertex));
-		canvasPane.pipeGraphUnderEditing.addEdge(new Edge(breakPointVertex, pipeLineToSplit.getvChild()));
-		startVertex = breakPointVertex;
-		BorderDrawing.startX = breakPointVertex.getX();
-		BorderDrawing.startY = breakPointVertex.getY();
-		BorderDrawing.lengthInput.setVisible(false);
-		canvasPane.setDirty(true);
+		try {
+			Vertex breakPointVertex = new Vertex(lineBreakPointX, lineBreakPointY);
+			breakPointVertex.setBreakPoint(true);
+			breakPointVertex.setParent(pipeLineToSplit.getvParent());
+			breakPointVertex.addChild(pipeLineToSplit.getvChild());
+			pipeLineToSplit.getvChild().setParent(breakPointVertex);
+			pipeLineToSplit.getvParent().getChildren().clear();
+			pipeLineToSplit.getvParent().addChild(breakPointVertex);
+			canvasPane.pipeGraphUnderEditing.addVertex(breakPointVertex);
+			canvasPane.pipeGraphUnderEditing.removeEdge(pipeLineToSplit);
+			canvasPane.pipeGraphUnderEditing.addEdge(new Edge(pipeLineToSplit.getvParent(), breakPointVertex));
+			canvasPane.pipeGraphUnderEditing.addEdge(new Edge(breakPointVertex, pipeLineToSplit.getvChild()));
+			startVertex = breakPointVertex;
+			BorderDrawing.startX = breakPointVertex.getX();
+			BorderDrawing.startY = breakPointVertex.getY();
+			BorderDrawing.lengthInput.setVisible(false);
+			canvasPane.setDirty(true);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -121,40 +125,44 @@ public class PipeDrawing {
 	 * @param canvasPane CanvasPane on which the line is drawn
 	 */
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
-		canvasPane.setDirty(true);
-		BorderDrawing.lengthInput.setVisible(false);
-		BorderDrawing.tempBorderLine.setVisible(false);
-		Edge line = new Edge();
-		Vertex endVertex = null;
-		line.setvParent(startVertex);
-		line.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
-		line.setStroke(CanvasPane.getPipeLineColor());
-		if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
-			endVertex = new Vertex(
-					Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY()));
-		} else {
-			if (canvasPane.cursorNearSprinklerHead) {
-				if (!canvasPane.pipeGraphUnderEditing.getZone().getSprinklers()
-						.contains(canvasPane.sprinklerShapeNearCursor)) {
-					Common.showAlert("Nem a zónába tartozó szórófej!");
-				} else {
-					endVertex = new Vertex(CanvasPane.sprinklerHeadX, CanvasPane.sprinklerHeadY, startVertex,
-							canvasPane.sprinklerShapeNearCursor);
-					canvasPane.sprinklerShapeNearCursor.setConnectedToPipe(true);
-				}
+		try {
+			canvasPane.setDirty(true);
+			BorderDrawing.lengthInput.setVisible(false);
+			BorderDrawing.tempBorderLine.setVisible(false);
+			Edge line = new Edge();
+			Vertex endVertex = null;
+			line.setvParent(startVertex);
+			line.setStrokeWidth(CanvasPane.getStrokeWidth() * 2);
+			line.setStroke(CanvasPane.getPipeLineColor());
+			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
+				endVertex = new Vertex(
+						Common.snapToHorizontalOrVertival(BorderDrawing.startX, BorderDrawing.startY, e.getX(), e.getY()));
 			} else {
-				endVertex = new Vertex(e.getX(), e.getY());
+				if (canvasPane.cursorNearSprinklerHead) {
+					if (!canvasPane.pipeGraphUnderEditing.getZone().getSprinklers()
+							.contains(canvasPane.sprinklerShapeNearCursor)) {
+						Common.showAlert("Nem a zónába tartozó szórófej!");
+					} else {
+						endVertex = new Vertex(CanvasPane.sprinklerHeadX, CanvasPane.sprinklerHeadY, startVertex,
+								canvasPane.sprinklerShapeNearCursor);
+						canvasPane.sprinklerShapeNearCursor.setConnectedToPipe(true);
+					}
+				} else {
+					endVertex = new Vertex(e.getX(), e.getY());
+				}
 			}
+			startVertex.addChild(endVertex);
+			endVertex.setParent(startVertex);
+			canvasPane.pipeGraphUnderEditing.addVertex(endVertex);
+			line.setvChild(endVertex);
+			startVertex = endVertex;
+			BorderDrawing.startX = endVertex.getX();
+			BorderDrawing.startY = endVertex.getY();
+			canvasPane.getPipeLineLayer().getChildren().add(line);
+			canvasPane.pipeGraphUnderEditing.addEdge(line);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
-		startVertex.addChild(endVertex);
-		endVertex.setParent(startVertex);
-		canvasPane.pipeGraphUnderEditing.addVertex(endVertex);
-		line.setvChild(endVertex);
-		startVertex = endVertex;
-		BorderDrawing.startX = endVertex.getX();
-		BorderDrawing.startY = endVertex.getY();
-		canvasPane.getPipeLineLayer().getChildren().add(line);
-		canvasPane.pipeGraphUnderEditing.addEdge(line);
 	}
 
 	/**
@@ -166,23 +174,26 @@ public class PipeDrawing {
 	 * @throws PressureException
 	 */
 	public static void completePipeDrawing(CanvasPane canvasPane, Zone zone, Vertex root) throws PressureException {
-		canvasPane.setDirty(true);
-		PipeGraph pg = canvasPane.controller.getPipeGraph(zone);
-		int leafes = pg.getNumberOfLeaves();
-		Vertex startingVertex = root;
-		double beginningPressure = pg.getBeginningPressure();
+		try {
+			canvasPane.setDirty(true);
+			PipeGraph pg = canvasPane.controller.getPipeGraph(zone);
+			int leafes = pg.getNumberOfLeaves();
+			Vertex startingVertex = root;
+			double beginningPressure = pg.getBeginningPressure();
 
-		do {
-			for (Vertex child : startingVertex.getChildren()) {
-				calculatePipeDiameters(canvasPane, pg, startingVertex, child, beginningPressure);
-				beginningPressure = PipeDiameterOptimizer.remainingPressure;
+			do {
+				for (Vertex child : startingVertex.getChildren()) {
+					calculatePipeDiameters(canvasPane, pg, startingVertex, child, beginningPressure);
+					beginningPressure = PipeDiameterOptimizer.remainingPressure;
 
-				if (leaf)
-					leafes--;
-			}
-			startingVertex = breakPointVertex;
-		} while (leafes != 0);
-
+					if (leaf)
+						leafes--;
+				}
+				startingVertex = breakPointVertex;
+			} while (leafes != 0);
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -284,12 +295,9 @@ public class PipeDrawing {
 			for (Double length : pipeLengths) {
 				canvasPane.controller.addPipeMaterial(diameters.get(pipeLengths.indexOf(length)), length);
 			}
-		} catch (GraphException ex) {
-			ex.printStackTrace();
+		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
-		} catch (DbException ex) {
-			utilities.Error.HandleException(ex);
-		}
+		} 
 	}
 
 	/**
@@ -307,12 +315,17 @@ public class PipeDrawing {
 	 * @return the total waterflow on this subgraph in l/min
 	 */
 	private static double calculateSubGraphWaterFlow(PipeGraph pg, Vertex startingVertex, Vertex nextVertex) {
-		Vertex current = startingVertex;
-		double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);
-		if (breakPoint2 != null) {
-			for (Vertex child : breakPoint2.getChildren()) {
-				totalWaterFlow += calculateSubGraphWaterFlow(pg, breakPoint2, child);
-			}
+		
+			Vertex current = startingVertex;
+			double totalWaterFlow = waterFlowUntilBreakpoint(pg, current, nextVertex);
+		try {
+			if (breakPoint2 != null) {
+				for (Vertex child : breakPoint2.getChildren()) {
+					totalWaterFlow += calculateSubGraphWaterFlow(pg, breakPoint2, child);
+				}
+			}	
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 		return totalWaterFlow;
 	}
@@ -348,8 +361,7 @@ public class PipeDrawing {
 				}
 				current = current.getChild();
 			}
-		} catch (GraphException e) {
-			e.printStackTrace();
+		} catch (Exception e) {
 			utilities.Error.HandleException(e);
 		}
 		return totalWaterFlow;

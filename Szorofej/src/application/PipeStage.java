@@ -5,10 +5,7 @@ import java.util.Arrays;
 import java.util.Random;
 
 import application.CanvasPane.Use;
-import application.common.Common;
 import controller.PressureException;
-import controller.SprinklerController;
-import controller.SprinklerControllerImpl;
 import javafx.geometry.Insets;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
@@ -23,6 +20,7 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.bean.PipeGraph;
 import model.bean.Zone;
+import utilities.Common;
 
 /**
  * Stage for setting infos of pipes and draw pipes
@@ -69,15 +67,15 @@ public class PipeStage extends Stage {
 	 */
 	private ToggleButton startDrawingpipesBtn = new ToggleButton("Csövek behúzása");
 
-	/**
-	 * TextField for setting the beginning pressure in the zone
-	 */
-	private TextField beginningPressureField = new TextField();
+//	/**
+//	 * TextField for setting the beginning pressure in the zone
+//	 */
+//	private TextField beginningPressureField = new TextField();
 
-	/**
-	 * Text for beginningPressureField
-	 */
-	private Text beginningPressureText = new Text("Kezdeti nyomás");
+//	/**
+//	 * Text for beginningPressureField
+//	 */
+//	private Text beginningPressureText = new Text("Kezdeti nyomás");
 
 	/**
 	 * By clicking this button the user finishes the pipe drawing and the
@@ -91,60 +89,64 @@ public class PipeStage extends Stage {
 	 * @param canvasPane the CanvasPane on which the pipes are to be drawn
 	 */
 	public PipeStage(CanvasPane canvasPane) {
-		setX(Common.primaryScreenBounds.getWidth() - 500);
-		setY(100);
-		root.setVgap(10);
-		root.setHgap(10);
-		root.setPadding(new Insets(10, 10, 10, 10));
+		try {
+			setX(Common.primaryScreenBounds.getWidth() - 500);
+			setY(100);
+			root.setVgap(10);
+			root.setHgap(10);
+			root.setPadding(new Insets(10, 10, 10, 10));
 
-		setScene(scene);
-		setAlwaysOnTop(true);
-		setTitle("Csövezés");
+			setScene(scene);
+			setAlwaysOnTop(true);
+			setTitle("Csövezés");
 
-		root.add(zoneText, 0, 0);
-		root.add(zonePicker, 1, 0);
-		root.add(colorText, 0, 1);
-		root.add(colorPicker, 1, 1);
-		root.add(startDrawingpipesBtn, 0, 2);
-		root.add(beginningPressureText, 0, 3);
-		root.add(beginningPressureField, 1, 3);
-		root.add(okBtn, 0, 4);
+			root.add(zoneText, 0, 0);
+			root.add(zonePicker, 1, 0);
+			root.add(colorText, 0, 1);
+			root.add(colorPicker, 1, 1);
+			root.add(startDrawingpipesBtn, 0, 2);
+			//root.add(beginningPressureText, 0, 3);
+			//root.add(beginningPressureField, 1, 3);
+			root.add(okBtn, 0, 4);
 
-		zonePicker.setItems(canvasPane.controller.listZones());
-		zonePicker.getSelectionModel().select(0);
-		setColor(canvasPane);
-		zonePicker.setOnAction(e -> {
+			zonePicker.setItems(canvasPane.controller.listZones());
+			zonePicker.getSelectionModel().select(0);
 			setColor(canvasPane);
+			zonePicker.setOnAction(e -> {
+				setColor(canvasPane);
 
-			canvasPane.pipeGraphUnderEditing = canvasPane.controller.getPipeGraph(zonePicker.getValue());
-		});
+				canvasPane.pipeGraphUnderEditing = canvasPane.controller.getPipeGraph(zonePicker.getValue());
+			});
 
-		startDrawingpipesBtn.setOnAction(e -> {
-			if (startDrawingpipesBtn.isSelected()) {
-				CanvasPane.setPipeLineColor(colorPicker.getValue());
-				canvasPane.setStateOfCanvasUse(Use.PREPAREFORPIPEDRAWING);
-				colorPicker.setDisable(false);
-				if (canvasPane.pipeGraphUnderEditing == null
-						|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
-					canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
-					canvasPane.controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
+			startDrawingpipesBtn.setOnAction(e -> {
+				if (startDrawingpipesBtn.isSelected()) {
+					CanvasPane.setPipeLineColor(colorPicker.getValue());
+					canvasPane.setStateOfCanvasUse(Use.PREPAREFORPIPEDRAWING);
+					colorPicker.setDisable(false);
+					if (canvasPane.pipeGraphUnderEditing == null
+							|| canvasPane.pipeGraphUnderEditing.getZone() != zonePicker.getValue()) {
+						canvasPane.pipeGraphUnderEditing = new PipeGraph(zonePicker.getValue(), colorPicker.getValue());
+						canvasPane.controller.addPipeGraph(canvasPane.pipeGraphUnderEditing);
+					}
+				} else {
+					startDrawingpipesBtn.setSelected(false);
+					canvasPane.setStateOfCanvasUse(Use.NONE);
 				}
-			} else {
-				startDrawingpipesBtn.setSelected(false);
-				canvasPane.setStateOfCanvasUse(Use.NONE);
-			}
-		});
+			});
 
-		beginningPressureField.setOnKeyPressed(e -> {
-			if (e.getCode().equals(KeyCode.ENTER)) {
+//			beginningPressureField.setOnKeyPressed(e -> {
+//				if (e.getCode().equals(KeyCode.ENTER)) {
+//					finalizePipeGraph(canvasPane);
+//					e.consume();
+//				}
+//			});
+
+			okBtn.setOnAction(e -> {
 				finalizePipeGraph(canvasPane);
-				e.consume();
-			}
-		});
-
-		okBtn.setOnAction(e -> {
-			finalizePipeGraph(canvasPane);
-		});
+			});
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
+		}
 	}
 
 	/**
@@ -168,15 +170,19 @@ public class PipeStage extends Stage {
 	 * @return a color which was not used before
 	 */
 	private Color nextColor() {
-		Color color;
-		if (colorCounter < colors.size()) {
-			color = colors.get(colorCounter);
-		} else {
-			Random random = new Random();
-			int r = random.nextInt(256);
-			int g = random.nextInt(256);
-			int b = random.nextInt(256);
-			color = Color.rgb(r, g, b);
+		Color color = null;
+		try {
+			if (colorCounter < colors.size()) {
+				color = colors.get(colorCounter);
+			} else {
+				Random random = new Random();
+				int r = random.nextInt(256);
+				int g = random.nextInt(256);
+				int b = random.nextInt(256);
+				color = Color.rgb(r, g, b);
+			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 		colorCounter++;
 		return color;
@@ -188,15 +194,19 @@ public class PipeStage extends Stage {
 	 * new color is disabled.
 	 */
 	private void setColor(CanvasPane canvasPane) {
-		for (PipeGraph pipeGraph : canvasPane.controller.listPipeGraphs()) {
-			if (pipeGraph.getZone() == zonePicker.getValue()) {
-				colorPicker.setValue(pipeGraph.getColor());
-				colorPicker.setDisable(true);
-				break;
-			} else {
-				colorPicker.setDisable(false);
-				colorPicker.setValue(nextColor());
+		try {
+			for (PipeGraph pipeGraph : canvasPane.controller.listPipeGraphs()) {
+				if (pipeGraph.getZone() == zonePicker.getValue()) {
+					colorPicker.setValue(pipeGraph.getColor());
+					colorPicker.setDisable(true);
+					break;
+				} else {
+					colorPicker.setDisable(false);
+					colorPicker.setValue(nextColor());
+				}
 			}
+		} catch (Exception ex) {
+			utilities.Error.HandleException(ex);
 		}
 	}
 
@@ -210,7 +220,7 @@ public class PipeStage extends Stage {
 			Common.showAlert("Nincs kiválasztott zóna");
 		} else if (canvasPane.pipeGraphUnderEditing == null) {
 			Common.showAlert("Nincs megadott csövezés");
-		} else if (beginningPressureField.getText() == null || beginningPressureField.getText().trim().isEmpty()) {
+		} /* else if (beginningPressureField.getText() == null || beginningPressureField.getText().trim().isEmpty()) {
 			Common.showAlert("Add meg a kezdeti nyomást!");
 		} else
 			try {
@@ -218,18 +228,15 @@ public class PipeStage extends Stage {
 						.setBeginningPressure(Double.parseDouble(beginningPressureField.getText()));
 			} catch (NumberFormatException ex) {
 				Common.showAlert("Számokban add meg a kezdeti nyomást!");
-			}
+			}*/
 		try {
-			PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
-					canvasPane.controller.getPipeGraph(zonePicker.getValue()).getRoot());
+			//PipeDrawing.completePipeDrawing(canvasPane, zonePicker.getValue(),
+			//		canvasPane.controller.getPipeGraph(zonePicker.getValue()).getRoot());
 			close();
-		} catch (PressureException e) {
-			Common.showAlert(e.getMessage());
+		/*} catch (PressureException e) {
+			Common.showAlert(e.getMessage());*/
 		} catch (Exception e) {
-			e.printStackTrace();
 			utilities.Error.HandleException(e);
 		}
-
 	}
-
 }
