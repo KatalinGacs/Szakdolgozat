@@ -45,7 +45,7 @@ public class BorderDrawing {
 	/**
 	 * Input field when the user sets an exact length for a line.
 	 */
-	static TextField lengthInput = new TextField();
+	//static TextField lengthInput = new TextField();
 
 	/**
 	 * Helper line showing where a borderline will be drawn. Begins at (startX,
@@ -82,20 +82,21 @@ public class BorderDrawing {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
-			double mouseX = Common.mouseEventWithinBounds(e).getX();
-			double mouseY = Common.mouseEventWithinBounds(e).getY();
+			Point2D point = new Point2D(e.getX(), e.getY());
+			double mouseX = Common.mouseEventWithinBounds(point).getX();
+			double mouseY = Common.mouseEventWithinBounds(point).getY();
 
-			lengthInput.setVisible(true);
-			lengthInput.relocate(startX, startY);
+			canvasPane.getDrawingInputField().setVisible(true);
+			
 			tempBorderLine.setStartX(startX);
 			tempBorderLine.setStartY(startY);
 			tempBorderLine.setStroke(color);
 			tempBorderLine.setVisible(true);
 
 			if (canvasPane.getPressedKey() == KeyCode.CONTROL) {
-				Point2D point = Common.snapToHorizontalOrVertival(startX, startY, mouseX, mouseY);
-				tempBorderLine.setEndX(point.getX());
-				tempBorderLine.setEndY(point.getY());
+				Point2D snappedPoint = Common.snapToHorizontalOrVertival(startX, startY, mouseX, mouseY);
+				tempBorderLine.setEndX(snappedPoint.getX());
+				tempBorderLine.setEndY(snappedPoint.getY());
 			} else {
 				tempBorderLine.setEndX(mouseX);
 				tempBorderLine.setEndY(mouseY);
@@ -117,7 +118,7 @@ public class BorderDrawing {
 	 * @param width      width of the BorderLine, set by the user
 	 * @param canvasPane the CanvasPane on which the borderline is drawn
 	 */
-	public static void drawBorderLine(MouseEvent e, Color color, int width, CanvasPane canvasPane) {
+	public static void drawBorderLine(Point2D e, Color color, int width, CanvasPane canvasPane) {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
@@ -143,9 +144,9 @@ public class BorderDrawing {
 			}
 
 			// handle when the user sets the length of the line in lengthInput inputfield
-			if (!lengthInput.getText().trim().isEmpty() && lengthInput.getText() != null)
+			if (!canvasPane.getDrawingInputField().getText().trim().isEmpty() && canvasPane.getDrawingInputField().getText() != null)
 				try {
-					double requiredLength = Double.parseDouble(lengthInput.getText()) * Common.pixelPerMeter;
+					double requiredLength = Double.parseDouble(canvasPane.getDrawingInputField().getText()) * Common.pixelPerMeter;
 					double drawnLength = Math
 							.sqrt((startX - clickX) * (startX - clickX) + (startY - clickY) * (startY - clickY));
 					double ratio = requiredLength / drawnLength;
@@ -153,8 +154,8 @@ public class BorderDrawing {
 					endX = startX + (clickX - startX) * ratio;
 					endY = startY + (clickY - startY) * ratio;
 
-					lengthInput.setText("");
-					lengthInput.setVisible(false);
+					canvasPane.getDrawingInputField().setText("");
+					canvasPane.getDrawingInputField().setVisible(false);
 
 				} catch (NumberFormatException ex) {
 					Common.showAlert("Számokban add meg a vonal hosszát vagy hagyd üresen a mezõt!");
@@ -196,8 +197,9 @@ public class BorderDrawing {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
-			double clickX = Common.mouseEventWithinBounds(e).getX();
-			double clickY = Common.mouseEventWithinBounds(e).getY();
+			Point2D point = new Point2D(e.getX(), e.getY());
+			double clickX = Common.mouseEventWithinBounds(point).getX();
+			double clickY = Common.mouseEventWithinBounds(point).getY();
 
 			tempRectangle.setVisible(false);
 			
@@ -230,8 +232,9 @@ public class BorderDrawing {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
-			double mouseX = Common.mouseEventWithinBounds(e).getX();
-			double mouseY = Common.mouseEventWithinBounds(e).getY();
+			Point2D point = new Point2D(e.getX(), e.getY());
+			double mouseX = Common.mouseEventWithinBounds(point).getX();
+			double mouseY = Common.mouseEventWithinBounds(point).getY();
 
 			if (e.getButton() == MouseButton.PRIMARY) {
 				double r = Math.sqrt((startX - mouseX) * (startX - mouseX) + (startY - mouseY) * (startY - mouseY));
@@ -263,8 +266,9 @@ public class BorderDrawing {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
-			double mouseX = Common.mouseEventWithinBounds(e).getX();
-			double mouseY = Common.mouseEventWithinBounds(e).getY();
+			Point2D point = new Point2D(e.getX(), e.getY());
+			double mouseX = Common.mouseEventWithinBounds(point).getX();
+			double mouseY = Common.mouseEventWithinBounds(point).getY();
 
 			if (e.getButton() == MouseButton.PRIMARY) {
 				double width = Math.abs(startX - mouseX);
@@ -331,8 +335,9 @@ public class BorderDrawing {
 
 		try {
 			// ensure that the user does not draw outside the canvasPane
-			double mouseX = Common.mouseEventWithinBounds(e).getX();
-			double mouseY = Common.mouseEventWithinBounds(e).getY();
+			Point2D point = new Point2D(e.getX(), e.getY());
+			double mouseX = Common.mouseEventWithinBounds(point).getX();
+			double mouseY = Common.mouseEventWithinBounds(point).getY();
 
 			tempCircle.setVisible(false);
 			

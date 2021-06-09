@@ -28,7 +28,7 @@ public class SprinklerDrawing {
 	 * Input field where the user can set the angle of the currently drawn
 	 * sprinklershape
 	 */
-	static TextField angleInput = new TextField();
+	//static TextField angleInput = new TextField();
 
 	/**
 	 * Angle of the arc of the sprinklershape in degrees
@@ -169,6 +169,9 @@ public class SprinklerDrawing {
 				// check that the user is not trying to draw on top of an obstacle
 				boolean validPoint = true;
 				for (Shape s : canvasPane.controller.listObstacles()) {
+					if (!Common.isMouseOnCanvas(mouseEvent)) {
+						validPoint = false;
+					}
 					if (s.contains(mouseEvent.getX(), mouseEvent.getY())) {
 						Common.showAlert("Ezen a ponton tereptárgy található");
 						validPoint = false;
@@ -232,19 +235,19 @@ public class SprinklerDrawing {
 					startAngle += 360;
 
 				// the user can set in an input field the arc extent
-				angleInput.setVisible(true);
-				angleInput.setLayoutX(mouseEvent.getX());
-				angleInput.setLayoutY(mouseEvent.getY());
-				angleInput.relocate(centerX, centerY);
-				angleInput.setOnKeyPressed(ke -> {
+				canvasPane.getDrawingInputField().setVisible(true);
+				//canvasPane.getDrawingInputField().setLayoutX(mouseEvent.getX());
+				//canvasPane.getDrawingInputField().setLayoutY(mouseEvent.getY());
+				//angleInput.relocate(centerX, centerY);
+				canvasPane.getDrawingInputField().setOnKeyPressed(ke -> {
 					if (ke.getCode().equals(KeyCode.ENTER)) {
-						if (angleInput.getText() == null || angleInput.getText().trim().isEmpty()) {
+						if (canvasPane.getDrawingInputField().getText() == null || canvasPane.getDrawingInputField().getText().trim().isEmpty()) {
 							Common.showAlert("Add meg a szórófej szögét!");
 						} else
 							try {
-								if (Double.parseDouble(angleInput.getText()) > sprinklerType.getMaxAngle()
-										|| Double.parseDouble(angleInput.getText()) < sprinklerType.getMinAngle()) {
-									Common.showAlert("A megadott szög (" + angleInput.getText()
+								if (Double.parseDouble(canvasPane.getDrawingInputField().getText()) > sprinklerType.getMaxAngle()
+										|| Double.parseDouble(canvasPane.getDrawingInputField().getText()) < sprinklerType.getMinAngle()) {
+									Common.showAlert("A megadott szög (" + canvasPane.getDrawingInputField().getText()
 											+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 											+ sprinklerType.getMinAngle() + ", max. szög: "
 											+ sprinklerType.getMaxAngle());
@@ -252,7 +255,7 @@ public class SprinklerDrawing {
 								// if the user sets the arc extent in the input field then finish drawing the
 								// sprinkler shape using this angle
 								else {
-									arcExtent = -Double.parseDouble(angleInput.getText());
+									arcExtent = -Double.parseDouble(canvasPane.getDrawingInputField().getText());
 									arc.setCenterX(centerX);
 									arc.setCenterY(centerY);
 									arc.setRadiusX(sprinklerRadius);
@@ -280,8 +283,8 @@ public class SprinklerDrawing {
 
 									canvasPane.setDirty(true);
 
-									angleInput.setText("");
-									angleInput.setVisible(false);
+									canvasPane.getDrawingInputField().setText("");
+									canvasPane.getDrawingInputField().setVisible(false);
 
 									drawingState = SprinklerDrawingState.CENTER;
 
@@ -299,7 +302,7 @@ public class SprinklerDrawing {
 
 				canvasPane.setDirty(true);
 
-				angleInput.setVisible(false);
+				canvasPane.getDrawingInputField().setVisible(false);
 
 				secondX = mouseEvent.getX();
 				secondY = mouseEvent.getY();
@@ -329,7 +332,7 @@ public class SprinklerDrawing {
 				// check if the set arc extent is within the allowed range for this sprinkler
 				// type
 				if (arcExtent > sprinklerType.getMaxAngle() || arcExtent < sprinklerType.getMinAngle()) {
-					Common.showAlert("A megadott szög (" + angleInput.getText()
+					Common.showAlert("A megadott szög (" + canvasPane.getDrawingInputField().getText()
 							+ ") nem esik az ennél a szórófejnél lehetséges intervallumba! Min. szög: "
 							+ sprinklerType.getMinAngle() + ", max. szög: " + sprinklerType.getMaxAngle());
 				}
@@ -384,8 +387,8 @@ public class SprinklerDrawing {
 			tempSecondSprinklerLine.setVisible(false);
 			tempSprinklerHeadCircle.setVisible(false);
 			tempSprinklerSprinklingCircle.setVisible(false);
-			angleInput.setVisible(false);
-			angleInput.setText("");
+			canvasPane.getDrawingInputField().setVisible(false);
+			canvasPane.getDrawingInputField().setText("");
 			canvasPane.setSprinklerAttributesSet(false);
 			clearTempSprinklersInALine(canvasPane);
 		} catch (Exception ex) {
@@ -590,7 +593,12 @@ public class SprinklerDrawing {
 
 	public static void showTempSprinklingCircle(MouseEvent e, CanvasPane canvasPane) {
 		try {
-			if (drawingState == SprinklerDrawingState.CENTER) {
+			boolean isInsideCanvasPane = false;
+			Point2D actualPoint = new Point2D(e.getX(), e.getY());
+			Point2D corrected = Common.mouseEventWithinBounds(actualPoint);
+			if(actualPoint.distance(corrected)== 0)
+				isInsideCanvasPane = true;
+			if (drawingState == SprinklerDrawingState.CENTER && isInsideCanvasPane) {
 				tempSprinklerSprinklingCircle.setStroke(CanvasPane.getTempLineColor());
 				tempSprinklerSprinklingCircle.setFill((Color.TRANSPARENT));
 				tempSprinklerSprinklingCircle.setCenterX(e.getX());

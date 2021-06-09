@@ -1,52 +1,83 @@
 package application;
 
+import javafx.geometry.Bounds;
+import javafx.geometry.Point2D;
+import javafx.geometry.Pos;
+import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ScrollPane;
-import javafx.scene.transform.Scale;
+import javafx.scene.layout.VBox;
 
 /**
  * A custom scrollpane whose content can be zoomed by scrolling. Scrolling can
  * be done with the scrollbars
  * 
- * @author Gacs Katalin
+ * @author Daniel Hári https://stackoverflow.com/a/44314455/10436001 
  *
  */
 public class ZoomableScrollPane extends ScrollPane {
+    private double scaleValue = 0.7;
+    private double zoomIntensity = 0.02;
+    private Node target;
+    private Node zoomNode;
 
-	Scale scale;
+    public ZoomableScrollPane(Node target) {
+        super();
+        this.target = target;
+        this.zoomNode = new Group(target);
+        setContent(outerNode(zoomNode));
 
-	double scaleValue = 1;
-	double zoomIntensity = 0.03;
+        setPannable(true);
+        setFitToHeight(true); //center
+        setFitToWidth(true); //center
 
-	public ZoomableScrollPane(Node content) {
-		super();
-		try {
-			setContent(content);
+        updateScale();
+    }
 
-			scale = new Scale(scaleValue, scaleValue, 0, 0);
-			content.getTransforms().add(scale);
+    private Node outerNode(Node node) {
+        Node outerNode = centeredNode(node);
+        outerNode.setOnScroll(e -> {
+            e.consume();
+            onScroll(e.getTextDeltaY(), new Point2D(e.getX(), e.getY()));
+        });
+        return outerNode;
+    }
 
-			content.setOnScroll(e -> {
-				if (e.getDeltaY() < 0)
-					scaleValue -= zoomIntensity;
-				else
-					scaleValue += zoomIntensity;
-				zoomTo(scaleValue);
-				e.consume();
-			});
-		} catch (Exception ex) {
-			utilities.Error.HandleException(ex);
-		}
-	}
+    private Node centeredNode(Node node) {
+        VBox vBox = new VBox(node);
+        vBox.setAlignment(Pos.CENTER);
+        return vBox;
+    }
 
-	public void zoomTo(double scaleValue) {
-		try {
-			this.scaleValue = scaleValue;
-			scale.setX(scaleValue);
-			scale.setY(scaleValue);
-		} catch (Exception ex) {
-			utilities.Error.HandleException(ex);
-		}
-	}
+    private void updateScale() {
+        target.setScaleX(scaleValue);
+        target.setScaleY(scaleValue);
+    }
 
+    private void onScroll(double wheelDelta, Point2D mousePoint) {
+        double zoomFactor = Math.exp(wheelDelta * zoomIntensity);
+
+        Bounds innerBounds = zoomNode.getLayoutBounds();
+        Bounds viewportBounds = getViewportBounds();
+
+        // calculate pixel offsets from [0, 1] range
+        double valX = this.getHvalue() * (innerBounds.getWidth() - viewportBounds.getWidth());
+        double valY = this.getVvalue() * (innerBounds.getHeight() - viewportBounds.getHeight());
+
+        scaleValue = scaleValue * zoomFactor;
+        updateScale();
+        this.layout(); // refresh ScrollPane scroll positions & target bounds
+
+        // convert target coordinates to zoomTarget coordinates
+        Point2D posInZoomTarget = target.parentToLocal(zoomNode.parentToLocal(mousePoint));
+
+        // calculate adjustment of scroll position (pixels)
+        Point2D adjustment = target.getLocalToParentTransform().deltaTransform(posInZoomTarget.multiply(zoomFactor - 1));
+
+        // convert back to [0, 1] range
+        // (too large/small values are automatically corrected by ScrollPane)
+        Bounds updatedInnerBounds = zoomNode.getBoundsInLocal();
+        this.setHvalue((valX + adjustment.getX()) / (updatedInnerBounds.getWidth() - viewportBounds.getWidth()));
+        this.setVvalue((valY + adjustment.getY()) / (updatedInnerBounds.getHeight() - viewportBounds.getHeight()));
+    }
 }

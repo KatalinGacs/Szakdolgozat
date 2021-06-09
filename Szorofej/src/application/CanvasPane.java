@@ -14,6 +14,7 @@ import javafx.scene.Group;
 import javafx.scene.Node;
 import javafx.scene.control.ContextMenu;
 import javafx.scene.control.MenuItem;
+import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
@@ -22,13 +23,12 @@ import javafx.scene.paint.Paint;
 import javafx.scene.shape.Circle;
 import javafx.scene.shape.Line;
 import javafx.scene.shape.Shape;
-import javafx.scene.text.Font;
 import javafx.scene.text.Text;
 import model.bean.PipeGraph;
 import model.bean.PipeGraph.Edge;
-import utilities.Common;
 import model.bean.SprinklerShape;
 import model.bean.Zone;
+import utilities.Common;
 
 /**
  * A custom layout that extends javafx.scene.layout.Pane. This is the canvas on
@@ -259,6 +259,8 @@ public class CanvasPane extends Pane {
 	 */
 	private boolean dirty = false;
 
+	private TextField drawingInputField;
+
 	/**
 	 * Create the CanvasPane. Add the layers and other child items to it. Draw a
 	 * grid on it. Set the helper shapes, input fields etc. to be invisible.
@@ -305,23 +307,13 @@ public class CanvasPane extends Pane {
 			focusCircle.setStrokeWidth(strokeWidth);
 			focusCircle.setFill(Color.TRANSPARENT);
 
-			SprinklerDrawing.angleInput.setVisible(false);
-			SprinklerDrawing.angleInput.setMaxWidth(70);
-			SprinklerDrawing.angleInput.setFont(Font.font(20));
-			SprinklerDrawing.angleInput.setPromptText("Szög");
-
-			BorderDrawing.lengthInput.setVisible(false);
-			BorderDrawing.lengthInput.setMaxWidth(130);
-			BorderDrawing.lengthInput.setFont(Font.font(20));
-			BorderDrawing.lengthInput.setPromptText("Hossz (m)");
-
 			TextEditing.textField.setVisible(false);
 
 			rightClickMenu.getItems().add(delMenuItem);
 
 			getChildren().addAll(bordersLayer, sprinklerArcLayer, irrigationLayer, gridLayer, tempLineLayer,
-					pipeLineLayer, sprinklerTextLayer, /* pipeTextLayer, */ textLayer, SprinklerDrawing.angleInput,
-					BorderDrawing.lengthInput, TextEditing.textField);
+					pipeLineLayer, sprinklerTextLayer, /* pipeTextLayer, */ textLayer,  TextEditing.textField);
+
 		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
 		}
@@ -387,7 +379,7 @@ public class CanvasPane extends Pane {
 	 */
 	public void endLineDrawing() {
 		try {
-			BorderDrawing.lengthInput.setVisible(false);
+			drawingInputField.setVisible(false);
 			BorderDrawing.tempBorderLine.setVisible(false);
 			if (stateOfCanvasUse == Use.PIPEDRAWING)
 				stateOfCanvasUse = Use.PREPAREFORPIPEDRAWING;
@@ -835,6 +827,14 @@ public class CanvasPane extends Pane {
 
 	public void setPressedKey(KeyCode pressedKey) {
 		this.pressedKey = pressedKey;
+	}
+	
+	public TextField getDrawingInputField() {
+		return drawingInputField;
+	}
+
+	public void setDrawingInputField(TextField drawingInputField) {
+		this.drawingInputField = drawingInputField;
 	}
 
 }

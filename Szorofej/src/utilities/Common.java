@@ -50,7 +50,7 @@ public class Common {
 	 *         its original position, otherwise return the closest positioin at the
 	 *         border of the drawing area.
 	 */
-	public static Point2D mouseEventWithinBounds(MouseEvent e) {
+	public static Point2D mouseEventWithinBounds(Point2D e) {
 
 		double x;
 		double y;
@@ -72,6 +72,12 @@ public class Common {
 		}
 
 		return new Point2D(x, y);
+	}
+	
+	public static boolean isMouseOnCanvas(MouseEvent e) {
+		if (e.getX() <= 0 || e.getX() >= canvasWidth || e.getY() <= 0 || e.getY() >= canvasHeight) 
+			return false;
+		else return true;
 	}
 
 	/**

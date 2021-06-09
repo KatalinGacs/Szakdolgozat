@@ -12,6 +12,7 @@ import javafx.scene.control.Spinner;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TabPane.TabClosingPolicy;
+import javafx.scene.control.TextField;
 import javafx.scene.control.ToggleButton;
 import javafx.scene.control.ToggleGroup;
 import javafx.scene.control.Tooltip;
@@ -20,6 +21,7 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -30,8 +32,8 @@ import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import model.FileHandler;
 import model.bean.PipeGraph.Edge;
-import utilities.Common;
 import model.bean.SprinklerShape;
+import utilities.Common;
 
 /**
  * Layout containing the CanvasPane, a tabmenu with different options for
@@ -44,15 +46,14 @@ import model.bean.SprinklerShape;
 public class DrawingPanel extends VBox {
 
 	SprinklerController controller;
-	
+
 	private HBox toolbar = new HBox();
-	private Button newCanvas = new Button(); 
-	private Button openCanvas = new Button(); 
+	private Button newCanvas = new Button();
+	private Button openCanvas = new Button();
 	private Button saveCanvas = new Button();
-	private Button undoButton = new Button(); 
+	private Button undoButton = new Button();
 	private Button redoButton = new Button();
-	
-	
+
 	/**
 	 * TabPane with tabs for different phases of drawing.
 	 */
@@ -182,7 +183,7 @@ public class DrawingPanel extends VBox {
 	 * By choosing this button the controls to draw several sprinklers are shown in
 	 * sprinklerTab.
 	 */
-	private ToggleButton drawSeveralSprinklerOptions = new ToggleButton("Több szórófej rajzolása egy vonalra");
+	private ToggleButton drawSeveralSprinklerToggleBtn = new ToggleButton("Több szórófej rajzolása egy vonalra");
 
 	/**
 	 * When the users chooses to draw several sprinklers in a line, with this
@@ -271,6 +272,12 @@ public class DrawingPanel extends VBox {
 	private ToggleButton showTexts = new ToggleButton("Szövegek");
 
 	/**
+	 * Textfield for inputing different parameters while drawing e.g. length of a
+	 * line, extent of an arc etc.
+	 */
+	private TextField drawingInputField = new TextField();
+
+	/**
 	 * Container for general informations about the drawing e.g. scale, mouse
 	 * coordinates.
 	 */
@@ -325,6 +332,7 @@ public class DrawingPanel extends VBox {
 	/**
 	 * Create a DrawingPanel. Set the controls under the tabs and in the footer. Set
 	 * the canvasPane's action handlers.
+	 * 
 	 * @param dataController
 	 */
 	public DrawingPanel(SprinklerController dataController) {
@@ -332,69 +340,75 @@ public class DrawingPanel extends VBox {
 			controller = dataController;
 			canvasPane = new CanvasPane(controller);
 			scrollPane = new ZoomableScrollPane(canvasPane);
-			 
+
+			canvasPane.setDrawingInputField(drawingInputField);
+
 			// set the toolbar and its buttons
 			getChildren().add(toolbar);
 			toolbar.getChildren().addAll(newCanvas, openCanvas, saveCanvas, undoButton, redoButton);
-			
+
 			ImageView newImage = new ImageView(new Image(Common.getSourceFolder() + "/img/new.png"));
 			newCanvas.setGraphic(newImage);
 			newCanvas.setTooltip(new Tooltip("Új (Ctrl + N)"));
 			newCanvas.setOnAction(e -> {
 				FileHandler.newCanvas(canvasPane);
 			});
-			
+
 			ImageView openImage = new ImageView(new Image(Common.getSourceFolder() + "/img/open.png"));
 			openCanvas.setGraphic(openImage);
 			openCanvas.setTooltip(new Tooltip("Megnyitás"));
 			openCanvas.setOnAction(e -> {
 				FileHandler.loadCanvas(canvasPane, null);
 			});
-			
+
 			ImageView saveImage = new ImageView(new Image(Common.getSourceFolder() + "/img/save.png"));
 			saveCanvas.setGraphic(saveImage);
 			saveCanvas.setTooltip(new Tooltip("Mentés (Ctrl + S)"));
 			saveCanvas.setOnAction(e -> {
 				FileHandler.saveCanvas(null, canvasPane, false);
 			});
-			
-			ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));		
+
+			ImageView undoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/undo.png"));
 			undoButton.setGraphic(undoImage);
 			undoButton.setTooltip(new Tooltip("Visszavonás (Ctrl + Z)"));
 			undoButton.setOnAction(e -> {
 				UndoManager.getInstance().undo();
 			});
-			
+
 			ImageView redoImage = new ImageView(new Image(Common.getSourceFolder() + "/img/redo.png"));
 			redoButton.setGraphic(redoImage);
 			redoButton.setTooltip(new Tooltip("Újra (Ctrl + Y)"));
 			redoButton.setOnAction(e -> {
 				UndoManager.getInstance().redo();
 			});
-					
+
 			// order the tabs under the tabpane
 			getChildren().add(tabPane);
 			tabPane.getTabs().addAll(borderTab, sprinklerTab, zoneTab, miscTab);
 			tabPane.setTabClosingPolicy(TabClosingPolicy.UNAVAILABLE);
 			tabPane.setMinHeight(Common.pixelPerMeter * 2);
-			// by changing the selected tab in the tabpane the current drawing activity is disrupted
+			// by changing the selected tab in the tabpane the current drawing activity is
+			// disrupted
 			tabPane.getSelectionModel().selectedItemProperty().addListener((ov, oldTab, newTab) -> {
 				canvasPane.setStateOfCanvasUse(Use.NONE);
 				canvasPane.setSprinklerAttributesSet(false);
 				SprinklerDrawing.endSprinklerDrawing(canvasPane);
 				sprinklerInfoText.setText("");
 			});
-			
+
 			// set the elements of borderTab
 			borderTab.setContent(borderTabElements);
 			borderButtons.getToggles().addAll(borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn);
+			borderLineBtn.setTooltip(new Tooltip("Határvonal"));
+			obstacleCircleBtn.setTooltip(new Tooltip("Tereptárgy kör"));
+			obstacleCircleBtn.setTooltip(new Tooltip("Tereptárgy téglalap"));
 			borderTabElements.setAlignment(Pos.CENTER_LEFT);
 			borderTabElements.setSpacing(10);
 			borderColor.setValue(Color.LIMEGREEN);
 			borderLineWidth.setPrefWidth(70);
 			borderTabElements.getChildren().addAll(borderColorText, borderColor, borderLineWidthText, borderLineWidth,
 					borderLineBtn, obstacleRectangleBtn, obstacleCircleBtn, obstacleStrokeText, obstacleStrokeColor,
-					obstacleFillText, obstacleFillColor, textButton);	
+					obstacleFillText, obstacleFillColor, textButton);
 			borderTab.setOnSelectionChanged(e -> {
 				borderButtons.selectToggle(null);
 				canvasPane.endLineDrawing();
@@ -402,17 +416,19 @@ public class DrawingPanel extends VBox {
 
 			// set the elements of srpinklerTab
 			sprinklerTab.setContent(sprinklerTabElements);
-			sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerOptions, selectLine,
+			sprinklerTabElements.getChildren().addAll(setSprinklerBtn, drawSeveralSprinklerToggleBtn, selectLine,
 					numberOfSprinklerText, numberOfSprinklers, showSprinklers, drawSeveralSprinklers);
 			sprinklerTabElements.setAlignment(Pos.CENTER_LEFT);
+			setSprinklerBtn.setTooltip(new Tooltip("Szórófej kiválasztása"));
+			drawSeveralSprinklerToggleBtn.setTooltip(new Tooltip("Több szórófej rajzolása egy vonalra"));
 			sprinklerTabElements.setSpacing(10);
 			numberOfSprinklerText.setVisible(false);
 			numberOfSprinklers.setVisible(false);
 			showSprinklers.setVisible(false);
 			selectLine.setVisible(false);
 			drawSeveralSprinklers.setVisible(false);
-			drawSeveralSprinklerOptions.setOnAction(e -> {
-				if (drawSeveralSprinklerOptions.isSelected()) {
+			drawSeveralSprinklerToggleBtn.setOnAction(e -> {
+				if (drawSeveralSprinklerToggleBtn.isSelected()) {
 					numberOfSprinklers.setVisible(true);
 					showSprinklers.setVisible(true);
 					selectLine.setVisible(true);
@@ -426,7 +442,7 @@ public class DrawingPanel extends VBox {
 					drawSeveralSprinklers.setVisible(false);
 				}
 			});
-			
+
 			setSprinklerBtn.setOnAction(e -> {
 				canvasPane.setSprinklerAttributes();
 			});
@@ -487,7 +503,8 @@ public class DrawingPanel extends VBox {
 			showGrid.setSelected(true);
 			showArcs.setSelected(true);
 			showTexts.setSelected(true);
-			viewElements.getChildren().addAll(showGrid, showArcs, showTexts);
+			drawingInputField.setVisible(false);
+			viewElements.getChildren().addAll(showGrid, showArcs, showTexts, drawingInputField);
 			sprinklerInfoBox.getChildren().addAll(sprinklerInfoText);
 			sprinklerInfoBox.setAlignment(Pos.CENTER);
 			generalInfoBox.getChildren().addAll(generalInfoText);
@@ -497,7 +514,7 @@ public class DrawingPanel extends VBox {
 			// handle user interactions on the canvasPane
 			canvasPane.setOnMouseClicked(e -> {
 				canvasPane.requestFocus();
-				
+
 				// delete selection
 				if (canvasPane.getSelectedShape() != null) {
 					canvasPane.getSelectedShape().setStroke(canvasPane.getOriginalStrokeColorOfSelectedShape());
@@ -517,7 +534,8 @@ public class DrawingPanel extends VBox {
 						BorderDrawing.startDrawingBorder(e);
 					} else if (borderButtons.getSelectedToggle() == borderLineBtn
 							&& canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING) {
-						BorderDrawing.drawBorderLine(e, borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
+						BorderDrawing.drawBorderLine(new Point2D(e.getX(), e.getY()), borderColor.getValue(),
+								borderLineWidth.getValue(), canvasPane);
 					} else if (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING) {
 						if (addHeads.isSelected()) {
 							canvasPane.selectHeadsForZone(e, true, true);
@@ -553,11 +571,17 @@ public class DrawingPanel extends VBox {
 			});
 
 			canvasPane.setOnMouseDragged(e -> {
+				if (canvasPane.getStateOfCanvasUse() == Use.NONE) {
+					scrollPane.setPannable(true);
+				} else {
+					scrollPane.setPannable(false);
+				}
+
 				if ((canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
 						&& borderButtons.getSelectedToggle() == obstacleRectangleBtn)
 						|| (canvasPane.getStateOfCanvasUse() == Use.ZONEEDITING))
-					BorderDrawing.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-							canvasPane);
+					BorderDrawing.showtempBorderRectanlge(e, obstacleStrokeColor.getValue(),
+							obstacleFillColor.getValue(), canvasPane);
 				else if (canvasPane.getStateOfCanvasUse() == Use.BORDERDRAWING
 						&& borderButtons.getSelectedToggle() == obstacleCircleBtn)
 					BorderDrawing.showTempBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
@@ -567,8 +591,8 @@ public class DrawingPanel extends VBox {
 			canvasPane.setOnMouseReleased(e -> {
 				if (e.getButton() == MouseButton.PRIMARY) {
 					if (borderButtons.getSelectedToggle() == obstacleRectangleBtn) {
-						BorderDrawing.drawBorderRectanlge(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
-								borderLineWidth.getValue(), canvasPane);
+						BorderDrawing.drawBorderRectanlge(e, obstacleStrokeColor.getValue(),
+								obstacleFillColor.getValue(), borderLineWidth.getValue(), canvasPane);
 						canvasPane.setStateOfCanvasUse(Use.NONE);
 					} else if (borderButtons.getSelectedToggle() == obstacleCircleBtn) {
 						BorderDrawing.drawBorderCircle(e, obstacleStrokeColor.getValue(), obstacleFillColor.getValue(),
@@ -601,7 +625,7 @@ public class DrawingPanel extends VBox {
 				if (canvasPane.getStateOfCanvasUse() == Use.SPRINKLERDRAWING) {
 					SprinklerDrawing.showTempSprinklingCircle(e, canvasPane);
 				}
-				
+
 				if (canvasPane.getStateOfCanvasUse() == Use.PREPAREFORTEXTEDITING) {
 					canvasPane.setCursor(Cursor.TEXT);
 				}
@@ -706,6 +730,23 @@ public class DrawingPanel extends VBox {
 					}
 				}
 			});
+
+			canvasPane.addEventFilter(KeyEvent.KEY_PRESSED, e -> {
+				if (drawingInputField.isVisible() && canvasPane.getPressedKey().isDigitKey()) {
+					drawingInputField.requestFocus();
+				}
+			});
+
+			
+			drawingInputField.setOnKeyPressed(e -> {
+				if (e.getCode() == KeyCode.ENTER) {
+					canvasPane.requestFocus();
+					BorderDrawing.drawBorderLine(
+							new Point2D(BorderDrawing.tempBorderLine.getEndX(),
+									BorderDrawing.tempBorderLine.getEndY()),
+							borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
+				}
+			});
 			
 			// show or hide grid layer
 			showGrid.setOnAction(e -> {
@@ -728,8 +769,7 @@ public class DrawingPanel extends VBox {
 				if (showTexts.isSelected()) {
 					Common.showLayer(canvasPane.getTextLayer());
 					Common.showLayer(canvasPane.getPipeTextLayer());
-				}
-				else {
+				} else {
 					Common.hideLayer(canvasPane.getTextLayer());
 					Common.hideLayer(canvasPane.getPipeTextLayer());
 				}
@@ -738,7 +778,7 @@ public class DrawingPanel extends VBox {
 			utilities.Error.HandleException(ex);
 		}
 	}
-	
+
 	/**
 	 * Show the stage for creating zones.
 	 */
@@ -759,7 +799,8 @@ public class DrawingPanel extends VBox {
 	}
 
 	/**
-	 * Update the actual informations on the stage for creating zones according to the selected sprinklerheads.
+	 * Update the actual informations on the stage for creating zones according to
+	 * the selected sprinklerheads.
 	 */
 	private void updateZoneInfos() {
 		try {
@@ -769,7 +810,7 @@ public class DrawingPanel extends VBox {
 			utilities.Error.HandleException(ex);
 		}
 	}
-	
+
 	/**
 	 * Show the stage for drawing pipes.
 	 */
@@ -786,7 +827,8 @@ public class DrawingPanel extends VBox {
 	}
 
 	/**
-	 * When drawing several sprinklers in one line, show a preview of the sprinklers.
+	 * When drawing several sprinklers in one line, show a preview of the
+	 * sprinklers.
 	 */
 	private void showSprinklersInALine() {
 		try {

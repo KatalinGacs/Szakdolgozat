@@ -73,7 +73,7 @@ public class PipeDrawing {
 			} else {
 				BorderDrawing.startX = e.getX();
 				BorderDrawing.startY = e.getY();
-				BorderDrawing.lengthInput.setVisible(false);
+				canvasPane.getDrawingInputField().setVisible(false);
 				startVertex = new Vertex(e.getX(), e.getY(), null);
 				if (canvasPane.pipeGraphUnderEditing.getVertices().isEmpty()) {
 					canvasPane.pipeGraphUnderEditing
@@ -110,7 +110,7 @@ public class PipeDrawing {
 			startVertex = breakPointVertex;
 			BorderDrawing.startX = breakPointVertex.getX();
 			BorderDrawing.startY = breakPointVertex.getY();
-			BorderDrawing.lengthInput.setVisible(false);
+			canvasPane.getDrawingInputField().setVisible(false);
 			canvasPane.setDirty(true);
 		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
@@ -127,7 +127,7 @@ public class PipeDrawing {
 	public static void drawPipeLine(MouseEvent e, CanvasPane canvasPane) {
 		try {
 			canvasPane.setDirty(true);
-			BorderDrawing.lengthInput.setVisible(false);
+			canvasPane.getDrawingInputField().setVisible(false);
 			BorderDrawing.tempBorderLine.setVisible(false);
 			Edge line = new Edge();
 			Vertex endVertex = null;

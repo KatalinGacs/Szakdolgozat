@@ -14,6 +14,7 @@ import javafx.scene.shape.Rectangle;
 import javafx.scene.shape.Shape;
 import javafx.stage.FileChooser;
 import javafx.stage.Window;
+import utilities.Common;
 
 /**
  * Helper class for exporting the plan to an image
@@ -32,6 +33,7 @@ public class PrintHandler {
 	public static void print(Window owner, CanvasPane canvasPane) {
 
 		try {
+			Common.hideLayer(canvasPane.getTempLineLayer());
 			FileChooser fileChooser = new FileChooser();
 			fileChooser.getExtensionFilters().add(new FileChooser.ExtensionFilter("png files (*.png)", "*.png"));
 			File file = fileChooser.showSaveDialog(null);
@@ -50,7 +52,12 @@ public class PrintHandler {
 				ImageIO.write(renderedImage, "png", file);
 			}
 			canvasPane.setClip(oldClip);
-		} catch (IOException ex) {
+			
+			String[] commands = { "cmd.exe", "/c", "start", "\"DummyTitle\"", "\"" + file.getAbsolutePath() + "\""};
+			Process p = Runtime.getRuntime().exec(commands);
+			p.waitFor();
+			
+		} catch (Exception ex) {
 			utilities.Error.HandleException(ex);
 		}
 
