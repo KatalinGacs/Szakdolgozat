@@ -21,7 +21,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseButton;
-import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
@@ -739,14 +738,32 @@ public class DrawingPanel extends VBox {
 
 			
 			drawingInputField.setOnKeyPressed(e -> {
-				if (e.getCode() == KeyCode.ENTER) {
+				if (e.getCode() == KeyCode.CONTROL || e.getCode() == KeyCode.SHIFT) {
+					canvasPane.setPressedKey(e.getCode());
+				}
+				else if (e.getCode() == KeyCode.ENTER) {
 					canvasPane.requestFocus();
 					BorderDrawing.drawBorderLine(
 							new Point2D(BorderDrawing.tempBorderLine.getEndX(),
 									BorderDrawing.tempBorderLine.getEndY()),
 							borderColor.getValue(), borderLineWidth.getValue(), canvasPane);
 				}
+				else if (e.getCode() == KeyCode.ESCAPE) {
+					SprinklerDrawing.endSprinklerDrawing(canvasPane);
+					sprinklerInfoText.setText("");
+					canvasPane.endLineDrawing();
+					borderButtons.selectToggle(null);
+				}
 			});
+			
+
+			drawingInputField.addEventFilter(KeyEvent.KEY_RELEASED, e -> {
+				if (e.getCode() == KeyCode.CONTROL || e.getCode() == KeyCode.SHIFT) {
+					canvasPane.setPressedKey(null);
+					canvasPane.setCursor(Cursor.DEFAULT);
+				}
+			});
+
 			
 			// show or hide grid layer
 			showGrid.setOnAction(e -> {
